@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data a informace – 7. třída</title>
+<style>
+:root {
+  --bg:#f3f5fc; --paper:#fff; --ink:#202940; --muted:#526079;
+  --brand:#5145a6; --line:#dce1ee; --good:#176642; --bad:#9f273a;
+}
+* { box-sizing:border-box }
+body {
+  margin:0; background:var(--bg); color:var(--ink);
+  font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+header {
+  background:linear-gradient(120deg,#373078,#6755b5);
+  color:white; padding:30px max(20px,calc((100vw - 1150px)/2));
+}
+header h1 { margin:0; font-size:clamp(1.8rem,5vw,2.7rem) }
+header p { margin:8px 0 }
+header small { color:#f0edff }
+.layout {
+  max-width:1190px; margin:auto; padding:24px;
+  display:grid; grid-template-columns:250px minmax(0,1fr); gap:24px;
+}
+aside { align-self:start }
+nav { display:grid; gap:8px }
+button,input,textarea,select { font:inherit }
+button {
+  border:1px solid var(--line); border-radius:12px;
+  background:white; color:var(--ink); padding:11px 15px;
+  cursor:pointer; min-height:46px;
+}
+button:hover { border-color:var(--brand); background:#f0edff }
+button:focus-visible,input:focus-visible,textarea:focus-visible {
+  outline:3px solid #aa6200; outline-offset:3px;
+}
+button:disabled { cursor:default; opacity:.65 }
+nav button { text-align:left }
+nav button[aria-current="page"] {
+  background:var(--brand); color:white; border-color:var(--brand);
+}
+.primary { background:var(--brand); color:white; border-color:var(--brand) }
+.primary:hover { background:#3c337e; color:white }
+.card {
+  background:var(--paper); border:1px solid var(--line);
+  border-radius:18px; padding:24px; margin-bottom:18px;
+}
+h2,h3 { line-height:1.25 }
+h2 { margin-top:8px; font-size:1.8rem }
+h3 { font-size:1.15rem }
+.eyebrow {
+  color:var(--brand); font-size:.85rem; font-weight:750;
+  text-transform:uppercase; letter-spacing:.06em;
+}
+.explain { background:#eeebff; border-left:5px solid var(--brand) }
+.worksheet { background:#fff9dd; border-color:#e6d58c }
+.small { font-size:.9rem; color:var(--muted) }
+.options { display:grid; gap:9px }
+.option {
+  display:flex; gap:12px; align-items:flex-start;
+  border:1px solid var(--line); border-radius:10px;
+  padding:12px; cursor:pointer;
+}
+.option:hover { background:#f6f4ff }
+.option input { margin-top:7px; flex-shrink:0 }
+input[type="text"],textarea {
+  display:block; width:100%; border:1px solid #a7b0c4;
+  border-radius:10px; padding:12px; margin:9px 0 13px;
+  color:var(--ink); background:white;
+}
+textarea { min-height:115px; resize:vertical }
+.feedback { margin:12px 0 0; min-height:1.6em }
+.good { color:var(--good); font-weight:650 }
+.bad { color:var(--bad); font-weight:650 }
+.row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
+.output {
+  white-space:pre-wrap; overflow-wrap:anywhere;
+  background:#f0f3fa; border-radius:10px; padding:14px;
+  min-height:52px;
+}
+progress { width:100%; height:16px; accent-color:var(--brand) }
+details { margin-top:14px }
+summary { cursor:pointer; color:var(--brand); font-weight:650 }
+.table-wrap { overflow:auto; max-height:320px; margin-top:12px }
+table { width:100%; border-collapse:collapse }
+th,td { padding:7px 12px; border-bottom:1px solid var(--line); text-align:left }
+th { background:#efedf8 }
+#chain { padding-left:26px }
+#chain li { padding:5px }
+footer { max-width:1190px; margin:0 auto; padding:0 24px 30px }
+@media(max-width:800px) {
+  .layout { grid-template-columns:1fr; padding:15px }
+  nav { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  nav button { font-size:.9rem; padding:10px }
+  .card { padding:18px }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>INFORMATIKA · 7. TŘÍDA</div>
+  <h1>Data a informace</h1>
+  <p>Prozkoumej → Vyzkoušej → Zapiš do pracovního listu</p>
+  <small>Bez časového limitu. Chyba je příležitost zjistit něco nového.</small>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="card">
+      <strong id="score">Tvůj postup</strong>
+      <progress id="progress" value="0" max="1"
+        aria-label="Počet správně vyřešených úkolů"></progress>
+      <div class="small">Za každý vyřešený úkol získáš jeden bod.
+        Opakování body neodebírá.</div>
+    </div>
+    <nav id="nav" aria-label="Výukové kapitoly"></nav>
+    <div class="row">
+      <button id="download">Stáhnout zápisky</button>
+      <button id="reset">Vymazat můj postup</button>
+    </div>
+    <p class="small" id="storageNotice" role="status"></p>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<footer class="small">
+  Podpora pracovního listu, strany 6–14.
+  Zápisky se nikam neodesílají. Na sdíleném počítači je po práci stáhni
+  a vymaž svůj postup. Ukládání může být omezené nastavením prohlížeče.
+</footer>
+
+<script>
+"use strict";
+
+const chapters = [
+  {
+    title:"Data a informace", pages:"6",
+    intro:"Data jsou zaznamenané údaje: například čísla, text, obrázky nebo zvuky. Informaci získáváme, když údaje vyložíme v určitém kontextu. Samotné číslo 23 nám například neříká, co bylo měřeno.",
+    example:"23 → teplota vzduchu ve třídě je 23 °C. Kontext doplnil, čeho se údaj týká a v jaké je jednotce.",
+    questions:[
+      {
+        q:"Na lístku je pouze „23“. Co může údaj znamenat?",
+        options:["Určitě venkovní teplotu.","Věk, počet, teplotu i něco jiného.","Vždy číslo domu."],
+        correct:1,
+        why:"Bez dalšího kontextu nemůžeme určit, co číslo označuje."
+      },
+      {
+        q:"Které sdělení nejpřesněji popisuje měření teploty?",
+        options:["Je docela teplo.","23","Ve třídě jsme v 10 hodin naměřili 23 °C."],
+        correct:2,
+        why:"Známe naměřenou hodnotu, jednotku, místo i čas."
+      },
+      {
+        q:"Proč může červený kruh na různých místech znamenat něco jiného?",
+        options:["Význam závisí na kontextu a dohodnutých pravidlech.","Červená barva nemůže nic sdělovat.","Každý červený kruh znamená zákaz vstupu."],
+        correct:0,
+        why:"Barevný tvar sám o sobě nemusí mít stejný význam jako světlo semaforu nebo součást značky."
+      }
+    ],
+    note:"Vymysli vlastní údaj a doplň kontext, díky kterému z něj získáš informaci. Nepoužívej příklad s teplotou."
+  },
+  {
+    title:"Kódování a symboly", pages:"7–8",
+    intro:"Kódování znamená vyjádřit zprávu pomocí určitého kódu a jeho pravidel. Dekódování znamená zprávu podle těchto pravidel přečíst a vyložit. Nejde vždy o utajování.",
+    example:"Slovní zprávu můžeme převést na obrázek. Obrázek pak příjemce vyloží zpět slovy. U výrazů tváře a smajlíků se lidé nemusí vždy shodnout na významu.",
+    questions:[
+      {
+        q:"Místo slov „Mám radost“ pošleš usměvavého smajlíka. Co provádíš?",
+        options:["Mazání dat.","Kódování zprávy pomocí symbolu.","Měření informace."],
+        correct:1,
+        why:"Slovní sdělení vyjadřuješ jinou podobou – symbolem."
+      },
+      {
+        q:"Kamarád z obrázku pozná, že má zacházet s balíkem opatrně. Co udělal?",
+        options:["Zašifroval balík.","Změnil přenosový kanál.","Dekódoval význam obrázku."],
+        correct:2,
+        why:"Převedl symbol na srozumitelný význam."
+      },
+      {
+        q:"Někdo vyloží smajlíka jinak, než jsi zamýšlel/a. Co pomůže?",
+        options:["Doplnit zprávu slovy a ověřit porozumění.","Poslat stejný symbol desetkrát.","Předpokládat, že všechny symboly jsou jednoznačné."],
+        correct:0,
+        why:"Doplnění kontextu a zpětná vazba pomáhají odstranit nedorozumění."
+      }
+    ],
+    note:"Vyber dva symboly z pracovního listu na straně 7. Popiš jejich význam. Potom navrhni vlastní symbol a vysvětli jeho pravidla."
+  },
+  {
+    title:"Standardizované kódy", pages:"8–10",
+    intro:"Standardizované kódy mají popsaná, sdílená pravidla. Díky nim mohou zprávy vytvářet a číst různí lidé nebo zařízení. Neznamená to ale, že jsou všechny značky a zápisy na celém světě úplně stejné.",
+    example:"V pracovním listu se setkáš s dopravními značkami, označením států, registračními značkami vozidel, notovým zápisem, čárovými a QR kódy i Braillovým písmem.",
+    questions:[
+      {
+        q:"Co je hlavní výhodou společných pravidel pro kód?",
+        options:["Zprávu už nikdy nikdo nemůže pochopit špatně.","Kód musí být vždy obrázek.","Různí lidé a zařízení mohou používat stejný způsob zápisu a čtení."],
+        correct:2,
+        why:"Společná pravidla usnadňují dorozumění; příjemce je ale musí znát."
+      },
+      {
+        q:"Které tvrzení o čárových kódech je správné?",
+        options:["EAN obsahuje číslice, ale jiné čárové kódy mohou obsahovat i písmena.","Každý čárový kód obsahuje jen číslice.","Čárový kód je vždy webová adresa."],
+        correct:0,
+        why:"EAN nelze zaměňovat se všemi čárovými kódy. Například GS1-128 podporuje i písmena."
+      },
+      {
+        q:"Chceš na plakát přidat kód s webovou adresou. Co zvolíš?",
+        options:["Notový zápis.","QR kód.","Registrační značku vozidla."],
+        correct:1,
+        why:"QR kód může obsahovat webovou adresu. V této aplikaci skutečný QR kód negenerujeme ani neskenujeme."
+      },
+      {
+        q:"Jak je v základní šestibodové podobě Braillova písma uspořádána buňka?",
+        options:["Šest bodů v jedné řadě.","Tři sloupce po dvou bodech.","Dva sloupce po třech bodech."],
+        correct:2,
+        why:"Různé kombinace vystouplých bodů v buňce představují znaky. Existují i osmibodové varianty."
+      },
+      {
+        q:"Co nám umožňuje notový zápis?",
+        options:["Zaznamenat hudbu pomocí dohodnutých pravidel.","Zjistit stát registrace vozidla.","Převést každý zvuk přímo na webovou adresu."],
+        correct:0,
+        why:"Noty a další hudební značky slouží k zápisu hudby."
+      },
+      {
+        q:"Co označuje kód CZ v označení státu na registrační značce?",
+        options:["Barvu vozidla.","Česko.","Jméno řidiče."],
+        correct:1,
+        why:"V tomto kontextu CZ označuje stát. Samotná písmena bez kontextu mohou být nejasná."
+      }
+    ],
+    note:"Najdi tři standardizované kódy ve škole nebo doma. U každého napiš, co sděluje a kdo nebo co jej čte. Na straně 10 rozlišuj konkrétní EAN od čárových kódů obecně."
+  },
+  {
+    title:"Přenos informace", pages:"10–11",
+    intro:"Při přenosu putuje zpráva od odesílatele k příjemci prostřednictvím komunikačního kanálu. Kód určuje podobu zprávy; kanál určuje, kudy nebo jak zpráva putuje.",
+    example:"Stejnou zprávu v morseovce můžeš přenést zvukem nebo světlem. Kód zůstává stejný, mění se způsob přenosu.",
+    questions:[
+      {
+        q:"Proč musí účastníci přenosu pomocí dohodnutých kouřových signálů znát jejich význam?",
+        options:["Protože každý kouř automaticky znamená stejné číslo.","Aby mohli signál správně zakódovat a dekódovat.","Aby nemuseli sledovat oblohu."],
+        correct:1,
+        why:"Bez znalosti pravidel příjemce neví, co určitý signál sděluje."
+      },
+      {
+        q:"Zprávu v morseovce místo pípání vyblikáš baterkou. Co se změnilo?",
+        options:["Nutně obsah zprávy.","Pořadí písmen abecedy.","Způsob přenosu, nikoli nutně kód nebo obsah."],
+        correct:2,
+        why:"Tečky a čárky lze vyjádřit krátkými a dlouhými zvuky i světelnými signály."
+      },
+      {
+        q:"Co může ztížit přenos zprávy hlasem přes třídu?",
+        options:["Hluk spolužáků.","Použití známých slov.","Ověření, že příjemce rozuměl."],
+        correct:0,
+        why:"Hluk je příklad rušení. Část zprávy kvůli němu nemusí být slyšet."
+      }
+    ],
+    note:"Navrhni přenos krátké zprávy bez telefonu. Urči odesílatele, příjemce, kód a kanál. Co může přenos narušit?"
+  },
+  {
+    title:"Morseova abeceda", pages:"11–12", lab:"morse",
+    intro:"Morseova abeceda zapisuje znaky pomocí krátkých a dlouhých signálů. Důležité jsou také mezery, aby bylo možné rozpoznat jednotlivá písmena a slova.",
+    example:"V našem textovém zápisu odděluje / písmena a // slova. Například SOS zapíšeme .../---/... . Lomítka zde pouze znázorňují oddělení znaků.",
+    questions:[
+      {
+        q:"Rozlušti .../---/... . Napiš písmena.",
+        answers:["SOS"],
+        why:"Tři tečky znamenají S, tři čárky O, poslední tři tečky znovu S."
+      },
+      {
+        q:"Co může při přenosu morseovkou způsobit problém?",
+        options:["Použití předem známého kódu.","Správné oddělení písmen.","Nerozlišitelné délky signálů nebo chybějící mezery."],
+        correct:2,
+        why:"Příjemce potřebuje odlišit tečku od čárky i hranice znaků."
+      }
+    ],
+    note:"Nejprve ručně zakóduj krátké slovo a pak ho ověř v převodníku. Napiš jednu výhodu a jedno omezení morseovky."
+  },
+  {
+    title:"Proces komunikace", pages:"12–13", lab:"communication",
+    intro:"Odesílatel zprávu zakóduje, odešle ji kanálem a příjemce ji přijme a dekóduje. Reakce příjemce poskytuje zpětnou vazbu. Při odpovědi si účastníci vymění role.",
+    example:"Eva napíše: „Sejdeme se v 15:00 u školy.“ Adam odpoví: „Platí, v 15:00 u hlavního vchodu.“ Odpověď potvrzuje přijetí a upřesňuje místo.",
+    questions:[
+      {
+        q:"Co je v příkladu s Evou a Adamem zpětná vazba?",
+        options:["Adamova odpověď.","Klávesnice telefonu.","Číslo 15 samo o sobě."],
+        correct:0,
+        why:"Reakce příjemce poskytuje odesílateli informaci o přijetí nebo pochopení zprávy."
+      },
+      {
+        q:"Chceš rodičům sdělit přesnou teplotu na táboře. Co bude nejjednoznačnější?",
+        options:["Samotný symbol slunce.","Zpráva „Na táboře jsme teď naměřili 29 °C.“","Fotografie stromu bez dalšího vysvětlení."],
+        correct:1,
+        why:"Text výslovně obsahuje hodnotu, jednotku a kontext."
+      },
+      {
+        q:"Kamarád na pozvání odpoví pouze „👍“. Co z toho bezpečně vyvodíš?",
+        options:["Určitě přijde přesně včas.","Určitě pozvání odmítá.","Reagoval, ale přesný význam může být potřeba ověřit."],
+        correct:2,
+        why:"Zpětná vazba nemusí být jednoznačná. Můžeš se doptat, zda opravdu přijde."
+      }
+    ],
+    note:"Podle rozhovoru na straně 13 urči odesílatele první zprávy, příjemce, podobu zprávy a kanál. Které sdělení by mohlo být nejednoznačné a jak bys ho upřesnil/a?"
+  },
+  {
+    title:"Znaky, čísla a ASCII", pages:"14", lab:"ascii",
+    intro:"Počítačové kódování přiřazuje znakům číselné hodnoty. V ASCII má velké A hodnotu 65 a mezera 32. Číslice jako znak není totéž co číslo: znak „7“ má v ASCII hodnotu 55.",
+    example:"AHOJ → 65 / 72 / 79 / 74. ASCII neobsahuje česká písmena jako č nebo ř. Pro širší sadu znaků se používá Unicode a jeho kódování, například UTF-8.",
+    questions:[
+      {
+        q:"Dekóduj pomocí tabulky: 65 / 72 / 79 / 74.",
+        answers:["AHOJ"],
+        why:"65 = A, 72 = H, 79 = O, 74 = J."
+      },
+      {
+        q:"Jakou desítkovou hodnotu má v ASCII mezera?",
+        answers:["32"],
+        why:"Mezera je také znak a v ASCII má hodnotu 32."
+      },
+      {
+        q:"Jakou desítkovou hodnotu má v ASCII znak „7“?",
+        answers:["55"],
+        why:"Je třeba rozlišovat číslo 7 od textového znaku „7“, jehož ASCII hodnota je 55."
+      },
+      {
+        q:"Obsahuje základní ASCII znak „ř“?",
+        options:["Ne; pro českou diakritiku potřebujeme jiné kódování.","Ano, má stejnou hodnotu jako r.","Ano, má hodnotu 32."],
+        correct:0,
+        why:"Základní ASCII českou diakritiku neobsahuje. Znak ř a znak r nejsou totožné."
+      }
+    ],
+    note:"Nejprve podle tabulky ručně zakóduj NA SAMOTE U LESA. Poté výsledek ověř převodníkem. U dekódovacích úloh na straně 14 nezapomeň na mezery a tečku."
+  },
+  {
+    title:"Závěrečné opakování", pages:"6–14",
+    intro:"Zkus propojit témata. Můžeš používat tabulky i své zápisky. Cílem není rychlost, ale porozumění.",
+    example:"Ptej se: Co zpráva znamená? Jak je zakódovaná? Kudy se přenáší? Rozumí jí příjemce? Jak získám zpětnou vazbu?",
+    questions:[
+      {
+        q:"Dva lidé mají odlišnou tabulku pro stejnou tajnou abecedu. Co hrozí?",
+        options:["Zpráva se automaticky přeloží.","Příjemce vyloží znaky jinak než odesílatel.","Nemohou žádnou zprávu odeslat."],
+        correct:1,
+        why:"Přenos může proběhnout, ale odlišná pravidla mohou vést k jinému významu."
+      },
+      {
+        q:"Co samo o sobě zaručuje standardizovaný zápis?",
+        options:["Že zpráva obsahuje pravdivé tvrzení.","Že jí každý člověk rozumí.","Že pro zápis existují společná popsaná pravidla."],
+        correct:2,
+        why:"Standard řeší pravidla zápisu, ne pravdivost obsahu ani znalosti příjemce."
+      },
+      {
+        q:"Dekóduj ASCII: 68 / 65 / 84 / 65.",
+        answers:["DATA"],
+        why:"68 = D, 65 = A, 84 = T, 65 = A."
+      },
+      {
+        q:"Který příklad nejlépe ukazuje ověření porozumění?",
+        options:["Příjemce vlastními slovy zopakuje, co má udělat.","Odesílatel vypne telefon.","Příjemce zprávu nečte."],
+        correct:0,
+        why:"Zopakování vlastními slovy pomáhá odhalit, zda příjemce zprávu pochopil."
+      }
+    ],
+    note:"Dokonči: Dnes jsem pochopil/a… Ještě si potřebuji procvičit… Příklad z běžného života, kde to využiji, je…"
+  }
+];
+
+const KEY = "data-informace-7-v1";
+const validIds = new Set();
+chapters.forEach((c,i) => c.questions.forEach((q,j) => validIds.add(`${i}-${j}`)));
+validIds.add("communication");
+const total = validIds.size;
+let state = { done:[], notes:{} };
+let storageAvailable = true;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (saved && typeof saved === "object") {
+    state.done = [...new Set(
+      Array.isArray(saved.done) ? saved.done.filter(x => validIds.has(x)) : []
+    )];
+    chapters.forEach((c,i) => {
+      if (typeof saved.notes?.[i] === "string") {
+        state.notes[i] = saved.notes[i].slice(0,5000);
+      }
+    });
+  }
+} catch {
+  storageAvailable = false;
+}
+
+const $ = id => document.getElementById(id);
+let current = 0;
+
+function storageMessage() {
+  $("storageNotice").textContent = storageAvailable
+    ? "Postup se ukládá pouze v tomto prohlížeči. Důležité zápisky si stáhni."
+    : "Trvalé ukládání není dostupné. Postup zůstane jen do zavření stránky; zápisky si stáhni.";
+}
+function save() {
+  if (storageAvailable) {
+    try { localStorage.setItem(KEY,JSON.stringify(state)); }
+    catch { storageAvailable = false; }
+  }
+  storageMessage();
+}
+function updateProgress() {
+  $("score").textContent = `Vyřešeno ${state.done.length} z ${total} úkolů`;
+  $("progress").max = total;
+  $("progress").value = state.done.length;
+  chapters.forEach((c,i) => {
+    const count = c.questions.filter((q,j) => state.done.includes(`${i}-${j}`)).length;
+    const extra = c.lab === "communication" ? 1 : 0;
+    const solved = count + (extra && state.done.includes("communication") ? 1 : 0);
+    $(`nav-${i}`).textContent =
+      `${i+1}. ${c.title} · ${solved}/${c.questions.length+extra}`;
+  });
+}
+function complete(id) {
+  if (!state.done.includes(id)) state.done.push(id);
+  save();
+  updateProgress();
+}
+function feedback(node,ok,text) {
+  node.className = `feedback ${ok ? "good" : "bad"}`;
+  node.textContent = `${ok ? "✓" : "Zkus to znovu:"} ${text}`;
+}
+function normalize(text) {
+  return text.trim().replace(/\s+/g," ").toUpperCase();
+}
+
+chapters.forEach((c,i) => {
+  const button = document.createElement("button");
+  button.id = `nav-${i}`;
+  button.onclick = () => render(i,true);
+  $("nav").append(button);
+});
+
+function render(index,moveFocus=false) {
+  current = index;
+  const chapter = chapters[index];
+  [...$("nav").children].forEach((button,i) => {
+    if (i === index) button.setAttribute("aria-current","page");
+    else button.removeAttribute("aria-current");
+  });
+
+  $("main").innerHTML = `
+    <section class="card">
+      <div class="eyebrow">Prozkoumej · pracovní list str. ${chapter.pages}</div>
+      <h2 id="chapterTitle" tabindex="-1">${chapter.title}</h2>
+      <p>${chapter.intro}</p>
+      <div class="card explain">${chapter.example}</div>
+    </section>
+    <section id="questions" aria-label="Procvičování"></section>
+    <section id="lab"></section>
+    <section class="card worksheet">
+      <div class="eyebrow">Zapiš do pracovního listu</div>
+      <h3>Vlastní vysvětlení</h3>
+      <p id="notePrompt">${chapter.note}</p>
+      <label for="note">Moje zápisky – nehodnotí se automaticky:</label>
+      <textarea id="note" maxlength="5000"
+        aria-describedby="notePrompt"
+        placeholder="Napiš vlastními slovy…"></textarea>
+      <div class="small">U otevřených úkolů může existovat více správných odpovědí.
+        Prober své zdůvodnění se spolužákem nebo učitelem.</div>
+    </section>
+    <div class="row">
+      <button id="previous">← Předchozí</button>
+      <button id="next" class="primary">Další kapitola →</button>
+    </div>`;
+
+  chapter.questions.forEach((question,j) => {
+    const id = `${index}-${j}`;
+    const card = document.createElement("section");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="eyebrow">Vyzkoušej · úkol ${j+1}</div>
+      <h3 id="title-${id}">${question.q}</h3>
+      <form aria-labelledby="title-${id}">
+        <div class="answer"></div>
+        <div class="row"><button class="primary" type="submit">Zkontrolovat</button></div>
+      </form>
+      <p class="feedback" role="status"></p>
+      <details><summary>Nápověda a vysvětlení</summary><p>${question.why}</p></details>`;
+
+    const answer = card.querySelector(".answer");
+    if (question.options) {
+      answer.className = "answer options";
+      answer.setAttribute("role","radiogroup");
+      answer.setAttribute("aria-labelledby",`title-${id}`);
+      question.options.forEach((option,k) => {
+        const label = document.createElement("label");
+        label.className = "option";
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `answer-${id}`;
+        radio.value = k;
+        label.append(radio,document.createTextNode(option));
+        answer.append(label);
+      });
+    } else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.maxLength = 200;
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.setAttribute("aria-labelledby",`title-${id}`);
+      answer.append(input);
+    }
+
+    const status = card.querySelector(".feedback");
+    if (state.done.includes(id)) feedback(status,true,"Tento úkol už máš vyřešený. Můžeš si ho zopakovat.");
+
+    card.querySelector("form").onsubmit = event => {
+      event.preventDefault();
+      let ok;
+      if (question.options) {
+        const selected = answer.querySelector("input:checked");
+        if (!selected) {
+          feedback(status,false,"nejprve vyber odpověď.");
+          return;
+        }
+        ok = Number(selected.value) === question.correct;
+      } else {
+        const value = answer.querySelector("input").value;
+        if (!value.trim()) {
+          feedback(status,false,"nejprve napiš odpověď.");
+          return;
+        }
+        ok = question.answers.some(a => normalize(a) === normalize(value));
+      }
+      if (ok) complete(id);
+      feedback(status,ok,ok ? question.why : "zamysli se nad kontextem nebo otevři nápovědu.");
+    };
+    $("questions").append(card);
+  });
+
+  $("note").value = state.notes[index] || "";
+  $("note").oninput = event => {
+    state.notes[index] = event.target.value;
+    save();
+  };
+  $("previous").disabled = index === 0;
+  $("next").disabled = index === chapters.length-1;
+  $("previous").onclick = () => render(index-1,true);
+  $("next").onclick = () => render(index+1,true);
+
+  if (chapter.lab === "morse") morseLab();
+  if (chapter.lab === "ascii") asciiLab();
+  if (chapter.lab === "communication") communicationLab();
+
+  updateProgress();
+  if (moveFocus) $("chapterTitle").focus();
+}
+
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const signals = [
+  ".-","-...","-.-.","-..",".","..-.","--.","....","..",".---",
+  "-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-",
+  "..-","...-",".--","-..-","-.--","--..",
+  "-----",".----","..---","...--","....-",".....",
+  "-....","--...","---..","----."
+];
+const morse = Object.fromEntries([...alphabet].map((char,i) => [char,signals[i]]));
+const inverseMorse = Object.fromEntries(Object.entries(morse).map(([a,b]) => [b,a]));
+
+function morseLab() {
+  $("lab").innerHTML = `
+    <section class="card">
+      <div class="eyebrow">Laboratoř · zkoušení bez bodování</div>
+      <h3>Převodník morseovky</h3>
+      <p>Tato zjednodušená pomůcka podporuje A–Z a 0–9.
+        Českou diakritiku při kódování odstraní, CH zapíše jako C a H.
+        Samostatný znak CH z tabulky v pracovním listu zde nepoužíváme.</p>
+      <label for="morseInput">Text nebo morseovka:</label>
+      <textarea id="morseInput" maxlength="1000"
+        spellcheck="false">AHOJ</textarea>
+      <p class="small">Při dekódování odděluj písmena / a slova //.
+        Příklad: .-//-... znamená dvě slova A B.</p>
+      <div class="row">
+        <button id="encodeMorse" class="primary">Text → morseovka</button>
+        <button id="decodeMorse">Morseovka → text</button>
+      </div>
+      <pre id="morseOutput" class="output" role="status"></pre>
+      <details>
+        <summary>Tabulka morseovky</summary>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Znak</th><th scope="col">Kód</th></tr></thead>
+            <tbody id="morseTable"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>`;
+
+  Object.entries(morse).forEach(([char,code]) => {
+    const row = document.createElement("tr");
+    for (const value of [char,code]) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    $("morseTable").append(row);
+  });
+
+  $("encodeMorse").onclick = () => {
+    const text = $("morseInput").value.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"").toUpperCase().trim().replace(/\s+/g," ");
+    if (!text) {
+      $("morseOutput").textContent = "Nejprve zadej text.";
+      return;
+    }
+    if (/[^A-Z0-9 ]/.test(text)) {
+      $("morseOutput").textContent =
+        "Použij písmena, číslice a mezery. Interpunkci tato pomůcka nepodporuje.";
+      return;
+    }
+    $("morseOutput").textContent = text.split(" ")
+      .map(word => [...word].map(char => morse[char]).join("/")).join("//");
+  };
+
+  $("decodeMorse").onclick = () => {
+    const text = $("morseInput").value.trim().replace(/\s*\/\s*/g,"/");
+    if (!text || !/^[.-]+(?:\/{1,2}[.-]+)*$/.test(text)) {
+      $("morseOutput").textContent =
+        "Použij tečky a krátké pomlčky; / mezi písmeny a // mezi slovy. Zkontroluj také začátek a konec zápisu.";
+      return;
+    }
+    const unknown = text.split(/\/+/).filter(code => !inverseMorse[code]);
+    if (unknown.length) {
+      $("morseOutput").textContent = "Neznámý kód: " + [...new Set(unknown)].join(", ");
+      return;
+    }
+    $("morseOutput").textContent = text.split("//")
+      .map(word => word.split("/").map(code => inverseMorse[code]).join("")).join(" ");
+  };
+}
+
+function asciiLab() {
+  $("lab").innerHTML = `
+    <section class="card">
+      <div class="eyebrow">Laboratoř · zkoušení bez bodování</div>
+      <h3>ASCII: znak ↔ číslo</h3>
+      <p>Pomůcka pracuje s tisknutelnými ASCII znaky a mezerou,
+        tedy s hodnotami 32–126. Rozlišuje velká a malá písmena.
+        Řídicí znaky ani českou diakritiku nepřevádí.</p>
+      <label for="asciiInput">Text nebo desítkové hodnoty ASCII:</label>
+      <textarea id="asciiInput" maxlength="1500"
+        spellcheck="false">AHOJ</textarea>
+      <p class="small">Číselné hodnoty odděluj lomítkem, čárkou nebo mezerou.</p>
+      <div class="row">
+        <button id="encodeAscii" class="primary">Text → čísla</button>
+        <button id="decodeAscii">Čísla → text</button>
+      </div>
+      <pre id="asciiOutput" class="output" role="status"></pre>
+      <details>
+        <summary>Tabulka tisknutelných ASCII znaků</summary>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Znak</th><th scope="col">Desítková hodnota</th></tr></thead>
+            <tbody id="asciiTable"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>`;
+
+  for (let code=32;code<=126;code++) {
+    const row = document.createElement("tr");
+    const charCell = document.createElement("td");
+    const codeCell = document.createElement("td");
+    charCell.textContent = code === 32 ? "mezera" : String.fromCharCode(code);
+    codeCell.textContent = code;
+    row.append(charCell,codeCell);
+    $("asciiTable").append(row);
+  }
+
+  $("encodeAscii").onclick = () => {
+    const text = $("asciiInput").value;
+    if (!text.length) {
+      $("asciiOutput").textContent = "Nejprve zadej text.";
+      return;
+    }
+    if ([...text].some(char => char.codePointAt(0)<32 || char.codePointAt(0)>126)) {
+      $("asciiOutput").textContent =
+        "Použij tisknutelné ASCII znaky bez diakritiky a bez odřádkování. Nepodporované znaky záměrně neměníme.";
+      return;
+    }
+    $("asciiOutput").textContent = [...text].map(char => char.charCodeAt(0)).join(" / ");
+  };
+
+  $("decodeAscii").onclick = () => {
+    const text = $("asciiInput").value.trim();
+    if (!/^\d+(?:(?:\s*[,/]\s*|\s+)\d+)*$/.test(text)) {
+      $("asciiOutput").textContent =
+        "Zadej celá čísla oddělená mezerou, čárkou nebo lomítkem, například 65 / 72 / 79 / 74.";
+      return;
+    }
+    const values = text.split(/[\s,/]+/).map(Number);
+    if (values.some(value => !Number.isInteger(value) || value<32 || value>126)) {
+      $("asciiOutput").textContent = "Tato pomůcka přijímá jen hodnoty 32 až 126.";
+      return;
+    }
+    $("asciiOutput").textContent = values.map(value => String.fromCharCode(value)).join("");
+  };
+}
+
+function communicationLab() {
+  const steps = [
+    "Odesílatel má zprávu",
+    "Zakódování zprávy",
+    "Přenos komunikačním kanálem",
+    "Příjem a dekódování zprávy",
+    "Zpětná vazba příjemce"
+  ];
+  let selected = [];
+  $("lab").innerHTML = `
+    <section class="card">
+      <div class="eyebrow">Vyzkoušej · úkol za jeden bod</div>
+      <h3>Sestav průběh komunikace</h3>
+      <p>V tomto příkladu příjemce na zprávu odpoví.
+        Klikáním vyber kroky ve správném pořadí.</p>
+      <div class="row" id="stepButtons"></div>
+      <ol id="chain" aria-label="Vybrané pořadí"></ol>
+      <div class="row">
+        <button id="checkChain" class="primary">Zkontrolovat pořadí</button>
+        <button id="clearChain">Začít znovu</button>
+      </div>
+      <p id="chainFeedback" class="feedback" role="status"></p>
+      <p class="small">Zpětná vazba není zaručená u každé komunikace.
+        Zde je součástí zadaného příkladu.</p>
+    </section>`;
+
+  function draw() {
+    $("stepButtons").replaceChildren();
+    $("chain").replaceChildren();
+    [2,4,0,3,1].forEach(index => {
+      const button = document.createElement("button");
+      button.textContent = steps[index];
+      button.disabled = selected.includes(index);
+      button.onclick = () => {
+        selected.push(index);
+        $("chainFeedback").textContent = "";
+        draw();
+        const next = $("stepButtons").querySelector("button:not(:disabled)");
+        (next || $("checkChain")).focus();
+      };
+      $("stepButtons").append(button);
+    });
+    selected.forEach(index => {
+      const li = document.createElement("li");
+      li.textContent = steps[index];
+      $("chain").append(li);
+    });
+  }
+
+  $("checkChain").onclick = () => {
+    const ok = selected.length === steps.length && selected.every((value,i) => value === i);
+    if (ok) complete("communication");
+    feedback($("chainFeedback"),ok,ok
+      ? "Správně. Při odpovědi se z původního příjemce stává odesílatel."
+      : "začni u odesílatele, potom zprávu zakóduj, přenes a dekóduj. Nakonec následuje reakce.");
+  };
+  $("clearChain").onclick = () => {
+    selected = [];
+    $("chainFeedback").textContent = "";
+    draw();
+  };
+  draw();
+  if (state.done.includes("communication")) {
+    feedback($("chainFeedback"),true,"Tento úkol už máš vyřešený. Můžeš si ho zopakovat.");
+  }
+}
+
+$("download").onclick = () => {
+  const lines = [
+    "DATA A INFORMACE – MOJE ZÁPISKY",
+    `Vyřešeno: ${state.done.length} z ${total} úkolů`,
+    ""
+  ];
+  chapters.forEach((chapter,i) => {
+    lines.push(
+      `${i+1}. ${chapter.title} (str. ${chapter.pages})`,
+      chapter.note,
+      state.notes[i] || "(Zatím bez zápisku.)",
+      ""
+    );
+  });
+  const blob = new Blob(["\uFEFF",lines.join("\n")],{type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "moje-zapisky-data-a-informace.txt";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+};
+
+$("reset").onclick = () => {
+  if (!confirm("Opravdu vymazat všechny body a zápisky z této aplikace? Nejdříve si můžeš zápisky stáhnout.")) return;
+  state = {done:[],notes:{}};
+  save();
+  render(0,true);
+};
+
+storageMessage();
+render(0);
+</script>
+</body>
+</html>

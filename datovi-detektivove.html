@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datoví detektivové · 8. A</title>
+<style>
+:root {
+  --ink:#182c41; --muted:#526477; --bg:#f0f5fa;
+  --primary:#225ac1; --line:#ccd8e5;
+  --good:#155b40; --good-bg:#e7f6ed;
+  --warn:#754500; --warn-bg:#fff3d9;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; color:var(--ink); background:var(--bg);
+  font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+header {
+  color:white; background:linear-gradient(120deg,#173a73,#256775);
+  padding:32px 22px;
+}
+.wrap { max-width:1040px; margin:auto; }
+header h1 { margin:4px 0; font-size:clamp(1.9rem,5vw,2.8rem); }
+header p { margin:6px 0; }
+.tag {
+  display:inline-block; padding:3px 12px; border:1px solid #9ac6dc;
+  border-radius:30px; font-size:.9rem;
+}
+main { padding:22px 18px 45px; }
+.card {
+  background:white; border:1px solid var(--line); border-radius:18px;
+  padding:clamp(18px,4vw,32px); margin:18px 0;
+  box-shadow:0 6px 20px #173a7308;
+}
+h2 { line-height:1.25; margin:0 0 16px; }
+h3 { margin:22px 0 10px; }
+p { margin:10px 0; }
+.small { font-size:.92rem; color:var(--muted); }
+.time {
+  font-size:.9rem; color:var(--primary); font-weight:700;
+  display:block; margin-bottom:8px;
+}
+nav { display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 8px; }
+button {
+  font:inherit; font-weight:650; cursor:pointer; border-radius:10px;
+  padding:10px 17px; border:1px solid var(--primary);
+  color:white; background:var(--primary);
+}
+button:hover { filter:brightness(.94); }
+button.secondary { background:white; color:var(--primary); }
+nav button {
+  flex:1 1 150px; background:white; color:var(--ink);
+  border-color:var(--line); font-size:.94rem;
+}
+nav button[aria-current="step"] {
+  color:white; background:var(--primary); border-color:var(--primary);
+}
+button:focus-visible,input:focus-visible,textarea:focus-visible,
+select:focus-visible,summary:focus-visible {
+  outline:3px solid #bc6600; outline-offset:3px;
+}
+input:not([type=radio]):not([type=checkbox]),textarea,select {
+  display:block; width:100%; font:inherit; color:var(--ink);
+  border:1px solid #8b9db0; border-radius:8px; background:white;
+  padding:10px; margin:7px 0 15px;
+}
+textarea { min-height:95px; resize:vertical; }
+input[type=radio],input[type=checkbox] {
+  width:19px; height:19px; vertical-align:middle; margin-right:8px;
+}
+label { display:block; }
+fieldset {
+  border:1px solid var(--line); border-radius:12px;
+  padding:15px; margin:18px 0; min-width:0;
+}
+legend { font-weight:700; padding:0 7px; }
+.choice {
+  display:block; padding:7px 10px; margin:5px 0;
+  background:#f4f7fb; border-radius:8px;
+}
+.note {
+  background:#eef4ff; border-left:4px solid var(--primary);
+  padding:12px 16px; border-radius:6px; margin:15px 0;
+}
+.feedback { border-radius:9px; margin-top:12px; padding:12px 15px; }
+.feedback:empty { display:none; }
+.feedback.good { background:var(--good-bg); color:var(--good); }
+.feedback.warn { background:var(--warn-bg); color:var(--warn); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; margin:12px 0; }
+caption { text-align:left; font-weight:700; margin-bottom:8px; }
+th,td { text-align:left; padding:11px; border-bottom:1px solid var(--line); }
+thead { background:#eaf0f9; }
+tbody tr:nth-child(even) { background:#f7f9fc; }
+.actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 0; }
+.step-footer {
+  display:flex; justify-content:space-between; flex-wrap:wrap;
+  gap:12px; margin-top:26px; padding-top:18px;
+  border-top:1px solid var(--line);
+}
+summary { cursor:pointer; font-weight:700; }
+details ul { padding-left:23px; }
+[hidden] { display:none !important; }
+footer { text-align:center; color:var(--muted); font-size:.9rem; margin-top:24px; }
+@media(max-width:650px) {
+  .grid { grid-template-columns:1fr; }
+  th,td { padding:8px; font-size:.94rem; }
+  nav button { flex-basis:135px; }
+}
+@media print {
+  body { background:white; font-size:11pt; }
+  header { background:white; color:black; padding:0; }
+  main { padding:0; }
+  nav,.no-print,button,details { display:none !important; }
+  .step[hidden] { display:block !important; }
+  .card { box-shadow:none; border:0; padding:12px 0; }
+  .step { break-before:page; }
+  #step-0 { break-before:auto; }
+  textarea { min-height:85px; }
+  .table-wrap { overflow:visible; }
+  tr,fieldset { break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="tag">8. A · Informatika · Data, informace a modelování</span>
+    <h1>🔎 Datoví detektivové</h1>
+    <p>Jak získávat data a co s nimi? Od počasí k vlastnímu průzkumu.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="note no-print">
+    <strong>Vaše mise:</strong> pracujte ve dvojici, zkoumejte údaje
+    a svoje závěry vždy podepřete daty. Dnes bez vzorců a funkcí!
+    <br><span class="small">Nic se neodesílá na internet.
+    Po zavření nebo obnovení stránky se vaše práce smaže.
+    Před koncem si můžete stáhnout textové shrnutí.</span>
+  </div>
+
+  <details class="card no-print">
+    <summary>Pro vyučující: plán hodiny a organizace</summary>
+    <ul>
+      <li><strong>5 minut:</strong> způsoby získávání dat.</li>
+      <li><strong>12 minut:</strong> čtení tabulky počasí a hranice závěrů.</li>
+      <li><strong>10 minut:</strong> příprava dvou dotazníkových otázek.</li>
+      <li><strong>13 minut:</strong> oslovení pěti spolužáků,
+        záznam odpovědí a vyhodnocení.</li>
+      <li><strong>5 minut:</strong> výstupní lístek a společné shrnutí.</li>
+    </ul>
+    <p>Doporučená organizace: jeden přístroj na dvojici. Při průzkumu
+      zůstane zapisovatel u přístroje a druhý žák oslovuje spolužáky.
+      Každého respondenta započítejte v rámci dotazníku jen jednou.</p>
+    <p>Pokud nezbývá čas, stačí tři respondenti. Pak společně proberte,
+      proč je potřeba závěry z tak malého průzkumu formulovat opatrně.</p>
+    <p>Údaje o počasí jsou smyšlené. U výběru dne na sport hodnoťte
+      zdůvodnění, ne shodu s jediným dnem. Tabulka neobsahuje vítr
+      ani hodinový průběh počasí a není předpovědí na příští týden.</p>
+    <p>Výukový cíl: žák rozliší způsoby získávání dat, přečte tabulku,
+      sestaví jednoduché otázky a uvede závěr i omezení svého průzkumu.</p>
+  </details>
+
+  <nav aria-label="Části výukové hodiny">
+    <button type="button" data-step="0" aria-current="step">1. Data kolem nás</button>
+    <button type="button" data-step="1">2. Počasí pod lupou</button>
+    <button type="button" data-step="2">3. Vlastní dotazník</button>
+    <button type="button" data-step="3">4. Průzkum a závěry</button>
+    <button type="button" data-step="4">5. Výstupní lístek</button>
+  </nav>
+  <p id="position" class="small no-print">Část 1 z 5 · Pracujte vlastním tempem.</p>
+
+  <section class="card step" id="step-0" aria-labelledby="title-0">
+    <span class="time">1. mise · přibližně 5 minut</span>
+    <h2 id="title-0" tabindex="-1">🧭 Data kolem nás</h2>
+    <p>Třída plánuje venkovní sportovní den.
+      <strong>Co potřebujete zjistit, než vyberete vhodné podmínky a aktivitu?</strong>
+      Nejprve si o tom minutu povídejte.</p>
+
+    <form id="sources-form">
+      <fieldset>
+        <legend>Jak jsme získali jednotlivé údaje?</legend>
+        <label for="source-temp">Teploměr ukázal 18 °C.</label>
+        <select id="source-temp" required>
+          <option value="">Vyberte způsob…</option>
+          <option value="observe">Pozorováním</option>
+          <option value="measure">Měřením</option>
+          <option value="ask">Dotazováním</option>
+        </select>
+        <label for="source-cloud">Při pohledu na oblohu jsme zaznamenali „zataženo“.</label>
+        <select id="source-cloud" required>
+          <option value="">Vyberte způsob…</option>
+          <option value="measure">Měřením</option>
+          <option value="ask">Dotazováním</option>
+          <option value="observe">Pozorováním</option>
+        </select>
+        <label for="source-sport">Spolužáci odpověděli, který sport by si vybrali.</label>
+        <select id="source-sport" required>
+          <option value="">Vyberte způsob…</option>
+          <option value="ask">Dotazováním</option>
+          <option value="observe">Pozorováním</option>
+          <option value="measure">Měřením</option>
+        </select>
+        <button type="submit">Ověřit odpovědi</button>
+        <div id="sources-feedback" class="feedback" role="status"></div>
+      </fieldset>
+    </form>
+
+    <div class="note">
+      <strong>Data</strong> jsou zaznamenané údaje, například teploty
+      naměřené v jednotlivých dnech.<br>
+      <strong>Informaci</strong> získáme, když údaje vyložíme v souvislostech:
+      „V pátek bylo v poledne tepleji než v pondělí.“
+    </div>
+    <label for="own-data">Jaká další data by se nám před sportovním dnem hodila?</label>
+    <textarea id="own-data" placeholder="Například bychom chtěli zjistit…"></textarea>
+    <div class="step-footer no-print">
+      <span>Údaj potřebuje souvislosti.</span>
+      <button type="button" data-step="1">Pokračovat k počasí →</button>
+    </div>
+  </section>
+
+  <section class="card step" id="step-1" hidden aria-labelledby="title-1">
+    <span class="time">2. mise · přibližně 12 minut</span>
+    <h2 id="title-1" tabindex="-1">🌤️ Počasí pod lupou</h2>
+    <p>Toto je <strong>modelový záznam jednoho uplynulého týdne</strong>
+      na jednom místě. Údaje jsou smyšlené, slouží k procvičování.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Počasí během pěti dnů — modelová data</caption>
+        <thead><tr>
+          <th scope="col">Den</th>
+          <th scope="col">Teplota ve 12:00</th>
+          <th scope="col">Srážky za celý den</th>
+          <th scope="col">Oblačnost ve 12:00</th>
+        </tr></thead>
+        <tbody>
+          <tr><th scope="row">Pondělí</th><td>18 °C</td><td>0 mm</td><td>Jasno</td></tr>
+          <tr><th scope="row">Úterý</th><td>20 °C</td><td>0 mm</td><td>Polojasno</td></tr>
+          <tr><th scope="row">Středa</th><td>16 °C</td><td>8 mm</td><td>Zataženo</td></tr>
+          <tr><th scope="row">Čtvrtek</th><td>17 °C</td><td>3 mm</td><td>Oblačno</td></tr>
+          <tr><th scope="row">Pátek</th><td>22 °C</td><td>0 mm</td><td>Jasno</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Řádek spojuje údaje o jednom dni. Sloupec obsahuje
+      stejný druh údaje. Všímejte si jednotek a času měření.</p>
+
+    <form id="weather-form">
+      <fieldset>
+        <legend>1. Kdy byla nejvyšší zaznamenaná polední teplota?</legend>
+        <label for="warmest">Vyberte den:</label>
+        <select id="warmest" required>
+          <option value="">Vyberte…</option>
+          <option>Pondělí</option><option>Úterý</option><option>Středa</option>
+          <option>Čtvrtek</option><option>Pátek</option>
+        </select>
+      </fieldset>
+      <fieldset>
+        <legend>2. Ve kterých dnech pršelo? Označte všechny.</legend>
+        <label class="choice"><input type="checkbox" name="rain" value="mon">Pondělí</label>
+        <label class="choice"><input type="checkbox" name="rain" value="tue">Úterý</label>
+        <label class="choice"><input type="checkbox" name="rain" value="wed">Středa</label>
+        <label class="choice"><input type="checkbox" name="rain" value="thu">Čtvrtek</label>
+        <label class="choice"><input type="checkbox" name="rain" value="fri">Pátek</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. O kolik stupňů bylo v pátek v poledne tepleji než ve středu?</legend>
+        <label for="difference">Rozdíl ve °C:</label>
+        <input id="difference" type="number" min="0" step="1" required>
+      </fieldset>
+      <fieldset>
+        <legend>4. Zjistíme z této tabulky, zda v úterý foukal vítr?</legend>
+        <label class="choice"><input type="radio" name="wind" value="yes" required>Ano</label>
+        <label class="choice"><input type="radio" name="wind" value="no">Ne</label>
+      </fieldset>
+      <button type="submit">Ověřit čtyři odpovědi</button>
+      <div id="weather-feedback" class="feedback" role="status"></div>
+    </form>
+
+    <h3>Teď rozhodujete vy</h3>
+    <label for="sport-day">Který den měl podle zaznamenaných údajů vhodné
+      podmínky pro venkovní sport? Použijte alespoň dva údaje z tabulky.</label>
+    <textarea id="sport-day" placeholder="Vybrali bychom…, protože…"></textarea>
+    <label for="weather-limit">Co dalšího byste pro rozhodnutí potřebovali vědět?</label>
+    <textarea id="weather-limit" placeholder="V tabulce nám chybí…"></textarea>
+    <details>
+      <summary>Nápověda k diskusi</summary>
+      <p>Lze zdůvodnit například pátek i úterý. Záleží také na druhu sportu.
+        Neznáme vítr ani počasí po jednotlivých hodinách.
+        Polední teplota nemusí být nejvyšší teplotou celého dne.</p>
+      <p>Tento záznam neříká, jaké počasí bude příští týden.</p>
+    </details>
+    <div class="step-footer no-print">
+      <button type="button" class="secondary" data-step="0">← Zpět</button>
+      <button type="button" data-step="2">Připravit dotazník →</button>
+    </div>
+  </section>
+
+  <section class="card step" id="step-2" hidden aria-labelledby="title-2">
+    <span class="time">3. mise · přibližně 10 minut</span>
+    <h2 id="title-2" tabindex="-1">📝 Vlastní dotazník</h2>
+    <p>Zjistěte, co by spolužáci uvítali o přestávce. Připravený návrh
+      můžete upravit nebo nahradit vlastním neosobním tématem.</p>
+    <div class="note">
+      Neptejte se na jména, kontakty, zdraví ani jiné citlivé údaje.
+      Účast je dobrovolná. Každý si vybere <strong>jednu odpověď
+      na každou otázku</strong>.
+    </div>
+    <form id="survey-design">
+      <fieldset id="design-fields">
+        <legend>Plán průzkumu</legend>
+        <label for="survey-goal">Co chceme zjistit?</label>
+        <input id="survey-goal" maxlength="220" required
+          value="Jakou náplň a prostředí přestávky by uvítali oslovení spolužáci?">
+        <label for="survey-who">Koho oslovíme? Neuvádějte jména.</label>
+        <input id="survey-who" maxlength="180" required
+          value="Pět spolužáků z 8. A.">
+
+        <div class="grid">
+          <div>
+            <label for="question-1"><strong>První otázka</strong></label>
+            <input id="question-1" maxlength="220" required
+              value="Kterou jednu aktivitu bys o přestávce nejraději zvolil/a?">
+            <label for="options-1">Možnosti — každou napište na samostatný řádek
+              (2 až 6 možností):</label>
+            <textarea id="options-1" rows="6" maxlength="700" required>Povídání se spolužáky
+Pohybová hra
+Čtení nebo kreslení
+Klidný odpočinek
+Jiná aktivita
+Nevím / nechci odpovědět</textarea>
+          </div>
+          <div>
+            <label for="question-2"><strong>Druhá otázka</strong></label>
+            <input id="question-2" maxlength="220" required
+              value="Kde bys nejraději trávil/a velkou přestávku, kdyby sis mohl/a vybrat?">
+            <label for="options-2">Možnosti — každou napište na samostatný řádek
+              (2 až 6 možností):</label>
+            <textarea id="options-2" rows="6" maxlength="700" required>Ve třídě
+Na chodbě
+Na školním dvoře
+V klidové místnosti
+Jinde
+Nevím / nechci odpovědět</textarea>
+          </div>
+        </div>
+        <h3>Kontrola před sběrem</h3>
+        <label class="choice"><input type="checkbox" required>Otázky jsou srozumitelné a každá se ptá na jednu věc.</label>
+        <label class="choice"><input type="checkbox" required>Nenavádíme k „žádoucí“ odpovědi.</label>
+        <label class="choice"><input type="checkbox" required>Možnosti dávají smysl pro výběr jedné odpovědi a nechybí „jiné“ nebo „nevím“, kde je to potřeba.</label>
+        <button type="submit">Potvrdit dotazník a začít sběr</button>
+      </fieldset>
+    </form>
+    <div id="design-feedback" class="feedback" role="status"></div>
+    <p class="small">Po potvrzení otázky uzamkneme, aby všichni odpovídali
+      na stejný dotazník. Nový dotazník můžete založit v další části;
+      dosavadní odpovědi se přitom smažou.</p>
+    <div class="step-footer no-print">
+      <button type="button" class="secondary" data-step="1">← Zpět</button>
+      <button type="button" data-step="3">Přejít k průzkumu →</button>
+    </div>
+  </section>
+
+  <section class="card step" id="step-3" hidden aria-labelledby="title-3">
+    <span class="time">4. mise · přibližně 13 minut</span>
+    <h2 id="title-3" tabindex="-1">📊 Od odpovědí k závěru</h2>
+    <div id="survey-empty" class="note">
+      Nejprve ve třetí části potvrďte vlastní dotazník.
+    </div>
+    <div id="survey-active" hidden>
+      <p id="goal-summary"></p>
+      <p>Oslovte přibližně pět spolužáků. Každého v tomto průzkumu
+        započítejte jen jednou. Nevyplňujte odpovědi za ně.</p>
+      <form id="response-form">
+        <div id="response-fields"></div>
+        <button type="submit">Zaznamenat jednoho respondenta</button>
+      </form>
+      <div id="record-feedback" class="feedback" role="status"></div>
+      <p><strong id="response-count">Počet respondentů: 0</strong></p>
+
+      <div class="actions no-print">
+        <button type="button" class="secondary" id="undo-response">Smazat poslední záznam</button>
+        <button type="button" class="secondary" id="restart-survey">Upravit dotazník a smazat sběr</button>
+      </div>
+      <h3>Souhrn odpovědí</h3>
+      <p class="small">Četnost znamená počet výskytů odpovědi.
+        Aplikace je spočítá za vás. Vy vysvětlíte, co výsledky znamenají.</p>
+      <div id="results"></div>
+    </div>
+
+    <h3>Vaše interpretace</h3>
+    <label for="finding">Co ukazují odpovědi na obě otázky? Uveďte i počty.</label>
+    <textarea id="finding" placeholder="U první otázky… U druhé otázky… Pokud je shoda, uvedeme všechny nejčastější odpovědi."></textarea>
+    <label for="conclusion">Jaký závěr můžete udělat o oslovených spolužácích?</label>
+    <textarea id="conclusion" placeholder="Mezi našimi oslovenými spolužáky…"></textarea>
+    <label for="limitation">Proč výsledek nemusí platit pro celou třídu?</label>
+    <textarea id="limitation" placeholder="Oslovili jsme jen… Výběr respondentů mohl ovlivnit…"></textarea>
+    <div class="note">
+      <strong>Pozor na příliš velký závěr:</strong> „Tři z pěti oslovených
+      zvolili pohybovou hru“ není totéž jako „Celá třída chce pohybové hry“.
+      Odpověď „nevím / nechci odpovědět“ také nevyjadřuje oblibu žádné aktivity.
+    </div>
+    <div class="step-footer no-print">
+      <button type="button" class="secondary" data-step="2">← Zpět</button>
+      <button type="button" data-step="4">Dokončit misi →</button>
+    </div>
+  </section>
+
+  <section class="card step" id="step-4" hidden aria-labelledby="title-4">
+    <span class="time">5. mise · přibližně 5 minut</span>
+    <h2 id="title-4" tabindex="-1">🎯 Výstupní lístek</h2>
+    <p>Každý nejprve řekněte vlastní odpověď. Potom společně zapište shrnutí.</p>
+    <form id="exit-form">
+      <label for="exit-method">1. Uveďte jeden způsob získávání dat a příklad.</label>
+      <textarea id="exit-method" required></textarea>
+      <label for="exit-info">2. Jakou informaci jste dnes z dat zjistili?</label>
+      <textarea id="exit-info" required></textarea>
+      <label for="exit-next">3. Co byste ještě potřebovali zjistit?</label>
+      <textarea id="exit-next" required></textarea>
+      <button type="submit">Uzavřít dnešní misi</button>
+      <div id="exit-feedback" class="feedback" role="status"></div>
+    </form>
+    <div class="note">
+      <strong>Dnešní cesta:</strong> položit otázku → získat data →
+      uspořádat je → přečíst výsledky → vyslovit závěr →
+      přiznat, co zatím nevíme.
+    </div>
+    <div class="actions no-print">
+      <button type="button" id="download">Stáhnout textové shrnutí</button>
+      <button type="button" class="secondary" id="print">Vytisknout / uložit jako PDF</button>
+    </div>
+    <p class="small">Textové shrnutí obsahuje dotazník, četnosti a vaše písemné
+      závěry. Tisk zobrazí všechny části aplikace; před uložením zkontrolujte náhled.</p>
+    <div class="step-footer no-print">
+      <button type="button" class="secondary" data-step="3">← Zpět k výsledkům</button>
+      <span>Dobrá informace stojí na dobrých datech.</span>
+    </div>
+  </section>
+  <footer>Datoví detektivové · Úvodní hodina pro 8. A · Bez vzorců a funkcí</footer>
+</main>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let survey = null;
+let responses = [];
+
+function showStep(index) {
+  document.querySelectorAll(".step").forEach((section, i) => {
+    section.hidden = i !== index;
+  });
+  document.querySelectorAll("nav button").forEach((button, i) => {
+    if (i === index) button.setAttribute("aria-current", "step");
+    else button.removeAttribute("aria-current");
+  });
+  $("position").textContent = `Část ${index + 1} z 5 · Pracujte vlastním tempem.`;
+  const heading = $("title-" + index);
+  heading.focus({preventScroll:true});
+  heading.scrollIntoView({block:"start"});
+}
+document.querySelectorAll("[data-step]").forEach(button => {
+  button.addEventListener("click", () => showStep(Number(button.dataset.step)));
+});
+
+function feedback(id, text, good) {
+  const element = $(id);
+  element.className = "feedback " + (good ? "good" : "warn");
+  element.textContent = text;
+}
+function clearFeedback(id) {
+  $(id).textContent = "";
+}
+function node(tag, text) {
+  const element = document.createElement(tag);
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+$("sources-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const checks = [
+    [$("source-temp").value === "measure", "Teplotu jsme získali měřením teploměrem."],
+    [$("source-cloud").value === "observe", "Oblačnost jsme v tomto příkladu zjišťovali pozorováním."],
+    [$("source-sport").value === "ask", "Oblíbený sport jsme zjišťovali dotazováním."]
+  ];
+  const correct = checks.filter(check => check[0]).length;
+  feedback("sources-feedback",
+    correct === 3 ? "Výborně! Rozlišili jste všechny tři způsoby získávání dat."
+    : `Správně: ${correct} ze 3. ` + checks.filter(check => !check[0]).map(check => check[1]).join(" "),
+    correct === 3);
+});
+$("sources-form").addEventListener("change", () => clearFeedback("sources-feedback"));
+
+$("weather-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const rain = Array.from(document.querySelectorAll('input[name="rain"]:checked'))
+    .map(input => input.value);
+  const wind = document.querySelector('input[name="wind"]:checked');
+  const checks = [
+    [$("warmest").value === "Pátek", "1. Pátek: ve 12:00 bylo 22 °C."],
+    [rain.length === 2 && rain.includes("wed") && rain.includes("thu"),
+      "2. Pršelo ve středu (8 mm) a ve čtvrtek (3 mm)."],
+    [Number($("difference").value) === 6, "3. Rozdíl je 22 − 16 = 6 °C."],
+    [wind && wind.value === "no", "4. Vítr v tabulce vůbec není; odpověď je Ne."]
+  ];
+  const correct = checks.filter(check => check[0]).length;
+  feedback("weather-feedback",
+    correct === 4 ? "Všechny čtyři odpovědi jsou správně! Teď zkuste svoje rozhodnutí o sportu zdůvodnit."
+    : `Správně: ${correct} ze 4. ` + checks.filter(check => !check[0]).map(check => check[1]).join(" "),
+    correct === 4);
+});
+$("weather-form").addEventListener("input", () => clearFeedback("weather-feedback"));
+
+$("survey-design").addEventListener("submit", event => {
+  event.preventDefault();
+  if (survey) return;
+  const questions = [1,2].map(i => ({
+    text: $("question-" + i).value.trim(),
+    options: $("options-" + i).value.split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+  }));
+  const goal = $("survey-goal").value.trim();
+  const who = $("survey-who").value.trim();
+  const valid = goal && who && questions.every(q =>
+    q.text && q.options.length >= 2 && q.options.length <= 6 &&
+    new Set(q.options.map(s => s.toLocaleLowerCase("cs"))).size === q.options.length
+  );
+  if (!valid) {
+    feedback("design-feedback",
+      "Vyplňte cíl, skupinu respondentů a obě otázky. Každá otázka musí mít 2 až 6 různých neprázdných možností, každou na samostatném řádku.", false);
+    return;
+  }
+  survey = {goal, who, questions};
+  responses = [];
+  $("design-fields").disabled = true;
+  feedback("design-feedback", "Dotazník je potvrzený. Otázky jsou během sběru uzamčené.", true);
+  $("survey-empty").hidden = true;
+  $("survey-active").hidden = false;
+  $("goal-summary").textContent = `Cíl: ${goal} Oslovíme: ${who}`;
+  buildResponseForm();
+  renderResults();
+  showStep(3);
+});
+
+function buildResponseForm() {
+  const container = $("response-fields");
+  container.replaceChildren();
+  survey.questions.forEach((question, qi) => {
+    const fieldset = node("fieldset");
+    fieldset.append(node("legend", question.text));
+    question.options.forEach((option, oi) => {
+      const label = node("label");
+      label.className = "choice";
+      const input = node("input");
+      input.type = "radio";
+      input.name = "answer-" + qi;
+      input.value = String(oi);
+      input.required = true;
+      label.append(input, document.createTextNode(option));
+      fieldset.append(label);
+    });
+    container.append(fieldset);
+  });
+}
+function countsFor(qi) {
+  return survey.questions[qi].options.map((_, oi) =>
+    responses.filter(response => response[qi] === oi).length);
+}
+function renderResults() {
+  const container = $("results");
+  container.replaceChildren();
+  $("response-count").textContent = "Počet respondentů: " + responses.length;
+  if (!responses.length) {
+    container.append(node("p", "Zatím nemáte žádné odpovědi. Nejprve někoho oslovte."));
+    return;
+  }
+  survey.questions.forEach((question, qi) => {
+    const counts = countsFor(qi);
+    const table = node("table");
+    table.append(node("caption", question.text));
+    const head = node("thead");
+    const hr = node("tr");
+    ["Odpověď", "Počet odpovědí"].forEach(text => {
+      const th = node("th", text);
+      th.scope = "col";
+      hr.append(th);
+    });
+    head.append(hr);
+    table.append(head);
+    const body = node("tbody");
+    question.options.forEach((option, oi) => {
+      const row = node("tr");
+      const th = node("th", option);
+      th.scope = "row";
+      row.append(th, node("td", String(counts[oi])));
+      body.append(row);
+    });
+    const total = node("tr");
+    const totalHeader = node("th", "Celkem");
+    totalHeader.scope = "row";
+    total.append(totalHeader, node("td", String(responses.length)));
+    body.append(total);
+    table.append(body);
+    const wrapper = node("div");
+    wrapper.className = "table-wrap";
+    wrapper.append(table);
+    container.append(wrapper);
+    const max = Math.max(...counts);
+    const leaders = question.options.filter((_, oi) => counts[oi] === max);
+    container.append(node("p",
+      (leaders.length > 1 ? "Shoda v nejvyšším počtu: " : "Nejčastější odpověď: ") +
+      leaders.join(" / ") + ` (${max} z ${responses.length} u každé uvedené možnosti).`));
+  });
+}
+function invalidateFinish() {
+  clearFeedback("exit-feedback");
+}
+$("response-form").addEventListener("submit", event => {
+  event.preventDefault();
+  if (!survey) return;
+  const selected = survey.questions.map((_, qi) =>
+    document.querySelector(`input[name="answer-${qi}"]:checked`));
+  if (selected.some(input => !input)) return;
+  responses.push(selected.map(input => Number(input.value)));
+  $("response-form").reset();
+  renderResults();
+  invalidateFinish();
+  feedback("record-feedback",
+    `Záznam č. ${responses.length} je uložen v této stránce. ` +
+    (responses.length >= 5 ? "Máte alespoň pět odpovědí. Můžete přejít k závěrům."
+    : "Teď oslovte dalšího spolužáka."), true);
+});
+$("undo-response").addEventListener("click", () => {
+  if (!responses.length) {
+    feedback("record-feedback", "Zatím není co mazat.", false);
+    return;
+  }
+  if (!window.confirm("Opravdu smazat posledního respondenta a obě jeho odpovědi?")) return;
+  responses.pop();
+  renderResults();
+  invalidateFinish();
+  feedback("record-feedback", "Poslední záznam byl smazán. Zkontrolujte i své písemné závěry.", true);
+});
+$("restart-survey").addEventListener("click", () => {
+  if (!window.confirm("Upravit dotazník? Smažou se všechny nasbírané odpovědi i tři závěry průzkumu.")) return;
+  survey = null;
+  responses = [];
+  $("design-fields").disabled = false;
+  $("survey-active").hidden = true;
+  $("survey-empty").hidden = false;
+  $("response-fields").replaceChildren();
+  $("results").replaceChildren();
+  ["finding","conclusion","limitation"].forEach(id => $(id).value = "");
+  ["design-feedback","record-feedback","exit-feedback"].forEach(clearFeedback);
+  showStep(2);
+});
+
+$("exit-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const ids = ["exit-method","exit-info","exit-next"];
+  if (ids.some(id => !$(id).value.trim())) {
+    feedback("exit-feedback", "Doplňte prosím všechny tři odpovědi.", false);
+    return;
+  }
+  feedback("exit-feedback",
+    "Výstupní lístek je vyplněný. Přečtěte ho druhé dvojici nebo vyučující a ověřte, zda informace odpovídají datům. Toto není automatické hodnocení správnosti. Nezapomeňte si stáhnout shrnutí!", true);
+});
+$("exit-form").addEventListener("input", invalidateFinish);
+
+function summaryText() {
+  const lines = [
+    "DATOVÍ DETEKTIVOVÉ — 8. A",
+    "Pracovní shrnutí dvojice",
+    "",
+    "DALŠÍ POTŘEBNÁ DATA",
+    $("own-data").value.trim() || "(nevyplněno)",
+    "",
+    "POČASÍ — MODELOVÁ, SMYŠLENÁ DATA",
+    "Po: 18 °C, 0 mm, jasno; Út: 20 °C, 0 mm, polojasno;",
+    "St: 16 °C, 8 mm, zataženo; Čt: 17 °C, 3 mm, oblačno;",
+    "Pá: 22 °C, 0 mm, jasno.",
+    "Teplota a oblačnost ve 12:00, srážky za celý den.",
+    "Volba dne a zdůvodnění: " + ($("sport-day").value.trim() || "(nevyplněno)"),
+    "Chybějící údaje: " + ($("weather-limit").value.trim() || "(nevyplněno)"),
+    "", "DOTAZNÍK"
+  ];
+  if (survey) {
+    lines.push("Cíl: " + survey.goal, "Koho oslovíme: " + survey.who,
+      "Počet zaznamenaných respondentů: " + responses.length);
+    survey.questions.forEach((q, qi) => {
+      lines.push("", q.text);
+      const counts = countsFor(qi);
+      q.options.forEach((option, oi) => lines.push(`- ${option}: ${counts[oi]}`));
+    });
+  } else {
+    lines.push("Dotazník zatím nebyl potvrzen. Návrh:",
+      "Cíl: " + $("survey-goal").value,
+      "Koho oslovíme: " + $("survey-who").value);
+    [1,2].forEach(i => lines.push(
+      $("question-" + i).value, $("options-" + i).value));
+  }
+  [
+    ["ZJIŠTĚNÍ","finding"],["ZÁVĚR","conclusion"],["OMEZENÍ","limitation"],
+    ["VÝSTUP: ZPŮSOB ZÍSKÁVÁNÍ DAT","exit-method"],
+    ["VÝSTUP: ZÍSKANÁ INFORMACE","exit-info"],
+    ["VÝSTUP: CO ZJISTIT DÁL","exit-next"]
+  ].forEach(([title,id]) => lines.push("", title, $(id).value.trim() || "(nevyplněno)"));
+  return lines.join("\n");
+}
+$("download").addEventListener("click", () => {
+  const blob = new Blob(["\uFEFF", summaryText()], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = node("a");
+  link.href = url;
+  link.download = "datovi-detektivove-shrnuti.txt";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+});
+$("print").addEventListener("click", () => {
+  document.querySelectorAll("textarea").forEach(area => {
+    area.style.height = "auto";
+    if (area.scrollHeight) area.style.height = area.scrollHeight + "px";
+  });
+  window.print();
+});
+</script>
+</body>
+</html>
