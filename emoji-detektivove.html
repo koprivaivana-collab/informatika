@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emoji detektivové</title>
+
+  <style>
+    :root {
+      --purple: #58449c;
+      --purple-dark: #3e3179;
+      --purple-light: #f0edff;
+      --yellow: #fff6cc;
+      --green: #216b46;
+      --green-light: #e9f8ed;
+      --red: #a22e42;
+      --red-light: #fff0f3;
+      --orange: #805d00;
+      --orange-light: #fff8d8;
+      --ink: #20243a;
+      --muted: #586078;
+      --line: #d8dbea;
+      --paper: #ffffff;
+      --background: #f5f6fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--background);
+      font: 17px/1.5 system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    header {
+      padding: 30px 20px;
+      color: white;
+      background: linear-gradient(125deg, #39306e, #765bc3);
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3rem);
+    }
+
+    header p {
+      margin: 8px 0 0;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: auto;
+      padding: 22px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+    }
+
+    hr {
+      margin: 20px 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .card {
+      margin-bottom: 20px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: 0 2px 8px rgb(30 35 60 / 5%);
+    }
+
+    .intro {
+      border-color: #ead581;
+      background: var(--yellow);
+    }
+
+    .teacher {
+      border-color: #afd6bd;
+      background: #eef9f1;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .step {
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--purple-light);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--purple);
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .score-box {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #faf9ff;
+      text-align: center;
+    }
+
+    .score-box strong {
+      display: block;
+      color: var(--purple);
+      font-size: 1.45rem;
+    }
+
+    .challenge {
+      margin: 16px 0;
+      padding: 15px;
+      border: 2px solid #ead581;
+      border-radius: 12px;
+      background: var(--yellow);
+    }
+
+    .challenge strong {
+      color: #765700;
+    }
+
+    .timer {
+      margin: 16px 0;
+      padding: 13px;
+      border-radius: 12px;
+      color: #263052;
+      background: #e9f2ff;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 750;
+    }
+
+    .timer.warning {
+      color: #8a2d20;
+      background: #ffe3dc;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: 0.65;
+      }
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: 700;
+    }
+
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      margin-top: 6px;
+      padding: 12px;
+      border: 1px solid #a8aec2;
+      border-radius: 10px;
+      color: var(--ink);
+      background: white;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+    }
+
+    button {
+      min-height: 44px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: white;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--purple);
+      background: var(--purple-light);
+    }
+
+    button:focus-visible,
+    textarea:focus-visible,
+    input:focus-visible {
+      outline: 3px solid #d98800;
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .primary {
+      color: white;
+      border-color: var(--purple);
+      background: var(--purple);
+    }
+
+    .primary:hover {
+      color: white;
+      border-color: var(--purple-dark);
+      background: var(--purple-dark);
+    }
+
+    .danger {
+      color: #842437;
+      border-color: #e1aeb8;
+      background: var(--red-light);
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .emoji-button {
+      min-height: 54px;
+      padding: 4px;
+      font-size: 30px;
+    }
+
+    .message-box {
+      min-height: 95px;
+      margin-top: 12px;
+      padding: 16px;
+      overflow-wrap: anywhere;
+      border: 2px dashed #b8b2dc;
+      border-radius: 14px;
+      background: #faf9ff;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      letter-spacing: 3px;
+    }
+
+    .controls,
+    .points-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .hidden-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 170px;
+      padding: 20px;
+      border: 2px dashed #b8b2dc;
+      border-radius: 14px;
+      color: var(--purple);
+      background: #faf9ff;
+      text-align: center;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 4px;
+    }
+
+    .decoded {
+      margin-top: 16px;
+      padding: 16px;
+      border-left: 5px solid var(--purple);
+      border-radius: 8px;
+      background: var(--purple-light);
+    }
+
+    .correct-button {
+      color: #155d38;
+      border-color: #9bcdae;
+      background: var(--green-light);
+    }
+
+    .partial-button {
+      color: var(--orange);
+      border-color: #e2c66c;
+      background: var(--orange-light);
+    }
+
+    .incorrect-button {
+      color: #8d2638;
+      border-color: #e1aab5;
+      background: var(--red-light);
+    }
+
+    .success {
+      color: var(--green);
+      font-weight: 750;
+    }
+
+    .warning-text {
+      color: var(--red);
+      font-weight: 750;
+    }
+
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .example {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .emoji-example {
+      margin: 8px 0;
+      font-size: 1.9rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .feedback {
+      min-height: 1.5em;
+      margin-bottom: 0;
+      font-weight: 650;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 17px;
+      }
+
+      .steps,
+      .scoreboard {
+        grid-template-columns: 1fr;
+      }
+
+      .emoji-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🕵️ Emoji detektivové</h1>
+    <p>
+      Zakóduj zprávu pomocí emoji.
+      Dokáže ji spolužák správně rozluštit?
+    </p>
+  </header>
+
+  <main>
+    <section class="card intro">
+      <h2>Jak hra funguje</h2>
+
+      <div class="steps">
+        <div class="step">
+          <strong>1. Kodér</strong>
+          Vymyslí krátkou zprávu a zakóduje ji pomocí emoji.
+        </div>
+
+        <div class="step">
+          <strong>2. Detektiv</strong>
+          Prohlédne si pouze emoji a zapíše, co podle něj zpráva znamená.
+        </div>
+
+        <div class="step">
+          <strong>3. Porovnání</strong>
+          Kodér odhalí původní zprávu a dvojice vyhodnotí výsledek.
+        </div>
+      </div>
+
+      <p class="small">
+        Cílem není napsat dlouhou zprávu. Zkus použít 3–8 emoji.
+        Zpráva by měla být dostatečně krátká, ale zároveň srozumitelná.
+      </p>
+    </section>
+
+    <section class="card" id="creator">
+      <h2>1. Kodér: vytvoř tajnou emoji zprávu</h2>
+
+      <div class="scoreboard" aria-label="Hodnocení hry">
+        <div class="score-box">
+          <strong id="score">0</strong>
+          bodů
+        </div>
+
+        <div class="score-box">
+          <strong id="round">0</strong>
+          kol
+        </div>
+
+        <div class="score-box">
+          <strong id="bestScore">0</strong>
+          nejlepší skóre
+        </div>
+
+        <div class="score-box">
+          <strong id="averageScore">0</strong>
+          průměr
+        </div>
+      </div>
+
+      <div class="controls">
+        <button type="button" id="resetScore" class="danger">
+          🗑️ Vynulovat skóre
+        </button>
+      </div>
+
+      <div class="challenge">
+        <strong>🎲 Náhodná výzva</strong>
+
+        <p id="challengeText">
+          Vymysli krátkou zprávu a zakóduj ji pomocí emoji.
+        </p>
+
+        <p class="small" id="challengeHint">
+  Pohádkové výzvy můžeš zakódovat jako děj, postavu nebo místo.
+</p>
+
+        <button type="button" id="randomChallenge">
+          Vylosovat výzvu
+        </button>
+      </div>
+
+      <div class="timer" id="timer" aria-live="polite">
+        Čas začne běžet po předání zprávy detektivovi: 90 s
+      </div>
+
+      <label for="originalMessage">
+        Co chceš opravdu sdělit?
+      </label>
+
+      <textarea
+        id="originalMessage"
+        maxlength="250"
+        placeholder="Například: Zítra se těším na výlet do lesa."
+      ></textarea>
+
+      <label>
+        Vyber emoji pro zakódování zprávy
+      </label>
+
+      <div
+        class="emoji-grid"
+        id="emojiGrid"
+        aria-label="Výběr emoji"
+      ></div>
+
+      <div
+        class="message-box"
+        id="emojiMessage"
+        aria-live="polite"
+      >
+        <span class="small">
+          Zatím jsi nevybral/a žádné emoji.
+        </span>
+      </div>
+
+      <div class="controls">
+        <button type="button" id="spaceButton">
+          ↔️ Přidat mezeru
+        </button>
+
+        <button type="button" id="removeButton">
+          ⌫ Smazat poslední
+        </button>
+
+        <button type="button" id="clearButton" class="danger">
+          Vymazat vše
+        </button>
+
+        <button type="button" id="showToDetective" class="primary">
+          Předat detektivovi →
+        </button>
+      </div>
+
+      <p class="small">
+        Tip: Emoji mohou být nejednoznačné.
+        Například 🌞 může znamenat slunce, hezké počasí, léto,
+        teplo nebo dobrou náladu.
+      </p>
+    </section>
+
+    <section class="card" id="detective" hidden>
+      <h2>2. Detektiv: rozlušti zprávu</h2>
+
+      <p>
+        Podívej se na zakódovanou zprávu.
+        Kodér se teď nesmí radit ani napovídat.
+      </p>
+
+      <div
+        class="hidden-message"
+        id="detectiveEmojiMessage"
+        aria-label="Zakódovaná emoji zpráva"
+      ></div>
+
+      <label for="guessMessage">
+        Co podle tebe zpráva znamená?
+      </label>
+
+      <textarea
+        id="guessMessage"
+        maxlength="250"
+        placeholder="Napiš svůj překlad emoji zprávy vlastními slovy."
+      ></textarea>
+
+      <div class="controls">
+        <button type="button" id="revealButton" class="primary">
+          Odhalit původní zprávu
+        </button>
+
+        <button type="button" id="newRoundButton">
+          ↻ Nové kolo
+        </button>
+      </div>
+
+      <div class="decoded" id="result" hidden>
+        <div id="resultText"></div>
+
+        <hr>
+
+        <strong>
+          Jak dobře detektiv zprávu rozluštil?
+        </strong>
+
+        <div class="points-buttons">
+          <button
+            type="button"
+            class="correct-button"
+            id="correctResult"
+          >
+            ✅ Správně +3 body
+          </button>
+
+          <button
+            type="button"
+            class="partial-button"
+            id="partialResult"
+          >
+            🟡 Částečně +1 bod
+          </button>
+
+          <button
+            type="button"
+            class="incorrect-button"
+            id="incorrectResult"
+          >
+            ❌ Nerozluštěno +0 bodů
+          </button>
+        </div>
+
+        <p
+          id="pointsFeedback"
+          class="feedback success"
+          aria-live="polite"
+        ></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Inspirace pro první kolo</h2>
+
+      <p>
+        Neopisuj je celé. Zkus si vymyslet vlastní variantu.
+      </p>
+
+      <div class="examples">
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Těším se na výlet do lesa.
+
+          <div class="emoji-example">
+            😊 🎒 🌲
+          </div>
+
+          <span class="small">
+            Možných významů může být více.
+          </span>
+        </article>
+
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Venku prší, vezmi si deštník.
+
+          <div class="emoji-example">
+            🌧️ ☔
+          </div>
+
+          <span class="small">
+            Je zpráva dostatečně jasná?
+          </span>
+        </article>
+
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Nezapomeň na oslavu a dárek.
+
+          <div class="emoji-example">
+            🎉 🎁
+          </div>
+
+          <span class="small">
+            Chybí datum nebo čas?
+          </span>
+        </article>
+
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Po škole půjdeme na zmrzlinu.
+
+          <div class="emoji-example">
+            🏫 ➡️ 🍦
+          </div>
+
+          <span class="small">
+            Co bys přidal/a pro větší přesnost?
+          </span>
+        </article>
+
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Těším se na výlet do lesa.
+
+          <div class="emoji-example">
+            😊 🎒 🌲
+          </div>
+
+          <span class="small">
+            Možných významů může být více.
+          </span>
+        </article>
+
+        <article class="example">
+          <strong>Zpráva:</strong>
+          Červená Karkulka jde lesem k babičce.
+
+          <div class="emoji-example">
+            👧 🔴 🧺 ➡️ 🌲 🏠 👵
+          </div>
+
+          <span class="small">
+            Poznali jste pohádku?
+          </span>
+        </article>
+      </div>
+    </section>
+
+    <section class="card teacher">
+      <h2>Reflexe po hře</h2>
+
+      <p>
+        Po každém kole si dvojice odpoví:
+      </p>
+
+      <ol>
+        <li>
+          Rozluštil detektiv zprávu správně nebo alespoň podobně?
+        </li>
+        <li>
+          Které emoji bylo nejvíce nejednoznačné?
+        </li>
+        <li>
+          Jaké emoji nebo slovo by zprávu zpřesnilo?
+        </li>
+        <li>
+          Co nám tato hra ukazuje o kódování a dekódování informací?
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "emoji-detektivove-game-v1";
+    const ROUND_TIME = 90;
+
+    const emojis = [
+       // Emoce
+  "😀", "😊", "😂", "😢", "😡", "😴", "🤔", "😱",
+  "😍", "😇", "🥳", "😎", "😭", "😈", "🤫", "😮",
+
+  // Lidé a pohádkové postavy
+  "👧", "👦", "👩", "👨", "👵", "👴", "👸", "🤴",
+  "🧙", "🧙‍♀️", "🧙‍♂️", "🧚", "🧚‍♀️", "🧜‍♀️",
+  "🧝", "🦸", "🦹", "👑", "🧺", "🎩",
+
+  // Zvířata
+  "🐺", "🦊", "🐻", "🐰", "🐭", "🐷", "🐸", "🐍",
+  "🐉", "🦄", "🐴", "🐱", "🐶", "🐔", "🐓",
+  "🦉", "🦅", "🦋", "🐌", "🐝", "🐟", "🦀",
+
+  // Místa a příroda
+  "🏠", "🏰", "🏯", "🌲", "🌳", "🌲", "🌿", "🌹",
+  "🌷", "🌈", "🌞", "🌙", "⭐", "🌟", "🔥",
+  "🌊", "🏔️", "🕳️", "🚪", "🌉", "🌋",
+
+  // Předměty a pohádkové předměty
+  "🎒", "🧺", "📚", "📜", "📖", "✉️", "🔑", "🗝️",
+  "🪞", "🧹", "🪄", "⚔️", "🛡️", "🏹", "🪓",
+  "💎", "💍", "👠", "🍎", "🍞", "🥕", "🍰",
+  "🍪", "🍭", "🎁", "💰", "🪙", "🔔", "🕯️",
+
+  // Činnosti a významy
+  "🚶", "🏃", "🏃‍♀️", "🏃‍♂️", "🤝", "🙌", "🙏",
+  "💬", "💭", "❤️", "💔", "😴", "🛌", "🎉",
+  "➡️", "⬅️", "⬆️", "⬇️", "❗", "❓", "✅",
+  "❌", "⚠️", "🔒", "🔓", "💥", "✨", "💫",
+
+  // Doprava a další prostředí
+  "🚲", "🚌", "🚗", "🚢", "⛵", "🚂", "✈️",
+  "🎠", "🎪", "🏫", "🏠", "🏥", "⛺"
+    ];
+
+    const challenges = [
+      "Zítra si přines učebnici.",
+      "Venku prší, vezmi si deštník.",
+      "Po škole jdeme na zmrzlinu.",
+      "Těším se na výlet.",
+      "Nezapomeň na domácí úkol.",
+      "Sejdeme se u školy.",
+      "Dnes máme test.",
+      "Přines si láhev s vodou.",
+      "Ve tři hodiny začíná trénink.",
+      "Mám narozeniny.",
+      "Jsem unavený/á a chci spát.",
+      "Mám radost z dárku.",
+      "Zavolej mi večer.",
+      "Pozor, někde je nebezpečí.",
+      "Mám hlad a chci pizzu.",
+
+       // Pohádky
+  "Červená Karkulka jde lesem k babičce.",
+  "Vlk potká Červenou Karkulku.",
+  "Vlk se převlékne za babičku.",
+  "Červená Karkulka nese babičce košík.",
+  "Popelka ztratí střevíček.",
+  "Popelka jede na ples.",
+  "Kouzelná víla promění dýni v kočár.",
+  "Princ hledá dívku podle střevíčku.",
+  "Sněhurka sní otrávené jablko.",
+  "Sedm trpaslíků najde Sněhurku.",
+  "Zlá královna se ptá zrcadla.",
+  "Perníková chaloupka stojí v lese.",
+  "Jeníček a Mařenka najdou perníkovou chaloupku.",
+  "Ježibaba uvězní Jeníčka.",
+  "Jeníček a Mařenka utečou z chaloupky.",
+  "Tři prasátka si staví domečky.",
+  "Vlk fouká na domeček.",
+  "Drak hlídá princeznu.",
+  "Rytíř zachrání princeznu.",
+  "Král hledá statečného rytíře.",
+  "Zlatovláska najde zlaté vlasy.",
+  "Kouzelná hůlka splní přání.",
+  "Princezna žije na zámku.",
+  "Čarodějka letí na koštěti.",
+  "Honza se vydá do světa.",
+  "Kouzelný prsten otevře tajné dveře."
+    ];
+
+    const emojiGrid = document.getElementById("emojiGrid");
+    const emojiMessage = document.getElementById("emojiMessage");
+    const detective = document.getElementById("detective");
+    const detectiveEmojiMessage =
+      document.getElementById("detectiveEmojiMessage");
+
+    const originalMessage =
+      document.getElementById("originalMessage");
+
+    const guessMessage =
+      document.getElementById("guessMessage");
+
+    const result =
+      document.getElementById("result");
+
+    const resultText =
+      document.getElementById("resultText");
+
+    const pointsFeedback =
+      document.getElementById("pointsFeedback");
+
+    const scoreElement =
+      document.getElementById("score");
+
+    const roundElement =
+      document.getElementById("round");
+
+    const bestScoreElement =
+      document.getElementById("bestScore");
+
+    const averageScoreElement =
+      document.getElementById("averageScore");
+
+    const timerElement =
+      document.getElementById("timer");
+
+    const challengeText =
+      document.getElementById("challengeText");
+
+    let codedMessage = [];
+    let timerId = null;
+    let timeLeft = ROUND_TIME;
+    let roundScored = false;
+
+    let gameState = loadGameState();
+
+    function loadGameState() {
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem(STORAGE_KEY)
+        );
+
+        if (saved && typeof saved === "object") {
+          return {
+            score: Number(saved.score) || 0,
+            bestScore: Number(saved.bestScore) || 0,
+            rounds: Number(saved.rounds) || 0,
+            scoredRounds: Number(saved.scoredRounds) || 0
+          };
+        }
+      } catch (error) {
+        console.warn("Uložení hry se nepodařilo načíst.", error);
+      }
+
+      return {
+        score: 0,
+        bestScore: 0,
+        rounds: 0,
+        scoredRounds: 0
+      };
+    }
+
+    function saveGameState() {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(gameState)
+        );
+      } catch (error) {
+        console.warn("Výsledky se nepodařilo uložit.", error);
+      }
+    }
+
+    function updateScoreboard() {
+      scoreElement.textContent = gameState.score;
+      roundElement.textContent = gameState.rounds;
+      bestScoreElement.textContent = gameState.bestScore;
+
+      const average = gameState.scoredRounds > 0
+        ? gameState.score / gameState.scoredRounds
+        : 0;
+
+      averageScoreElement.textContent = average.toFixed(1);
+    }
+
+    function renderEmojiMessage() {
+      if (codedMessage.length === 0) {
+        emojiMessage.innerHTML = `
+          <span class="small">
+            Zatím jsi nevybral/a žádné emoji.
+          </span>
+        `;
+        return;
+      }
+
+      emojiMessage.textContent = codedMessage.join("");
+    }
+
+    function addEmoji(emoji) {
+      codedMessage.push(emoji);
+      renderEmojiMessage();
+    }
+
+    function resetTimerDisplay() {
+      timeLeft = ROUND_TIME;
+      timerElement.textContent =
+        `Čas začne běžet po předání zprávy detektivovi: ${ROUND_TIME} s`;
+      timerElement.classList.remove("warning");
+    }
+
+    function updateTimerDisplay() {
+      timerElement.textContent = `⏱️ Zbývá ${timeLeft} s`;
+    }
+
+    function startTimer() {
+      stopTimer();
+
+      timeLeft = ROUND_TIME;
+      updateTimerDisplay();
+      timerElement.classList.remove("warning");
+
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        updateTimerDisplay();
+
+        if (timeLeft <= 10) {
+          timerElement.classList.add("warning");
+        }
+
+        if (timeLeft <= 0) {
+          stopTimer();
+
+          timerElement.textContent =
+            "⏰ Čas vypršel. Dokončete odpověď a vyhodnoťte ji.";
+
+          timerElement.classList.add("warning");
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function chooseRandomChallenge() {
+      const randomIndex = Math.floor(
+        Math.random() * challenges.length
+      );
+
+      const challenge = challenges[randomIndex];
+
+      challengeText.textContent =
+        `Zakóduj zprávu: ${challenge}`;
+
+      originalMessage.value = challenge;
+
+      codedMessage = [];
+      guessMessage.value = "";
+      detective.hidden = true;
+      result.hidden = true;
+      roundScored = false;
+
+      stopTimer();
+      resetTimerDisplay();
+      renderEmojiMessage();
+
+      originalMessage.focus();
+    }
+
+    function resetRoundInterface() {
+      document.getElementById("correctResult").disabled = false;
+      document.getElementById("partialResult").disabled = false;
+      document.getElementById("incorrectResult").disabled = false;
+
+      pointsFeedback.textContent = "";
+      result.hidden = true;
+      roundScored = false;
+    }
+
+    function addPoints(points) {
+      gameState.score += points;
+
+      if (gameState.score > gameState.bestScore) {
+        gameState.bestScore = gameState.score;
+      }
+
+      gameState.scoredRounds += 1;
+
+      saveGameState();
+      updateScoreboard();
+    }
+
+    function scoreRound(points, message) {
+      if (roundScored) {
+        pointsFeedback.textContent =
+          "Toto kolo už bylo ohodnoceno.";
+        return;
+      }
+
+      roundScored = true;
+      stopTimer();
+      addPoints(points);
+
+      const pointWord = points === 1 ? "bod" : "body";
+
+      pointsFeedback.textContent =
+        `${message} Získáváš ${points} ${pointWord}.`;
+
+      document.getElementById("correctResult").disabled = true;
+      document.getElementById("partialResult").disabled = true;
+      document.getElementById("incorrectResult").disabled = true;
+    }
+
+    function escapeHtml(text) {
+      const element = document.createElement("div");
+      element.textContent = text;
+      return element.innerHTML;
+    }
+
+    emojis.forEach((emoji) => {
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "emoji-button";
+      button.textContent = emoji;
+      button.setAttribute(
+        "aria-label",
+        `Přidat emoji ${emoji}`
+      );
+
+      button.addEventListener("click", () => {
+        addEmoji(emoji);
+      });
+
+      emojiGrid.appendChild(button);
+    });
+
+    document.getElementById("spaceButton")
+      .addEventListener("click", () => {
+        if (
+          codedMessage.length > 0 &&
+          codedMessage[codedMessage.length - 1] !== " "
+        ) {
+          codedMessage.push(" ");
+          renderEmojiMessage();
+        }
+      });
+
+    document.getElementById("removeButton")
+      .addEventListener("click", () => {
+        codedMessage.pop();
+        renderEmojiMessage();
+      });
+
+    document.getElementById("clearButton")
+      .addEventListener("click", () => {
+        stopTimer();
+
+        codedMessage = [];
+        originalMessage.value = "";
+        guessMessage.value = "";
+        challengeText.textContent =
+          "Vymysli krátkou zprávu a zakóduj ji pomocí emoji.";
+
+        detective.hidden = true;
+        result.hidden = true;
+        roundScored = false;
+
+        resetTimerDisplay();
+        renderEmojiMessage();
+        originalMessage.focus();
+      });
+
+    document.getElementById("randomChallenge")
+      .addEventListener("click", () => {
+        chooseRandomChallenge();
+      });
+
+    document.getElementById("showToDetective")
+      .addEventListener("click", () => {
+        const original = originalMessage.value.trim();
+
+        if (!original) {
+          alert(
+            "Nejprve napiš, co chceš skutečně sdělit."
+          );
+
+          originalMessage.focus();
+          return;
+        }
+
+        const visibleEmojiCount = codedMessage
+          .filter((item) => item.trim() !== "")
+          .length;
+
+        if (visibleEmojiCount < 2) {
+          alert(
+            "Vyber alespoň dvě emoji, aby měl detektiv co rozlušťovat."
+          );
+
+          return;
+        }
+
+        detectiveEmojiMessage.textContent =
+          codedMessage.join("");
+
+        detective.hidden = false;
+        result.hidden = true;
+        guessMessage.value = "";
+        roundScored = false;
+
+        gameState.rounds += 1;
+        saveGameState();
+        updateScoreboard();
+
+        startTimer();
+        resetRoundInterface();
+
+        detective.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+        guessMessage.focus();
+      });
+
+    document.getElementById("revealButton")
+      .addEventListener("click", () => {
+        const original = originalMessage.value.trim();
+        const guess = guessMessage.value.trim();
+
+        if (!guess) {
+          alert(
+            "Detektiv nejprve musí napsat svůj překlad zprávy."
+          );
+
+          guessMessage.focus();
+          return;
+        }
+
+        stopTimer();
+        result.hidden = false;
+
+        resultText.innerHTML = `
+          <p>
+            <strong>Původní zpráva kodéra:</strong><br>
+            ${escapeHtml(original)}
+          </p>
+
+          <p>
+            <strong>Detektivův překlad:</strong><br>
+            ${escapeHtml(guess)}
+          </p>
+
+          <p class="success">
+            Porovnejte oba texty. Nemusí být úplně stejné.
+            Rozhodující je, zda detektiv pochopil zamýšlený význam.
+          </p>
+
+          <p>
+            <strong>Společně rozhodněte:</strong>
+            Byla emoji zpráva jednoznačná?
+            Co byste upravili?
+          </p>
+        `;
+
+        pointsFeedback.textContent = "";
+
+        result.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+      });
+
+    document.getElementById("correctResult")
+      .addEventListener("click", () => {
+        scoreRound(
+          3,
+          "Výborně! Detektiv zprávu rozluštil správně."
+        );
+      });
+
+    document.getElementById("partialResult")
+      .addEventListener("click", () => {
+        scoreRound(
+          1,
+          "Detektiv pochopil část zprávy."
+        );
+      });
+
+    document.getElementById("incorrectResult")
+      .addEventListener("click", () => {
+        scoreRound(
+          0,
+          "Tentokrát byla zpráva příliš nejasná."
+        );
+      });
+
+    document.getElementById("newRoundButton")
+      .addEventListener("click", () => {
+        stopTimer();
+
+        codedMessage = [];
+        originalMessage.value = "";
+        guessMessage.value = "";
+
+        challengeText.textContent =
+          "Vymysli krátkou zprávu a zakóduj ji pomocí emoji.";
+
+        detective.hidden = true;
+        result.hidden = true;
+        roundScored = false;
+
+        resetTimerDisplay();
+        renderEmojiMessage();
+
+        document.getElementById("correctResult").disabled = false;
+        document.getElementById("partialResult").disabled = false;
+        document.getElementById("incorrectResult").disabled = false;
+
+        pointsFeedback.textContent = "";
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
+        originalMessage.focus();
+      });
+
+    document.getElementById("resetScore")
+      .addEventListener("click", () => {
+        const confirmed = confirm(
+          "Opravdu chceš vynulovat body, počet kol a nejlepší skóre?"
+        );
+
+        if (!confirmed) {
+          return;
+        }
+
+        gameState = {
+          score: 0,
+          bestScore: 0,
+          rounds: 0,
+          scoredRounds: 0
+        };
+
+        saveGameState();
+        updateScoreboard();
+      });
+
+    updateScoreboard();
+    resetTimerDisplay();
+    renderEmojiMessage();
+  </script>
+</body>
+</html>
