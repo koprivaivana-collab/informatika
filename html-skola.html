@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moje první webovka</title>
+<style>
+  :root {
+    font-family: system-ui, sans-serif;
+    color: #20304a;
+    background: #edf2fa;
+    line-height: 1.5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  header.app-header {
+    padding: 22px;
+    background: #243b70;
+    color: white;
+  }
+  h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); }
+  h2 { margin: 0 0 12px; font-size: 21px; }
+  p { margin: 8px 0 14px; }
+  main.app { max-width: 1450px; margin: auto; padding: 16px; }
+  button, .file-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 9px 13px;
+    border: 1px solid #b7c6de;
+    border-radius: 10px;
+    background: white;
+    color: #20304a;
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:hover, .file-button:hover { background: #e8efff; }
+  button:focus-visible, textarea:focus-visible,
+  summary:focus-visible, a:focus-visible {
+    outline: 3px solid #bd6400;
+    outline-offset: 3px;
+  }
+  .primary { background: #245cce; color: white; border-color: #245cce; }
+  .primary:hover { background: #19479f; }
+  nav, .toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+  nav { margin-bottom: 16px; }
+  nav button[aria-current="step"] { border: 3px solid #245cce; }
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .card {
+    background: white;
+    border: 1px solid #ced8e7;
+    border-radius: 15px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    min-width: 0;
+  }
+  .workspace section { min-width: 0; }
+  textarea {
+    width: 100%;
+    height: 490px;
+    resize: vertical;
+    padding: 14px;
+    border: 1px solid #93a8c5;
+    border-radius: 10px;
+    background: #111e35;
+    color: #f2f6ff;
+    font: 16px/1.6 ui-monospace, Consolas, monospace;
+    tab-size: 2;
+  }
+  iframe {
+    width: 100%;
+    height: 490px;
+    border: 1px solid #93a8c5;
+    border-radius: 10px;
+    background: white;
+  }
+  .toolbar { margin: 10px 0; }
+  .small { font-size: 14px; color: #51617a; }
+  .notice {
+    padding: 12px;
+    background: #edf4ff;
+    border-radius: 10px;
+    margin: 12px 0;
+  }
+  #feedback[data-kind="good"] { background: #e0f5e7; }
+  #feedback[data-kind="bad"] { background: #fff0df; }
+  #feedback ul { padding-left: 23px; }
+  #hint {
+    white-space: pre-wrap;
+    background: #fff4cf;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  pre {
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #f0f4fa;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  summary { cursor: pointer; padding: 10px 0; min-height: 44px; }
+  progress { width: 100%; accent-color: #167440; }
+  .bottom { margin-top: 16px; }
+  .skip {
+    position: absolute;
+    left: -10000px;
+    padding: 12px;
+    background: white;
+  }
+  .skip:focus { left: 12px; top: 12px; z-index: 5; }
+  @media (max-width: 1150px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .workspace { grid-template-columns: 1fr; }
+    main.app { padding: 8px; }
+    .card { padding: 13px; }
+    textarea { height: 380px; }
+    iframe { height: 360px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#editor">Přejít na editor</a>
+
+<header class="app-header">
+  <h1>🚀 Moje první webovka</h1>
+  <p>Od prvního nadpisu k vlastní stránce. Piš, zkoušej a objevuj.</p>
+</header>
+
+<main class="app">
+  <nav id="navigation" aria-label="Lekce"></nav>
+
+  <div class="layout">
+    <aside class="card">
+      <h2 id="lessonTitle"></h2>
+      <p id="explanation"></p>
+      <div class="notice"><b>Tvůj úkol:</b> <span id="task"></span></div>
+
+      <details id="exampleDetails">
+        <summary>Ukázka kódu</summary>
+        <pre><code id="example"></code></pre>
+        <p class="small">Ukázku uprav podle svého tématu. Nemusíš ji kopírovat doslova.</p>
+      </details>
+
+      <div class="toolbar">
+        <button id="hintButton">💡 Nápověda</button>
+        <button id="check" class="primary">Zkontrolovat úkol</button>
+      </div>
+      <p id="hint" hidden></p>
+      <div id="feedback" class="notice" role="status" aria-live="polite">
+        Začni úkolem a potom si nech řešení zkontrolovat.
+      </div>
+      <div class="toolbar">
+        <button id="previous">← Zpět</button>
+        <button id="next">Další lekce →</button>
+      </div>
+      <progress id="progress" value="0" max="8"
+                aria-label="Splněné části projektu"></progress>
+      <p id="progressText" class="small"></p>
+      <p class="small">
+        Ve všech lekcích upravuješ tutéž stránku. Dřívější prvky nemaž,
+        ale postupně je rozšiřuj. Lekce můžeš navštěvovat i opakovaně.
+      </p>
+    </aside>
+
+    <div class="card">
+      <div class="workspace">
+        <section>
+          <h2><label for="editor">✍️ Tvůj HTML kód</label></h2>
+          <p class="small">Obsah stránky piš mezi &lt;body&gt; a &lt;/body&gt;.</p>
+          <textarea id="editor" spellcheck="false"
+                    autocapitalize="off" autocomplete="off"
+                    autocorrect="off" wrap="soft"
+                    aria-describedby="editorHelp"></textarea>
+          <p id="editorHelp" class="small">
+            Tlačítka vloží text na místo kurzoru. Klávesa Tab přesune
+            zaměření na další ovládací prvek.
+          </p>
+          <div class="toolbar" id="insertTools" aria-label="Pomoc při psaní"></div>
+          <div class="toolbar">
+            <button id="undo">Vrátit poslední vložení</button>
+            <button id="refresh">Obnovit náhled</button>
+          </div>
+        </section>
+
+        <section>
+          <h2>👀 Náhled stránky</h2>
+          <p class="small">Po změně kódu se náhled automaticky aktualizuje.</p>
+          <iframe id="preview" title="Náhled žákovské stránky"
+                  sandbox="" referrerpolicy="no-referrer"></iframe>
+          <p class="small">
+            Náhled nespouští JavaScript. Odkazy jsou zde neaktivní;
+            vyzkoušíš je ve stažené stránce. Podporujeme základní HTML
+            a CSS, nikoli všechny webové prvky.
+          </p>
+          <details>
+            <summary>Obrázek pro moji stránku</summary>
+            <p class="small">
+              Značka s adresou <code>obrazek.png</code> zobrazí zdejší
+              ukázkový obrázek nebo tvůj vybraný obrázek.
+              Při exportu ho aplikace vloží přímo do HTML souboru.
+            </p>
+            <button id="insertImage">Vložit značku obrázku</button>
+            <p>
+              <label for="imageFile">Vlastní obrázek — PNG, JPEG nebo WebP:</label>
+              <input id="imageFile" type="file"
+                     accept="image/png,image/jpeg,image/webp">
+            </p>
+            <p class="small">
+              Nejvýše 2 MB. Použij vlastní obrázek nebo obrázek,
+              který smíš použít. Nevkládej citlivé fotografie.
+            </p>
+          </details>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section class="card bottom">
+    <h2>💾 Uložení a vlastní projekt</h2>
+    <p>
+      Vyber si téma: vymyšlená planeta, oblíbené zvíře, kniha nebo koníček.
+      Nepiš svou adresu, telefon ani jiné soukromé údaje.
+    </p>
+    <div class="toolbar">
+      <button id="export" class="primary">Stáhnout vlastní stránku (.html)</button>
+      <button id="backup">Uložit rozpracovaný projekt (.json)</button>
+      <button id="importButton">Načíst projekt (.json)</button>
+      <button id="reset">Nový žák / začít znovu</button>
+    </div>
+    <input id="projectFile" type="file" accept=".json,application/json" hidden>
+    <p id="saveStatus" class="small" role="status"></p>
+    <p class="small">
+      Projekt JSON slouží k pokračování na jiném zařízení.
+      HTML je hotová stránka, ne záloha celé výukové aplikace.
+      Stažení souboru stránku nezveřejní na internetu.
+      Na sdíleném zařízení před předáním smaž svůj postup.
+    </p>
+
+    <details>
+      <summary>Závěrečné otázky a poznámka pro učitele</summary>
+      <ol>
+        <li>Jaký je rozdíl mezi názvem v title a nadpisem h1?</li>
+        <li>Co se stane, když změníš pořadí prvků?</li>
+        <li>Proč má obrázek alternativní popis?</li>
+        <li>Co určuje HTML a co CSS?</li>
+        <li>Ukaž jednu vlastní změnu a vysvětli její kód.</li>
+      </ol>
+      <p class="small">
+        Kontrola hledá základní požadované prvky a jednoduché CSS deklarace.
+        Nehodnotí originalitu, kvalitu textů, kontrast ani všechny chyby
+        ve vnořování značek. Prohlížeč některé chyby sám opravuje.
+        Výsledky nejsou zabezpečeným testem.
+      </p>
+    </details>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const KEY = "moje-prvni-webovka-v1";
+const MAX_CODE = 150000;
+const MAX_PROJECT = 3000000;
+
+const starter = `<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nová stránka</title>
+</head>
+<body>
+  <!-- Tady bude obsah tvé stránky. -->
+
+</body>
+</html>`;
+
+const lessons = [
+  {
+    title: "1. Začínáme s HTML",
+    explanation: "HTML popisuje strukturu stránky. Většina prvků má počáteční a koncovou značku. Head obsahuje informace o dokumentu, body viditelný obsah. Title pojmenuje kartu prohlížeče.",
+    task: "Zvol si téma a změň text Nová stránka uvnitř title na vlastní název. Kostru dokumentu zachovej.",
+    example: "<title>Atlas dračích planet</title>",
+    hints: [
+      "Najdi řádek s <title> v horní části kódu.",
+      "Změň pouze text mezi <title> a </title>. Nadpis na samotnou stránku přidáš až v další lekci."
+    ]
+  },
+  {
+    title: "2. Nadpis a odstavec",
+    explanation: "H1 je hlavní nadpis stránky. Odstavec zapisujeme pomocí p. HTML značky vyjadřují význam obsahu, nikoli jen velikost písma.",
+    task: "Do body přidej jeden hlavní nadpis h1 a alespoň jeden neprázdný odstavec p o svém tématu.",
+    example: "<h1>Planeta Modrý drak</h1>\n<p>Na této planetě rostou svítící stromy.</p>",
+    hints: [
+      "Piš do části mezi <body> a </body>, nikoli do head.",
+      "Použij <h1>Tvůj nadpis</h1> a pod ním <p>Tvůj vlastní text.</p>."
+    ]
+  },
+  {
+    title: "3. Přehledný seznam",
+    explanation: "Ul je nečíslovaný seznam, ol číslovaný seznam. Jednotlivé položky v obou případech označujeme li.",
+    task: "Přidej seznam alespoň tří zajímavostí, věcí nebo vlastností.",
+    example: "<ul>\n  <li>Modré lesy</li>\n  <li>Dva měsíce</li>\n  <li>Létající ryby</li>\n</ul>",
+    hints: [
+      "Seznam patří do body pod dosavadní obsah.",
+      "Uvnitř <ul> a </ul> napiš alespoň tři položky, každou jako <li>Text</li>."
+    ]
+  },
+  {
+    title: "4. Odkazy",
+    explanation: "Prvek a vytváří odkaz. Atribut href obsahuje cíl odkazu. Text mezi značkami říká čtenáři, kam odkaz vede.",
+    task: "Přidej odkaz s adresou začínající https:// a s výstižným textem. V náhledu zůstane neaktivní.",
+    example: '<a href="https://example.com">Ukázkový web</a>',
+    hints: [
+      "Atribut href napiš do počáteční značky a. Adresu uzavři do uvozovek.",
+      "Použij tvar <a href=\"https://example.com\">Popis cíle</a>. Skutečnou cílovou stránku vyber s učitelem."
+    ]
+  },
+  {
+    title: "5. Obrázek a jeho popis",
+    explanation: "Img zobrazuje obrázek. Src určuje zdroj, alt poskytuje textovou alternativu. Img nemá koncovou značku. V tomto úkolu přidáváme významový, nikoli čistě ozdobný obrázek.",
+    task: "Vlož obrázek se src=\"obrazek.png\" a doplň smysluplný neprázdný alt. Můžeš použít ukázku nebo vybrat vlastní obrázek pod náhledem.",
+    example: '<img src="obrazek.png" alt="Modrá planeta mezi hvězdami" width="300">',
+    hints: [
+      "Umísti kurzor do body a použij tlačítko Vložit značku obrázku pod náhledem.",
+      "Prázdné alt=\"\" nahraď popisem toho, co obrázek sděluje. U vlastního obrázku popiš skutečně jeho obsah."
+    ]
+  },
+  {
+    title: "6. Uspořádej stránku",
+    explanation: "Header označuje úvodní část, main hlavní obsah a footer patičku. Tyto prvky pomáhají popsat strukturu dokumentu. Header není totéž jako head.",
+    task: "Přesuň h1 do header. Odstavec, seznam, odkaz a obrázek umísti do jednoho main. Přidej footer s neprázdným textem.",
+    example: "<header>\n  <h1>Název mého webu</h1>\n</header>\n<main>\n  <!-- Sem přesuň dosavadní hlavní obsah. -->\n</main>\n<footer>Vytvořeno při hodině informatiky.</footer>",
+    hints: [
+      "Všechny tři části patří dovnitř body. Dosavadní obsah nemaž, přesuň ho mezi nové značky.",
+      "Pořadí může být header, main, footer. H1 patří do header; p, seznam, odkaz a img do main."
+    ]
+  },
+  {
+    title: "7. Vzhled pomocí CSS",
+    explanation: "HTML určuje strukturu, CSS vzhled. Pravidlo CSS obsahuje výběr prvků a deklarace ve složených závorkách. Style pro tento projekt vložíme do head.",
+    task: "Do style v head přidej vlastní barvu textu, barvu pozadí a rodinu písma. Zvol dobře čitelnou kombinaci.",
+    example: "<style>\n  body {\n    color: #24324a;\n    background-color: #eef6ff;\n    font-family: sans-serif;\n    padding: 24px;\n  }\n  img { max-width: 100%; height: auto; }\n</style>",
+    hints: [
+      "Vlož <style> a </style> nad </head>. CSS pravidla patří mezi ně.",
+      "Začni ukázkou. Potom změň color a background-color. Světlý text na světlém pozadí by byl špatně čitelný."
+    ]
+  },
+  {
+    title: "8. Můj vlastní web",
+    explanation: "Teď z jednotlivých prvků vytvoř celek. Dobrá stránka má jasné téma, přehlednou strukturu a srozumitelný obsah.",
+    task: "Zachovej vše z předchozích lekcí. Do main přidej podnadpis h2 a druhý odstavec. Uprav texty podle svého tématu, zkontroluj projekt a stáhni HTML.",
+    example: "<h2>Co mě na tomto tématu baví?</h2>\n<p>Tady napiš další vlastní myšlenku.</p>",
+    hints: [
+      "Zkontroluj název, hlavní nadpis, odstavce, seznam, odkaz, obrázek, části stránky a CSS.",
+      "Po úspěšné kontrole použij Stáhnout vlastní stránku. Otevři ji samostatně a vysvětli spolužákovi tři části svého kódu."
+    ]
+  }
+];
+
+function demoImage() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 480;
+  canvas.height = 270;
+  const c = canvas.getContext("2d");
+  c.fillStyle = "#112343";
+  c.fillRect(0, 0, 480, 270);
+  c.fillStyle = "#ffffff";
+  [[40,40],[90,185],[160,60],[390,55],[430,210],[330,230]].forEach(([x,y]) => {
+    c.beginPath();
+    c.arc(x, y, 3, 0, Math.PI * 2);
+    c.fill();
+  });
+  c.fillStyle = "#5cb9ef";
+  c.beginPath();
+  c.arc(240, 135, 78, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = "#2154a8";
+  c.beginPath();
+  c.ellipse(228, 115, 48, 23, .45, 0, Math.PI * 2);
+  c.fill();
+  return canvas.toDataURL("image/png");
+}
+
+let state = { version: 1, lesson: 0, code: starter, image: demoImage() };
+let hintCount = 0;
+let timer;
+let lastInsertion = null;
+let uploadGeneration = 0;
+
+const rasterData = value =>
+  typeof value === "string" &&
+  /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(value);
+
+function validProject(value) {
+  return value && value.version === 1 &&
+    Number.isInteger(value.lesson) && value.lesson >= 0 && value.lesson < 8 &&
+    typeof value.code === "string" && value.code.length <= MAX_CODE &&
+    rasterData(value.image) && value.image.length < 2000000;
+}
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (validProject(saved)) state = saved;
+} catch (_) {}
+
+$("editor").value = state.code;
+
+// Template keeps the submitted markup inert during inspection.
+// Only explicitly supported elements are copied into the output.
+function sourceTree() {
+  const template = document.createElement("template");
+  template.innerHTML = state.code;
+  return template.content;
+}
+
+function safeLink(value) {
+  try {
+    const u = new URL(value);
+    return u.protocol === "https:" && Boolean(u.hostname) &&
+      !u.username && !u.password;
+  } catch (_) {
+    return false;
+  }
+}
+
+const permitted = new Set([
+  "header", "main", "footer", "section", "article", "nav", "aside",
+  "h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "ol", "li",
+  "a", "img", "strong", "em", "b", "i", "br", "hr", "div", "span",
+  "figure", "figcaption", "blockquote", "pre", "code"
+]);
+
+function makePage(preview = false) {
+  const source = sourceTree();
+  const doc = document.implementation.createHTMLDocument("");
+  doc.documentElement.lang = "cs";
+  doc.head.replaceChildren();
+  doc.body.replaceChildren();
+
+  function meta(attributes) {
+    const node = doc.createElement("meta");
+    for (const [name, value] of Object.entries(attributes)) {
+      node.setAttribute(name, value);
+    }
+    doc.head.append(node);
+  }
+
+  meta({ charset: "UTF-8" });
+  meta({
+    "http-equiv": "Content-Security-Policy",
+    content: "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'"
+  });
+  meta({ name: "viewport", content: "width=device-width, initial-scale=1" });
+
+  const title = doc.createElement("title");
+  title.textContent = source.querySelector("title")?.textContent || "Moje stránka";
+  doc.head.append(title);
+
+  source.querySelectorAll("style").forEach(original => {
+    const style = doc.createElement("style");
+    style.textContent = original.textContent;
+    doc.head.append(style);
+  });
+
+  function copy(node, parent) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      parent.append(doc.createTextNode(node.textContent));
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    const tag = node.localName;
+    if (["html", "body"].includes(tag)) {
+      [...node.childNodes].forEach(child => copy(child, parent));
+      return;
+    }
+    if (!permitted.has(tag)) return;
+
+    const clean = doc.createElement(tag);
+    for (const name of ["id", "class", "style", "lang"]) {
+      if (node.hasAttribute(name)) clean.setAttribute(name, node.getAttribute(name));
+    }
+
+    if (tag === "a") {
+      const href = node.getAttribute("href") || "";
+      if (!preview && (safeLink(href) || /^#[\w-]+$/.test(href))) {
+        clean.setAttribute("href", href);
+        clean.setAttribute("rel", "noreferrer");
+      }
+      if (preview) {
+        clean.setAttribute("title", "Odkaz vyzkoušej ve stažené stránce.");
+        clean.style.textDecoration = "underline";
+      }
+    }
+
+    if (tag === "img") {
+      const src = node.getAttribute("src") || "";
+      if (src === "obrazek.png") clean.setAttribute("src", state.image);
+      else if (rasterData(src)) clean.setAttribute("src", src);
+      clean.setAttribute("alt", node.getAttribute("alt") || "");
+      for (const name of ["width", "height"]) {
+        const value = node.getAttribute(name) || "";
+        if (/^\d{1,4}$/.test(value)) clean.setAttribute(name, value);
+      }
+    }
+
+    parent.append(clean);
+    [...node.childNodes].forEach(child => copy(child, clean));
+  }
+
+  [...source.childNodes].forEach(node => copy(node, doc.body));
+  return doc;
+}
+
+function hasText(node) {
+  return Boolean(node && node.textContent.trim());
+}
+
+function inspect() {
+  const doc = makePage(false);
+  const raw = state.code.replace(/<!--[\s\S]*?-->/g, "");
+  const body = doc.body;
+  const someText = selector => [...body.querySelectorAll(selector)].some(hasText);
+
+  const titleOK = doc.title.trim() && doc.title.trim() !== "Nová stránka";
+  const structure = /<!doctype\s+html\s*>/i.test(raw) &&
+    /<html\b[^>]*>/i.test(raw) && /<\/html\s*>/i.test(raw) &&
+    /<head\b[^>]*>/i.test(raw) && /<\/head\s*>/i.test(raw) &&
+    /<body\b[^>]*>/i.test(raw) && /<\/body\s*>/i.test(raw);
+
+  const listOK = [...body.querySelectorAll("ul, ol")].some(list =>
+    [...list.children].filter(child => child.localName === "li" && hasText(child)).length >= 3
+  );
+  const linkOK = [...body.querySelectorAll("a")].some(a =>
+    hasText(a) && safeLink(a.getAttribute("href") || "")
+  );
+  const imageOK = [...body.querySelectorAll("img")].some(img =>
+    rasterData(img.getAttribute("src")) && Boolean(img.getAttribute("alt")?.trim())
+  );
+
+  const main = body.querySelector("main");
+  const organized = body.querySelectorAll("main").length === 1 &&
+    someText("header h1") && someText("footer") &&
+    Boolean(main?.querySelector("p") && main.querySelector("ul, ol") &&
+      main.querySelector("a") && main.querySelector("img"));
+
+  // Introductory check only: declarations, not complete CSS validation.
+  const css = [...doc.head.querySelectorAll("style")]
+    .map(style => style.textContent).join("\n")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+
+  function declaration(property) {
+    const regex = new RegExp("(?:^|[;{])\\s*" + property + "\\s*:\\s*([^;}]+)", "gi");
+    return [...css.matchAll(regex)].some(match =>
+      CSS.supports(property, match[1].trim())
+    );
+  }
+
+  const extra = hasText(main?.querySelector("h2")) &&
+    [...(main?.querySelectorAll("p") || [])].filter(hasText).length >= 2;
+
+  return [
+    [Boolean(titleOK && structure), "Vlastní title a zachovaná kostra HTML dokumentu."],
+    [body.querySelectorAll("h1").length === 1 && someText("h1") && someText("p"),
+      "Jeden neprázdný hlavní nadpis h1 a alespoň jeden odstavec p."],
+    [listOK, "Seznam se třemi neprázdnými položkami li."],
+    [linkOK, "Odkaz a s adresou https:// a neprázdným textem."],
+    [imageOK, "Podporovaný obrázek s neprázdným alternativním popisem alt."],
+    [organized, "Header s h1, jeden main s dosavadním obsahem a neprázdný footer."],
+    [declaration("color") && declaration("background-color") && declaration("font-family"),
+      "Ve style deklarace color, background-color a font-family s platnými hodnotami."],
+    [extra, "V main neprázdný podnadpis h2 a alespoň dva neprázdné odstavce."]
+  ];
+}
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+    $("saveStatus").textContent =
+      "Postup uložen v tomto prohlížeči. Pro jistotu si stáhni i projekt JSON.";
+  } catch (_) {
+    $("saveStatus").textContent =
+      "Prohlížeč nemohl uložit postup. Před zavřením si stáhni projekt JSON.";
+  }
+}
+
+function renderProgress() {
+  const checks = inspect();
+  const total = checks.filter(([ok]) => ok).length;
+  $("progress").value = total;
+  $("progressText").textContent = `Aktuální stránka splňuje ${total} z 8 částí projektu.`;
+  $("navigation").replaceChildren();
+
+  lessons.forEach((lesson, i) => {
+    const button = document.createElement("button");
+    button.textContent = `${checks[i][0] ? "✓ " : ""}${i + 1}. lekce`;
+    button.setAttribute("aria-label", lesson.title);
+    if (i === state.lesson) button.setAttribute("aria-current", "step");
+    button.onclick = () => openLesson(i);
+    $("navigation").append(button);
+  });
+}
+
+function refresh() {
+  clearTimeout(timer);
+  $("preview").srcdoc = "<!DOCTYPE html>\n" + makePage(true).documentElement.outerHTML;
+  renderProgress();
+}
+
+function openLesson(index) {
+  if (index < 0 || index >= lessons.length) return;
+  state.lesson = index;
+  hintCount = 0;
+  const lesson = lessons[index];
+  $("lessonTitle").textContent = lesson.title;
+  $("explanation").textContent = lesson.explanation;
+  $("task").textContent = lesson.task;
+  $("example").textContent = lesson.example;
+  $("hint").hidden = true;
+  $("exampleDetails").open = false;
+  $("feedback").textContent = "Uprav svou stránku a potom zkontroluj úkol.";
+  $("feedback").dataset.kind = "";
+  $("previous").disabled = index === 0;
+  $("next").disabled = index === 7;
+  renderProgress();
+  save();
+}
+
+function edited() {
+  state.code = $("editor").value;
+  $("feedback").textContent = "Kód se změnil. Pro nové vyhodnocení stiskni Zkontrolovat úkol.";
+  $("feedback").dataset.kind = "";
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    refresh();
+    save();
+  }, 500);
+}
+
+$("editor").addEventListener("input", () => {
+  if ($("editor").value.length > MAX_CODE) {
+    $("editor").value = state.code;
+    alert("Pro tento školní projekt je limit 150 000 znaků.");
+    return;
+  }
+  lastInsertion = null;
+  edited();
+});
+
+function insert(text) {
+  const editor = $("editor");
+  if (editor.value.length + text.length > MAX_CODE) return;
+  lastInsertion = editor.value;
+  editor.setRangeText(text, editor.selectionStart, editor.selectionEnd, "end");
+  editor.focus();
+  edited();
+}
+
+["<", ">", "/", '"', "=", "{", "}", "  ", "\n"].forEach(text => {
+  const button = document.createElement("button");
+  button.textContent = text === "\n" ? "Nový řádek" : text === "  " ? "Odsadit" : text;
+  button.type = "button";
+  button.onclick = () => insert(text);
+  $("insertTools").append(button);
+});
+
+$("undo").onclick = () => {
+  if (lastInsertion === null) {
+    alert("Není dostupné vložení k vrácení. Při běžném psaní použij funkci Zpět svého zařízení.");
+    return;
+  }
+  $("editor").value = lastInsertion;
+  lastInsertion = null;
+  edited();
+};
+
+$("insertImage").onclick = () =>
+  insert('<img src="obrazek.png" alt="" width="300">\n');
+
+$("check").onclick = () => {
+  refresh();
+  const checks = inspect().slice(0, state.lesson + 1);
+  const missing = checks.filter(([ok]) => !ok);
+  $("feedback").replaceChildren();
+  $("feedback").dataset.kind = missing.length ? "bad" : "good";
+
+  const message = document.createElement("p");
+  message.textContent = missing.length
+    ? "Ještě doplň nebo oprav tyto části:"
+    : state.lesson === 7
+      ? "Výborně! Základní požadavky jsou splněné. Zkontroluj čitelnost, vlastní texty a popis obrázku. Potom si stáhni stránku."
+      : "Výborně! Tato lekce i dosavadní požadavky jsou splněné.";
+  $("feedback").append(message);
+
+  if (missing.length) {
+    const list = document.createElement("ul");
+    missing.forEach(([, text]) => {
+      const item = document.createElement("li");
+      item.textContent = text;
+      list.append(item);
+    });
+    $("feedback").append(list);
+  }
+};
+
+$("hintButton").onclick = () => {
+  const hints = lessons[state.lesson].hints;
+  hintCount = Math.min(hintCount + 1, hints.length);
+  $("hint").textContent = hints.slice(0, hintCount).join("\n\n");
+  $("hint").hidden = false;
+};
+
+$("previous").onclick = () => openLesson(state.lesson - 1);
+$("next").onclick = () => openLesson(state.lesson + 1);
+$("refresh").onclick = refresh;
+
+function download(name, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+$("export").onclick = () => {
+  const output = "<!DOCTYPE html>\n" + makePage(false).documentElement.outerHTML;
+  download("moje-stranka.html", output, "text/html;charset=utf-8");
+  $("saveStatus").textContent =
+    "Export připraven. Obsahuje podporované HTML/CSS a vložený obrázek; nepodporované prvky se vynechávají. Pro přesné uchování editoru stáhni také JSON.";
+};
+
+$("backup").onclick = () =>
+  download("muj-web-projekt.json", JSON.stringify(state, null, 2), "application/json");
+
+$("importButton").onclick = () => $("projectFile").click();
+
+$("projectFile").onchange = async event => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  if (file.size > MAX_PROJECT) {
+    alert("Projekt je příliš velký. Maximum jsou 3 MB.");
+    return;
+  }
+  const token = ++uploadGeneration;
+  try {
+    const project = JSON.parse(await file.text());
+    if (token !== uploadGeneration) return;
+    if (!validProject(project)) throw new Error("format");
+    if (!confirm("Nahradit současnou práci načteným projektem?")) return;
+    state = {
+      version: 1,
+      lesson: project.lesson,
+      code: project.code,
+      image: project.image
+    };
+    lastInsertion = null;
+    $("editor").value = state.code;
+    openLesson(state.lesson);
+    refresh();
+  } catch (_) {
+    alert("Soubor se nepodařilo načíst. Vyber JSON uložený touto aplikací.");
+  }
+};
+
+$("imageFile").onchange = event => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  if (file.size > 2000000 || !/^image\/(png|jpeg|webp)$/.test(file.type)) {
+    alert("Vyber PNG, JPEG nebo WebP o velikosti nejvýše 2 MB.");
+    return;
+  }
+
+  const token = ++uploadGeneration;
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+
+  image.onload = () => {
+    try {
+      if (token !== uploadGeneration) return;
+      if (!image.naturalWidth || !image.naturalHeight ||
+          image.naturalWidth * image.naturalHeight > 24000000) {
+        throw new Error("dimensions");
+      }
+
+      const ratio = Math.min(1, 720 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * ratio));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * ratio));
+      const c = canvas.getContext("2d");
+      c.fillStyle = "white";
+      c.fillRect(0, 0, canvas.width, canvas.height);
+      c.drawImage(image, 0, 0, canvas.width, canvas.height);
+      state.image = canvas.toDataURL("image/jpeg", .85);
+      refresh();
+      save();
+      $("feedback").textContent =
+        "Obrázek připraven. Použij src=\"obrazek.png\" a uprav alt podle jeho obsahu.";
+    } catch (_) {
+      alert("Obrázek nelze zpracovat. Zkus menší obrázek.");
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  image.onerror = () => {
+    URL.revokeObjectURL(url);
+    if (token === uploadGeneration) alert("Obrázek nelze načíst.");
+  };
+  image.src = url;
+};
+
+$("reset").onclick = () => {
+  if (!confirm("Smazat zdejší postup a začít znovu? Nejdříve si případně stáhni projekt JSON.")) return;
+  uploadGeneration++;
+  clearTimeout(timer);
+  state = { version: 1, lesson: 0, code: starter, image: demoImage() };
+  lastInsertion = null;
+  $("editor").value = state.code;
+  openLesson(0);
+  refresh();
+};
+
+window.addEventListener("pagehide", save);
+openLesson(state.lesson);
+refresh();
+</script>
+</body>
+</html>
