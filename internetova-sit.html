@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak funguje internet — síťová laboratoř</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #172b4d;
+    --blue: #175cd3;
+    --bg: #eef3fa;
+    --border: #cbd5e1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 16px/1.5 system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header { background: #17365d; color: white; padding: 20px; }
+  header h1 { margin: 0; font-size: clamp(22px, 4vw, 32px); }
+  header p { margin: 6px 0 0; }
+  main { max-width: 1320px; margin: auto; padding: 16px; }
+  button {
+    min-height: 46px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: white;
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:hover:not(:disabled) { background: #eaf2ff; }
+  button:focus-visible, summary:focus-visible {
+    outline: 4px solid #db8200;
+    outline-offset: 3px;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .primary { background: var(--blue); color: white; border-color: var(--blue); }
+  .primary:hover:not(:disabled) { background: #114aa8; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  nav button[aria-current="step"] { border: 3px solid var(--blue); }
+  .layout { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 16px; }
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+  }
+  h2 { font-size: 21px; margin: 0 0 10px; }
+  h3 { font-size: 17px; margin: 16px 0 8px; }
+  p { margin: 8px 0 14px; }
+  .muted { color: #52627a; font-size: 14px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .tools button { flex-grow: 1; }
+  #board {
+    height: 460px;
+    position: relative;
+    background-color: #f8fbff;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 12px;
+  }
+  #wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 96px;
+    min-height: 76px;
+    padding: 5px;
+    border: 2px solid #91a8c6;
+    box-shadow: 0 3px 8px #17365d16;
+    font-size: 13px;
+    line-height: 1.2;
+    z-index: 2;
+  }
+  .node span { display: block; font-size: 25px; margin-bottom: 4px; }
+  .node.selected { border: 4px solid var(--blue); background: #dceaff; }
+  #packet {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 3px solid #172b4d;
+    background: #ffcb45;
+    border-radius: 6px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  #packet[hidden] { display: none; }
+  #status {
+    padding: 12px;
+    margin-top: 12px;
+    border-left: 5px solid var(--blue);
+    border-radius: 6px;
+    background: #edf4ff;
+    min-height: 58px;
+  }
+  #status[data-kind="good"] { border-color: #147d45; background: #e7f7ec; }
+  #status[data-kind="bad"] { border-color: #b93824; background: #fff0ea; }
+  #links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  #links button { font-size: 13px; }
+  #log { max-height: 190px; overflow: auto; padding-left: 25px; font-size: 14px; }
+  #log li { margin-bottom: 6px; }
+  .hint {
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff5d6;
+    white-space: pre-line;
+  }
+  #report { margin-top: 16px; }
+  #report ul { padding-left: 22px; }
+  summary { cursor: pointer; padding: 8px 0; min-height: 44px; }
+  progress { width: 100%; height: 14px; accent-color: #147d45; }
+  footer { margin: 18px 0; }
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    #board { height: 430px; }
+  }
+  @media (max-width: 550px) {
+    main { padding: 8px; }
+    .card { padding: 12px; }
+    #board { height: 430px; }
+    .node { width: 65px; min-height: 72px; font-size: 11px; }
+    .node span { font-size: 22px; }
+  }
+  @media print {
+    header, nav, .layout, footer, #report button { display: none; }
+    body, .card { background: white; border: 0; }
+    #report { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌐 Síťová laboratoř</h1>
+  <p>Propoj zařízení, sleduj data a oprav poruchu. Pro 7. třídu.</p>
+</header>
+
+<main>
+  <nav id="missions" aria-label="Výběr mise"></nav>
+
+  <div class="layout">
+    <aside class="card">
+      <h2 id="title"></h2>
+      <p id="task"></p>
+      <p class="muted" id="goal"></p>
+      <progress id="progress" max="5" value="0"
+                aria-label="Počet dokončených misí"></progress>
+      <p id="progressText" class="muted"></p>
+
+      <div class="tools">
+        <button id="check" class="primary">Zkontrolovat síť</button>
+        <button id="send" class="primary">Spustit přenos</button>
+        <button id="pause" disabled>Pozastavit</button>
+      </div>
+      <div class="tools">
+        <button id="hintButton">💡 Nápověda</button>
+        <button id="reset">Obnovit tuto misi</button>
+      </div>
+      <p id="hint" class="hint" hidden></p>
+      <div class="tools">
+        <button id="next" class="primary" hidden>Další mise →</button>
+      </div>
+
+      <details>
+        <summary>Malý síťový slovník</summary>
+        <p><b>Přepínač:</b> propojuje zařízení v místní síti.</p>
+        <p><b>Směrovač:</b> předává pakety mezi sítěmi.</p>
+        <p><b>Paket:</b> malá část přenášených dat s adresními údaji.</p>
+        <p><b>Server:</b> poskytuje službu jiným zařízením.</p>
+        <p><b>DNS:</b> pomáhá zjistit IP adresu podle názvu webu.</p>
+        <p><b>Internet:</b> mnoho vzájemně propojených sítí.</p>
+      </details>
+    </aside>
+
+    <section class="card" aria-label="Pracovní plocha sítě">
+      <h2 id="boardTitle">Tvoje síť</h2>
+      <p class="muted">
+        Klepni na první zařízení a potom na druhé.
+        Stejným způsobem funguje kliknutí myší.
+        Spojení odstraníš tlačítkem pod mapou.
+      </p>
+
+      <div id="board">
+        <svg id="wires" viewBox="0 0 1000 1000"
+             preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div id="nodes"></div>
+        <div id="packet" hidden></div>
+      </div>
+
+      <div id="status" role="status" aria-live="polite"></div>
+
+      <details>
+        <summary>Správa spojení — odebrání kabelů</summary>
+        <div id="links"></div>
+      </details>
+
+      <h3>Co se právě děje?</h3>
+      <ol id="log" aria-label="Průběh přenosu"></ol>
+    </section>
+  </div>
+
+  <section id="report" class="card">
+    <h2>Moje výsledky</h2>
+    <p class="muted">
+      Bez jména a bez známkování. Na sdíleném zařízení před začátkem
+      použij „Nový žák“. Neukládej výsledky předchozího žáka jako svoje.
+    </p>
+    <ul id="results"></ul>
+    <div class="tools">
+      <button id="download">Uložit výsledky (.txt)</button>
+      <button id="print">Vytisknout výsledky</button>
+      <button id="newStudent">Nový žák — smazat postup</button>
+    </div>
+  </section>
+
+  <footer class="muted">
+    Výukové zjednodušení: mapa není skutečná školní síť.
+    Internet je zastoupen jedním uzlem, směrování hledá dostupnou cestu
+    a neřeší skutečné směrovací protokoly. IP adresy, DNS i web jsou
+    simulované. Model vynechává například Wi-Fi, NAT, TLS a podrobnosti TCP.
+    Neprovádí skutečné síťové požadavky.
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const storageKey = "sitova-laborator-v1";
+
+const devices = {
+  pc:     { name: "Tvůj počítač", icon: "💻", x: 12, y: 18 },
+  pc2:    { name: "Počítač B", icon: "🖥️", x: 12, y: 73 },
+  sw:     { name: "Přepínač", icon: "🔀", x: 33, y: 45 },
+  router: { name: "Směrovač", icon: "📡", x: 53, y: 45 },
+  net:    { name: "Internet", icon: "🌐", x: 74, y: 45 },
+  web:    { name: "Webový server", icon: "🗄️", x: 89, y: 18 },
+  dns:    { name: "DNS server", icon: "📒", x: 89, y: 78 },
+  backup: { name: "Záložní směrovač", icon: "📡", x: 55, y: 83 }
+};
+
+const key = (a, b) => [a, b].sort().join("|");
+const local = [key("pc", "sw"), key("pc2", "sw")];
+const full = [
+  ...local, key("sw", "router"), key("router", "net"),
+  key("net", "web"), key("net", "dns")
+];
+const allowed = new Set([
+  ...full, key("router", "backup"), key("backup", "net")
+]);
+
+const lessons = [
+  {
+    title: "1. Propoj počítače",
+    task: "Připoj svůj počítač a počítač B k přepínači. Pak síť zkontroluj.",
+    goal: "Cíl: vytvořit místní síť. Internet zatím nepotřebujeme.",
+    nodes: ["pc", "pc2", "sw"],
+    initial: [],
+    hints: [
+      "Přepínač je společný bod, ke kterému připojíš oba počítače.",
+      "Klepni na Tvůj počítač a na Přepínač. Potom na Počítač B a na Přepínač."
+    ]
+  },
+  {
+    title: "2. Cesta do internetu",
+    task: "Místní síť už funguje. Propoj ji přes směrovač s internetem a připoj webový i DNS server.",
+    goal: "Cíl: pochopit, že směrovač propojuje různé sítě.",
+    nodes: ["pc", "pc2", "sw", "router", "net", "web", "dns"],
+    initial: local,
+    hints: [
+      "Za přepínač patří směrovač. Směrovač potřebuje spojení do internetu.",
+      "Doplň: Přepínač ↔ Směrovač, Směrovač ↔ Internet, Internet ↔ Webový server a Internet ↔ DNS server."
+    ]
+  },
+  {
+    title: "3. Zpráva v paketech",
+    task: "Spusť přenos zprávy AHOJ do počítače B. Sleduj, kudy projdou oba ukázkové pakety.",
+    goal: "Cíl: sledovat rozdělení zprávy a její složení u příjemce.",
+    nodes: ["pc", "pc2", "sw"],
+    initial: local,
+    hints: [
+      "Zpráva putuje v místní síti. Směrovač ani internet nejsou potřeba.",
+      "Stiskni Spustit přenos. Při chybě zkontroluj, zda oba počítače vedou do přepínače."
+    ]
+  },
+  {
+    title: "4. Otevři web",
+    task: "Otevři simulovaný web skola.test. Sleduj nejprve DNS a potom komunikaci s webovým serverem.",
+    goal: "Cíl: odlišit zjištění IP adresy od načtení webového obsahu.",
+    nodes: ["pc", "pc2", "sw", "router", "net", "web", "dns"],
+    initial: full,
+    hints: [
+      "DNS odpoví na otázku, jakou IP adresu má hledaný web. Samotnou stránku poskytne webový server.",
+      "Stiskni Spustit přenos. Nejprve se ukáže dotaz a odpověď DNS, potom požadavek a odpověď webu."
+    ]
+  },
+  {
+    title: "5. Oprav poruchu",
+    task: "Přímé spojení směrovače s internetem je porouchané. Vytvoř jinou cestu přes záložní směrovač a spusť přenos.",
+    goal: "Cíl: zjistit, kdy může pomoci náhradní cesta.",
+    nodes: ["pc", "pc2", "sw", "router", "net", "web", "dns", "backup"],
+    initial: full,
+    hints: [
+      "Červená přerušovaná čára nefunguje. Poruchu nelze opravit opakovaným klepnutím.",
+      "Propoj Směrovač ↔ Záložní směrovač a Záložní směrovač ↔ Internet. Pak spusť přenos."
+    ]
+  }
+];
+
+let completed = new Set();
+let current = 0;
+let edges = new Set();
+let selected = null;
+let hintLevel = 0;
+let busy = false;
+let paused = false;
+let generation = 0;
+
+// Ukládají se jen dokončené mise, nikoli osobní údaje.
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+  if (saved && Array.isArray(saved.completed)) {
+    // Obnov pouze souvislou řadu dokončených misí.
+    for (let i = 0; i < lessons.length; i++) {
+      if (!saved.completed.includes(i)) break;
+      completed.add(i);
+    }
+    current = Math.min(completed.size, lessons.length - 1);
+  }
+} catch (_) {
+  // Aplikace funguje i tehdy, když je místní úložiště nedostupné.
+}
+
+function persist() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({
+      completed: [...completed]
+    }));
+  } catch (_) {}
+}
+
+function status(text, kind = "info") {
+  $("status").textContent = text;
+  $("status").dataset.kind = kind;
+}
+
+function log(text) {
+  const li = document.createElement("li");
+  li.textContent = text;
+  $("log").append(li);
+  li.scrollIntoView({ block: "nearest", behavior: "auto" });
+}
+
+function broken(edge) {
+  return current === 4 && edge === key("router", "net");
+}
+
+function updateNavigation() {
+  $("missions").replaceChildren();
+  lessons.forEach((lesson, i) => {
+    const button = document.createElement("button");
+    button.textContent = `${completed.has(i) ? "✓ " : ""}Mise ${i + 1}`;
+    button.setAttribute("aria-label", lesson.title);
+    button.disabled = busy || (i > 0 && !completed.has(i - 1));
+    if (i === current) button.setAttribute("aria-current", "step");
+    button.onclick = () => loadLesson(i);
+    $("missions").append(button);
+  });
+
+  $("progress").value = completed.size;
+  $("progressText").textContent = `Splněno ${completed.size} z 5 misí.`;
+  $("next").hidden = !completed.has(current) || current === 4;
+  $("next").disabled = busy;
+
+  $("results").replaceChildren();
+  lessons.forEach((lesson, i) => {
+    const li = document.createElement("li");
+    li.textContent = `${completed.has(i) ? "✓ Splněno" : "○ Zatím nesplněno"} — ${lesson.title}`;
+    $("results").append(li);
+  });
+}
+
+function renderNetwork() {
+  $("nodes").replaceChildren();
+  for (const id of lessons[current].nodes) {
+    const d = devices[id];
+    const button = document.createElement("button");
+    button.className = "node" + (selected === id ? " selected" : "");
+    button.style.left = d.x + "%";
+    button.style.top = d.y + "%";
+    button.setAttribute("aria-pressed", String(selected === id));
+    button.setAttribute("aria-label", d.name);
+    button.disabled = busy;
+
+    const icon = document.createElement("span");
+    icon.textContent = d.icon;
+    icon.setAttribute("aria-hidden", "true");
+    button.append(icon, document.createTextNode(d.name));
+    button.onclick = () => selectDevice(id);
+    $("nodes").append(button);
+  }
+
+  $("wires").replaceChildren();
+  $("links").replaceChildren();
+
+  for (const edge of edges) {
+    const [a, b] = edge.split("|");
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", devices[a].x * 10);
+    line.setAttribute("y1", devices[a].y * 10);
+    line.setAttribute("x2", devices[b].x * 10);
+    line.setAttribute("y2", devices[b].y * 10);
+    line.setAttribute("stroke", broken(edge) ? "#b93824" : "#4875a8");
+    line.setAttribute("stroke-width", "4");
+    line.setAttribute("vector-effect", "non-scaling-stroke");
+    if (broken(edge)) line.setAttribute("stroke-dasharray", "10 8");
+    $("wires").append(line);
+
+    const button = document.createElement("button");
+    button.textContent = broken(edge)
+      ? `⚠ Porucha: ${devices[a].name} ↔ ${devices[b].name}`
+      : `Odebrat: ${devices[a].name} ↔ ${devices[b].name}`;
+    button.disabled = busy || broken(edge);
+    button.onclick = () => {
+      edges.delete(edge);
+      selected = null;
+      renderNetwork();
+      status("Spojení odebráno. Můžeš ho znovu přidat.");
+    };
+    $("links").append(button);
+  }
+}
+
+function selectDevice(id) {
+  if (busy) return;
+  if (!selected) {
+    selected = id;
+    renderNetwork();
+    status(`Vybráno: ${devices[id].name}. Teď vyber druhé zařízení.`);
+    return;
+  }
+  if (selected === id) {
+    selected = null;
+    renderNetwork();
+    status("Výběr zrušen.");
+    return;
+  }
+
+  const edge = key(selected, id);
+  selected = null;
+
+  if (!allowed.has(edge)) {
+    status("V této úloze použij jiný pár: počítače připojuj k přepínači, přepínač ke směrovači a servery k internetu. Jde o omezení tohoto modelu.", "bad");
+  } else if (broken(edge)) {
+    status("Toto spojení je porouchané. Zkus náhradní cestu.", "bad");
+  } else if (edges.has(edge)) {
+    status("Toto spojení už existuje. Odebrat ho lze pod mapou.");
+  } else {
+    edges.add(edge);
+    status("Spojení přidáno.", "good");
+  }
+  renderNetwork();
+}
+
+function loadLesson(index) {
+  generation++;
+  current = index;
+  edges = new Set(lessons[index].initial);
+  selected = null;
+  hintLevel = 0;
+  busy = false;
+  paused = false;
+
+  $("packet").hidden = true;
+  $("hint").hidden = true;
+  $("hint").textContent = "";
+  $("log").replaceChildren();
+  $("title").textContent = lessons[index].title;
+  $("task").textContent = lessons[index].task;
+  $("goal").textContent = lessons[index].goal;
+  $("check").hidden = index > 1;
+  $("send").hidden = index < 2;
+  $("pause").disabled = true;
+  $("pause").textContent = "Pozastavit";
+  $("send").disabled = false;
+  $("check").disabled = false;
+
+  updateNavigation();
+  renderNetwork();
+  status(index === 4
+    ? "⚠ Červené přerušované spojení je nefunkční. Najdi jinou cestu."
+    : "Mise připravena. Přečti si zadání a pusť se do práce.");
+}
+
+// Prohledávání do šířky: najde dostupnou cestu s nejméně spoji.
+// Toto není implementace skutečného internetového směrovacího protokolu.
+function route(start, end) {
+  const queue = [[start]];
+  const seen = new Set([start]);
+  while (queue.length) {
+    const path = queue.shift();
+    const node = path[path.length - 1];
+    if (node === end) return path;
+
+    for (const edge of edges) {
+      if (broken(edge)) continue;
+      const [a, b] = edge.split("|");
+      const neighbor = a === node ? b : b === node ? a : null;
+      if (neighbor && !seen.has(neighbor)) {
+        seen.add(neighbor);
+        queue.push([...path, neighbor]);
+      }
+    }
+  }
+  return null;
+}
+
+function complete() {
+  completed.add(current);
+  persist();
+  updateNavigation();
+  status(current === 4
+    ? "Výborně! Náhradní cesta funguje. Máš splněných všech pět misí. Výsledky najdeš pod mapou."
+    : "Výborně, mise je splněna! Můžeš pokračovat nebo dál experimentovat.", "good");
+}
+
+function checkNetwork() {
+  const targets = current === 0 ? ["pc2"] : ["pc2", "web", "dns"];
+  const missing = targets.filter(target => !route("pc", target));
+  if (missing.length) {
+    status("Z tvého počítače zatím není dostupné: " +
+      missing.map(id => devices[id].name).join(", ") +
+      ". Zkontroluj kabely nebo použij nápovědu.", "bad");
+    return;
+  }
+  log(current === 0
+    ? "Oba počítače jsou propojené přes přepínač. Místní síť nepotřebuje internet."
+    : "Existuje cesta k oběma serverům. Jejich připojení k internetu zde znázorňujeme zjednodušeně.");
+  complete();
+}
+
+function setBusy(value) {
+  busy = value;
+  $("send").disabled = value;
+  $("check").disabled = value;
+  $("pause").disabled = !value;
+  if (!value) {
+    paused = false;
+    $("pause").textContent = "Pozastavit";
+  }
+  updateNavigation();
+  renderNetwork();
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function animate(path, label, token) {
+  if (token !== generation) throw new Error("cancelled");
+  log(label);
+  status(label);
+  const packet = $("packet");
+  packet.style.left = devices[path[0]].x + "%";
+  packet.style.top = devices[path[0]].y + "%";
+  packet.hidden = false;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const from = devices[path[i]];
+    const to = devices[path[i + 1]];
+    let elapsed = 0;
+
+    while (elapsed < 650) {
+      if (token !== generation) throw new Error("cancelled");
+      const start = performance.now();
+      await sleep(25);
+      if (token !== generation) throw new Error("cancelled");
+      if (paused) continue;
+      elapsed += Math.min(performance.now() - start, 80);
+      const t = Math.min(elapsed / 650, 1);
+      packet.style.left = (from.x + (to.x - from.x) * t) + "%";
+      packet.style.top = (from.y + (to.y - from.y) * t) + "%";
+    }
+  }
+  packet.hidden = true;
+}
+
+async function send() {
+  if (busy) return;
+  selected = null;
+  const targets = current === 2 ? ["pc2"] : current === 3 ? ["dns", "web"] : ["web"];
+  const paths = {};
+
+  for (const target of targets) {
+    paths[target] = route("pc", target);
+    if (!paths[target]) {
+      status(`Přenos se nepodařil: neexistuje funkční cesta k zařízení ${devices[target].name}. Doplň spojení.`, "bad");
+      log("Přenos zastaven — cílové zařízení není dostupné.");
+      return;
+    }
+  }
+
+  const token = ++generation;
+  $("log").replaceChildren();
+  setBusy(true);
+
+  try {
+    if (current === 2) {
+      log("Zprávu AHOJ jsme pro ukázku rozdělili do dvou paketů: AH a OJ.");
+      await animate(paths.pc2, "📦 Paket 1/2: AH → počítač B", token);
+      await animate(paths.pc2, "📦 Paket 2/2: OJ → počítač B", token);
+      log("Příjemce složil zprávu: AHOJ. Rozdělení na dvě dvojice znaků je jen názorná ukázka.");
+    } else if (current === 3) {
+      await animate(paths.dns, "1. DNS dotaz: Jakou IP adresu má skola.test?", token);
+      await animate([...paths.dns].reverse(),
+        "2. DNS odpověď: skola.test má v tomto modelu adresu 203.0.113.10.", token);
+      log("DNS poskytlo adresu, nikoli obsah stránky. V této ukázce nemáme adresu uloženou v mezipaměti.");
+      await animate(paths.web, "3. Webový požadavek: Pošli mi úvodní stránku.", token);
+      await animate([...paths.web].reverse(),
+        "4. Webová odpověď: Obsah stránky putuje do tvého počítače.", token);
+      log("Stránka načtena: Vítej na školním webu! Jedna značka zde zastupuje celý přenos, který může obsahovat mnoho paketů.");
+    } else {
+      log("IP adresu webového serveru už známe. Otestujeme náhradní cestu.");
+      log("Cesta: " + paths.web.map(id => devices[id].name).join(" → "));
+      await animate(paths.web, "Požadavek míří k webu po náhradní cestě.", token);
+      await animate([...paths.web].reverse(),
+        "Odpověď se vrací po funkční náhradní cestě.", token);
+      log("Výpadek lze obejít, pokud existuje jiná cesta a síť ji umí využít. Bez náhradního propojení by přenos nefungoval.");
+    }
+    if (token === generation) complete();
+  } catch (error) {
+    if (token === generation) {
+      status("Animace se přerušila. Obnov misi a zkus to znovu.", "bad");
+    }
+  } finally {
+    if (token === generation) {
+      $("packet").hidden = true;
+      setBusy(false);
+    }
+  }
+}
+
+$("check").onclick = checkNetwork;
+$("send").onclick = send;
+
+$("pause").onclick = () => {
+  if (!busy) return;
+  paused = !paused;
+  $("pause").textContent = paused ? "Pokračovat" : "Pozastavit";
+  status(paused ? "Animace pozastavena. Prohlédni si polohu paketu." : "Animace pokračuje.");
+};
+
+$("hintButton").onclick = () => {
+  const hints = lessons[current].hints;
+  hintLevel = Math.min(hintLevel + 1, hints.length);
+  $("hint").hidden = false;
+  $("hint").textContent = hints.slice(0, hintLevel)
+    .map((text, i) => `${i + 1}. ${text}`).join("\n\n");
+};
+
+$("reset").onclick = () => {
+  if (confirm("Obnovit síť v této misi? Získané splnění mise zůstane zachováno.")) {
+    loadLesson(current);
+  }
+};
+
+$("next").onclick = () => {
+  if (current < 4 && completed.has(current)) loadLesson(current + 1);
+};
+
+function reportText() {
+  return [
+    "SÍŤOVÁ LABORATOŘ — VÝSLEDKY",
+    `Dokončeno: ${completed.size} z 5 misí`,
+    "",
+    ...lessons.map((lesson, i) =>
+      `${completed.has(i) ? "SPLNĚNO" : "ZATÍM NESPLNĚNO"} — ${lesson.title}`),
+    "",
+    "Otázky k zamyšlení:",
+    "1. K čemu slouží přepínač a k čemu směrovač?",
+    "2. Proč při otevírání webu využíváme DNS?",
+    "3. Může místní síť fungovat bez internetu?",
+    "4. Kdy pomůže náhradní cesta?",
+    "",
+    "Přehled pochází z výukového modelu. Nejde o ověřený test znalostí."
+  ].join("\n");
+}
+
+$("download").onclick = () => {
+  const blob = new Blob(["\ufeff", reportText()], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sitova-laborator-vysledky.txt";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+};
+
+$("print").onclick = () => window.print();
+
+$("newStudent").onclick = () => {
+  if (!confirm("Smazat uložený postup a začít znovu pro nového žáka?")) return;
+  completed.clear();
+  persist();
+  loadLesson(0);
+};
+
+loadLesson(current);
+</script>
+</body>
+</html>
