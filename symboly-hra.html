@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Symboly – společná hra</title>
+
+  <style>
+    :root {
+      --ink: #24324a;
+      --muted: #617089;
+      --cream: #fffaf0;
+      --white: #ffffff;
+      --blue: #8ecae6;
+      --yellow: #ffd166;
+      --pink: #ffafcc;
+      --purple: #cdb4db;
+      --green: #95d5b2;
+      --soft-blue: #eaf6ff;
+      --soft-green: #e3f7eb;
+      --soft-yellow: #fff4cb;
+      --soft-pink: #ffe5ef;
+      --shadow: 0 10px 24px rgba(36, 50, 74, .14);
+      --radius: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #dff6ff 0, transparent 32%),
+        radial-gradient(circle at bottom right, #ffe0ec 0, transparent 32%),
+        var(--cream);
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 22px;
+      font: inherit;
+      font-weight: 750;
+      color: var(--ink);
+      background: var(--white);
+      box-shadow: 0 5px 14px rgba(36, 50, 74, .12);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(36, 50, 74, .18);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:focus-visible {
+      outline: 4px solid #1769c2;
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: .65;
+      transform: none;
+    }
+
+    .primary { background: var(--blue); }
+    .success { background: var(--green); }
+    .warning { background: var(--yellow); }
+    .pink { background: var(--pink); }
+    .purple { background: var(--purple); }
+    .soft { background: #eef4fb; }
+
+    .app {
+      width: min(1200px, 94vw);
+      margin: 0 auto;
+      padding: 22px 0 44px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      background: var(--yellow);
+      font-size: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 3px;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+    }
+
+    h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+    }
+
+    .subtitle {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .screen {
+      animation: appear .25s ease-out;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
+      padding: clamp(20px, 4vw, 36px);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow);
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .welcome {
+      max-width: 820px;
+      margin: 7vh auto 0;
+    }
+
+    .welcome-symbols {
+      margin: 20px 0;
+      font-size: clamp(4rem, 13vw, 8rem);
+      letter-spacing: .08em;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 28px auto;
+      max-width: 900px;
+    }
+
+    .menu-button {
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      font-size: 1.15rem;
+    }
+
+    .menu-icon {
+      font-size: 4rem;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 16px;
+    }
+
+    .symbol-card {
+      min-height: 145px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      font-size: clamp(4.4rem, 9vw, 7rem);
+      background: var(--white);
+    }
+
+    .symbol-card:nth-child(5n + 1) { background: var(--soft-blue); }
+    .symbol-card:nth-child(5n + 2) { background: var(--soft-yellow); }
+    .symbol-card:nth-child(5n + 3) { background: var(--soft-pink); }
+    .symbol-card:nth-child(5n + 4) { background: #eee5f7; }
+    .symbol-card:nth-child(5n + 5) { background: var(--soft-green); }
+
+    .screen-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .screen-heading h2 {
+      margin-bottom: 0;
+    }
+
+    .back-button {
+      background: #eef4fb;
+    }
+
+    .game-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .feedback {
+      margin: 20px 0 0;
+      padding: 17px;
+      border-radius: 18px;
+      line-height: 1.5;
+      text-align: left;
+      background: #f2f6fb;
+    }
+
+    .feedback.good {
+      background: var(--soft-green);
+    }
+
+    .feedback.try {
+      background: var(--soft-yellow);
+    }
+
+    .feedback strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .matching-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .matching-column {
+      display: grid;
+      gap: 12px;
+    }
+
+    .column-title {
+      margin-bottom: 3px;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .matching-card {
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 1.2rem;
+      background: #f7fbff;
+      border: 3px solid transparent;
+    }
+
+    .matching-symbol {
+      font-size: 3.8rem;
+    }
+
+    .matching-card.selected {
+      border-color: #347fc4;
+      background: #dff1ff;
+    }
+
+    .matching-card.matched {
+      color: #245f3e;
+      border-color: #45ad70;
+      background: var(--soft-green);
+      cursor: default;
+    }
+
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .memory-card {
+      position: relative;
+      min-height: 145px;
+      padding: 0;
+      perspective: 800px;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .memory-inner {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transition: transform .35s ease;
+    }
+
+    .memory-card.flipped .memory-inner,
+    .memory-card.matched .memory-inner {
+      transform: rotateY(180deg);
+    }
+
+    .memory-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      border-radius: 20px;
+      backface-visibility: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .memory-front {
+      font-size: 3.3rem;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+    }
+
+    .memory-front::after {
+      content: "?";
+      color: white;
+      font-size: 3.5rem;
+      font-weight: 900;
+    }
+
+    .memory-back {
+      transform: rotateY(180deg);
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: white;
+    }
+
+    .memory-back.symbol-face {
+      font-size: 4rem;
+      background: var(--soft-yellow);
+    }
+
+    .memory-card.matched .memory-back {
+      background: var(--soft-green);
+      box-shadow: 0 0 0 4px #45ad70, var(--shadow);
+    }
+
+    .memory-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(27, 42, 68, .95);
+    }
+
+    .overlay.open {
+      display: grid;
+    }
+
+    .big-symbol {
+      font-size: clamp(12rem, 55vw, 42rem);
+      line-height: 1;
+      user-select: none;
+      animation: appear .22s ease-out;
+    }
+
+    .close-button,
+    .nav-button {
+      position: fixed;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--ink);
+      background: white;
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .close-button {
+      top: 22px;
+      right: 22px;
+      width: 58px;
+      height: 58px;
+      padding: 0;
+    }
+
+    .nav-button {
+      top: 50%;
+      width: 62px;
+      height: 78px;
+      padding: 0;
+      border-radius: 18px;
+      transform: translateY(-50%);
+    }
+
+    .previous {
+      left: 20px;
+    }
+
+    .next {
+      right: 20px;
+    }
+
+    .overlay-note {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      width: max-content;
+      max-width: calc(100vw - 40px);
+      padding: 10px 16px;
+      border-radius: 999px;
+      color: white;
+      background: rgba(255, 255, 255, .16);
+      transform: translateX(-50%);
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: scale(.88);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 800px) {
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .matching-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .memory-board {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      header {
+        align-items: flex-start;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .symbol-card {
+        min-height: 105px;
+        border-radius: 18px;
+      }
+
+      .memory-board {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+
+      .memory-card {
+        min-height: 105px;
+      }
+
+      .memory-back {
+        font-size: .9rem;
+      }
+
+      .memory-back.symbol-face {
+        font-size: 2.8rem;
+      }
+
+      .nav-button {
+        width: 50px;
+        height: 64px;
+        font-size: 1.5rem;
+      }
+
+      .previous {
+        left: 10px;
+      }
+
+      .next {
+        right: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">💡</div>
+        <div>
+          <h1>Symboly</h1>
+          <p class="subtitle">Společná hra pro celou třídu</p>
+        </div>
+      </div>
+
+      <button class="soft" id="homeButton" type="button">
+        ⌂ Začátek
+      </button>
+    </header>
+
+    <!-- Úvodní obrazovka -->
+    <section id="homeScreen" class="screen card welcome center">
+      <div class="welcome-symbols" aria-hidden="true">
+        🔍 🔒 ⚠️
+      </div>
+
+      <h2>Vítejte ve světě symbolů!</h2>
+
+      <p>
+        Vyberte si aktivitu. Aplikaci může ovládat učitel nebo ji mohou
+        děti společně používat na interaktivní tabuli.
+      </p>
+
+      <div class="menu-grid">
+        <button class="menu-button primary" type="button" data-screen="galleryScreen">
+          <span class="menu-icon" aria-hidden="true">🖼️</span>
+          Galerie symbolů
+        </button>
+
+        <button class="menu-button success" type="button" data-screen="matchingScreen">
+          <span class="menu-icon" aria-hidden="true">🔗</span>
+          Přiřazování významů
+        </button>
+
+        <button class="menu-button purple" type="button" data-screen="memoryScreen">
+          <span class="menu-icon" aria-hidden="true">🧠</span>
+          Pexeso
+        </button>
+      </div>
+
+      <p class="small-note">
+        Bez časového limitu. Chyby jsou součástí přemýšlení.
+      </p>
+    </section>
+
+    <!-- Galerie -->
+    <section id="galleryScreen" class="screen card hidden">
+      <div class="screen-heading">
+        <h2>Galerie symbolů</h2>
+        <button class="back-button" type="button" data-screen="homeScreen">
+          ← Zpět na výběr
+        </button>
+      </div>
+
+      <p>
+        Klikněte na symbol. Zobrazí se přes celou obrazovku.
+      </p>
+
+      <div id="gallery" class="gallery" aria-label="Galerie symbolů"></div>
+    </section>
+
+    <!-- Přiřazování -->
+    <section id="matchingScreen" class="screen card hidden">
+      <div class="screen-heading">
+        <h2>Přiřaď symbol k významu</h2>
+        <button class="back-button" type="button" data-screen="homeScreen">
+          ← Zpět na výběr
+        </button>
+      </div>
+
+      <div class="game-info">
+        <span id="matchingProgress">Přiřazeno: 0 z 10</span>
+        <span>Nejprve klikni na symbol, potom na jeho význam.</span>
+      </div>
+
+      <div class="matching-layout">
+        <div>
+          <div class="column-title">Symboly</div>
+          <div id="matchingSymbols" class="matching-column"></div>
+        </div>
+
+        <div>
+          <div class="column-title">Významy</div>
+          <div id="matchingMeanings" class="matching-column"></div>
+        </div>
+      </div>
+
+      <div id="matchingFeedback" class="feedback hidden" role="status"></div>
+
+      <div class="memory-controls">
+        <button class="warning" id="restartMatchingButton" type="button">
+          Zamíchat znovu
+        </button>
+      </div>
+    </section>
+
+    <!-- Pexeso -->
+    <section id="memoryScreen" class="screen card hidden">
+      <div class="screen-heading">
+        <h2>Pexeso: symbol a význam</h2>
+        <button class="back-button" type="button" data-screen="homeScreen">
+          ← Zpět na výběr
+        </button>
+      </div>
+
+      <div class="game-info">
+        <span id="memoryProgress">Dvojice: 0 z 10</span>
+        <span>Otoč dvě kartičky a najdi dvojici.</span>
+      </div>
+
+      <div id="memoryBoard" class="memory-board"></div>
+
+      <div id="memoryFeedback" class="feedback hidden" role="status"></div>
+
+      <div class="memory-controls">
+        <button class="warning" id="restartMemoryButton" type="button">
+          Zamíchat znovu
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Zvětšený symbol -->
+  <section
+    id="overlay"
+    class="overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Zvětšený symbol"
+  >
+    <button
+      id="closeButton"
+      class="close-button"
+      type="button"
+      aria-label="Zavřít zvětšený symbol"
+    >
+      ×
+    </button>
+
+    <button
+      id="previousButton"
+      class="nav-button previous"
+      type="button"
+      aria-label="Předchozí symbol"
+    >
+      ←
+    </button>
+
+    <div id="bigSymbol" class="big-symbol" aria-live="polite"></div>
+
+    <button
+      id="nextButton"
+      class="nav-button next"
+      type="button"
+      aria-label="Další symbol"
+    >
+      →
+    </button>
+
+    <div class="overlay-note">
+      Klikni mimo symbol nebo stiskni Esc pro návrat.
+    </div>
+  </section>
+
+  <script>
+    /*
+      Symboly používané v otázkách pro štafetu:
+
+      ▶️  spustit
+      🗑️  smazat
+      ⚠️  pozor
+      🔍  hledat
+      ⛔  zákaz vstupu
+      ⚙️  nastavení
+      📶  připojení k internetu
+      ✅  správně
+      🚪  odchod nebo východ
+      🔋  baterie
+    */
+
+    const symbolPairs = [
+      {
+        symbol: "▶️",
+        meaning: "Spustit"
+      },
+      {
+        symbol: "🗑️",
+        meaning: "Smazat"
+      },
+      {
+        symbol: "⚠️",
+        meaning: "Pozor"
+      },
+      {
+        symbol: "🔍",
+        meaning: "Hledat"
+      },
+      {
+        symbol: "⛔",
+        meaning: "Zákaz vstupu"
+      },
+      {
+        symbol: "⚙️",
+        meaning: "Nastavení"
+      },
+      {
+        symbol: "📶",
+        meaning: "Připojení k internetu"
+      },
+      {
+        symbol: "✅",
+        meaning: "Správně"
+      },
+      {
+        symbol: "🚪",
+        meaning: "Odchod nebo východ"
+      },
+      {
+        symbol: "🔋",
+        meaning: "Baterie"
+      }
+    ];
+
+    const extraSymbols = [
+      "🔒", "🔓", "♻️", "🚻", "🔥",
+      "🚫", "❌", "ℹ️", "🚭", "🅿️",
+      "🆘", "⏸️", "⏹️", "🏠", "💾",
+      "📎", "↩️", "➡️", "⬇️", "⬆️",
+      "🔊", "🔇"
+    ];
+
+    const allSymbols = [
+      ...symbolPairs.map(pair => pair.symbol),
+      ...extraSymbols
+    ];
+
+    const screens = [
+      "homeScreen",
+      "galleryScreen",
+      "matchingScreen",
+      "memoryScreen"
+    ];
+
+    let lastGalleryButton = null;
+    let activeGalleryIndex = 0;
+
+    let matchingState = {
+      selectedSymbol: null,
+      selectedMeaning: null,
+      matched: 0
+    };
+
+    let memoryState = {
+      cards: [],
+      firstCard: null,
+      secondCard: null,
+      lock: false,
+      matched: 0
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function shuffle(items) {
+      return [...items].sort(() => Math.random() - .5);
+    }
+
+    function showScreen(screenId) {
+      screens.forEach(id => {
+        $(id).classList.toggle("hidden", id !== screenId);
+      });
+
+      if (screenId === "galleryScreen") {
+        renderGallery();
+      }
+
+      if (screenId === "matchingScreen") {
+        startMatching();
+      }
+
+      if (screenId === "memoryScreen") {
+        startMemory();
+      }
+    }
+
+    function renderGallery() {
+      const gallery = $("gallery");
+      gallery.innerHTML = "";
+
+      allSymbols.forEach((symbol, index) => {
+        const button = document.createElement("button");
+        button.className = "symbol-card";
+        button.type = "button";
+        button.textContent = symbol;
+        button.setAttribute("aria-label", `Zvětšit symbol ${index + 1}`);
+
+        button.addEventListener("click", () => {
+          lastGalleryButton = button;
+          openGallerySymbol(index);
+        });
+
+        gallery.appendChild(button);
+      });
+    }
+
+    function openGallerySymbol(index) {
+      activeGalleryIndex = index;
+      $("bigSymbol").textContent = allSymbols[activeGalleryIndex];
+      $("overlay").classList.add("open");
+      $("closeButton").focus();
+    }
+
+    function closeGallery() {
+      $("overlay").classList.remove("open");
+
+      if (lastGalleryButton) {
+        lastGalleryButton.focus();
+      }
+    }
+
+    function showPreviousGallerySymbol() {
+      activeGalleryIndex =
+        (activeGalleryIndex - 1 + allSymbols.length) % allSymbols.length;
+
+      $("bigSymbol").textContent = allSymbols[activeGalleryIndex];
+    }
+
+    function showNextGallerySymbol() {
+      activeGalleryIndex =
+        (activeGalleryIndex + 1) % allSymbols.length;
+
+      $("bigSymbol").textContent = allSymbols[activeGalleryIndex];
+    }
+
+    function showMatchingFeedback(title, text, type) {
+      const feedback = $("matchingFeedback");
+      feedback.className = `feedback ${type}`;
+      feedback.innerHTML = `<strong>${title}</strong>${text}`;
+    }
+
+    function startMatching() {
+      matchingState = {
+        selectedSymbol: null,
+        selectedMeaning: null,
+        matched: 0
+      };
+
+      const symbols = shuffle(symbolPairs);
+      const meanings = shuffle(symbolPairs);
+
+      const symbolsContainer = $("matchingSymbols");
+      const meaningsContainer = $("matchingMeanings");
+
+      symbolsContainer.innerHTML = "";
+      meaningsContainer.innerHTML = "";
+
+      symbols.forEach(pair => {
+        const button = document.createElement("button");
+        button.className = "matching-card matching-symbol";
+        button.type = "button";
+        button.textContent = pair.symbol;
+        button.dataset.symbol = pair.symbol;
+        button.setAttribute("aria-label", "Vybrat symbol");
+
+        button.addEventListener("click", () => {
+          selectMatchingSymbol(button, pair.symbol);
+        });
+
+        symbolsContainer.appendChild(button);
+      });
+
+      meanings.forEach(pair => {
+        const button = document.createElement("button");
+        button.className = "matching-card";
+        button.type = "button";
+        button.textContent = pair.meaning;
+        button.dataset.symbol = pair.symbol;
+
+        button.addEventListener("click", () => {
+          selectMatchingMeaning(button, pair.symbol);
+        });
+
+        meaningsContainer.appendChild(button);
+      });
+
+      $("matchingFeedback").className = "feedback hidden";
+      updateMatchingProgress();
+    }
+
+    function selectMatchingSymbol(button, symbol) {
+      if (button.classList.contains("matched")) {
+        return;
+      }
+
+      document
+        .querySelectorAll("#matchingSymbols .matching-card")
+        .forEach(card => card.classList.remove("selected"));
+
+      button.classList.add("selected");
+      matchingState.selectedSymbol = {
+        button,
+        symbol
+      };
+
+      checkMatchingPair();
+    }
+
+    function selectMatchingMeaning(button, symbol) {
+      if (button.classList.contains("matched")) {
+        return;
+      }
+
+      document
+        .querySelectorAll("#matchingMeanings .matching-card")
+        .forEach(card => card.classList.remove("selected"));
+
+      button.classList.add("selected");
+      matchingState.selectedMeaning = {
+        button,
+        symbol
+      };
+
+      checkMatchingPair();
+    }
+
+    function checkMatchingPair() {
+      const symbolChoice = matchingState.selectedSymbol;
+      const meaningChoice = matchingState.selectedMeaning;
+
+      if (!symbolChoice || !meaningChoice) {
+        return;
+      }
+
+      if (symbolChoice.symbol === meaningChoice.symbol) {
+        symbolChoice.button.classList.remove("selected");
+        meaningChoice.button.classList.remove("selected");
+
+        symbolChoice.button.classList.add("matched");
+        meaningChoice.button.classList.add("matched");
+
+        matchingState.matched++;
+
+        showMatchingFeedback(
+          "Skvělé! 🌟",
+          "Symbol a význam patří k sobě.",
+          "good"
+        );
+
+        updateMatchingProgress();
+
+        if (matchingState.matched === symbolPairs.length) {
+          showMatchingFeedback(
+            "Výborná práce! 🎉",
+            "Podařilo se přiřadit všechny symboly.",
+            "good"
+          );
+        }
+      } else {
+        showMatchingFeedback(
+          "To je zajímavý tip.",
+          "Zkus se na symboly podívat ještě jednou a vyber jiný význam.",
+          "try"
+        );
+      }
+
+      matchingState.selectedSymbol = null;
+      matchingState.selectedMeaning = null;
+    }
+
+    function updateMatchingProgress() {
+      $("matchingProgress").textContent =
+        `Přiřazeno: ${matchingState.matched} z ${symbolPairs.length}`;
+    }
+
+    function showMemoryFeedback(title, text, type) {
+      const feedback = $("memoryFeedback");
+      feedback.className = `feedback ${type}`;
+      feedback.innerHTML = `<strong>${title}</strong>${text}`;
+    }
+
+    function startMemory() {
+      const cards = [];
+
+      symbolPairs.forEach((pair, index) => {
+        cards.push({
+          id: `${index}-symbol`,
+          pairId: index,
+          type: "symbol",
+          value: pair.symbol
+        });
+
+        cards.push({
+          id: `${index}-meaning`,
+          pairId: index,
+          type: "meaning",
+          value: pair.meaning
+        });
+      });
+
+      memoryState = {
+        cards: shuffle(cards),
+        firstCard: null,
+        secondCard: null,
+        lock: false,
+        matched: 0
+      };
+
+      renderMemory();
+      $("memoryFeedback").className = "feedback hidden";
+      updateMemoryProgress();
+    }
+
+    function renderMemory() {
+      const board = $("memoryBoard");
+      board.innerHTML = "";
+
+      memoryState.cards.forEach(cardData => {
+        const card = document.createElement("button");
+        card.className = "memory-card";
+        card.type = "button";
+        card.dataset.id = cardData.id;
+        card.setAttribute("aria-label", "Otočit kartičku");
+
+        const inner = document.createElement("span");
+        inner.className = "memory-inner";
+
+        const front = document.createElement("span");
+        front.className = "memory-face memory-front";
+        front.setAttribute("aria-hidden", "true");
+
+        const back = document.createElement("span");
+        back.className = "memory-face memory-back";
+
+        if (cardData.type === "symbol") {
+          back.classList.add("symbol-face");
+        }
+
+        back.textContent = cardData.value;
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        card.appendChild(inner);
+
+        card.addEventListener("click", () => flipMemoryCard(card, cardData));
+
+        board.appendChild(card);
+      });
+    }
+
+    function flipMemoryCard(card, cardData) {
+      if (
+        memoryState.lock ||
+        card.classList.contains("flipped") ||
+        card.classList.contains("matched")
+      ) {
+        return;
+      }
+
+      card.classList.add("flipped");
+
+      if (!memoryState.firstCard) {
+        memoryState.firstCard = {
+          element: card,
+          data: cardData
+        };
+        return;
+      }
+
+      memoryState.secondCard = {
+        element: card,
+        data: cardData
+      };
+
+      checkMemoryPair();
+    }
+
+    function checkMemoryPair() {
+      const first = memoryState.firstCard;
+      const second = memoryState.secondCard;
+
+      if (!first || !second) {
+        return;
+      }
+
+      memoryState.lock = true;
+
+      if (first.data.pairId === second.data.pairId) {
+        first.element.classList.add("matched");
+        second.element.classList.add("matched");
+
+        memoryState.matched++;
+
+        showMemoryFeedback(
+          "Výborně! 🌟",
+          "Našli jste správnou dvojici.",
+          "good"
+        );
+
+        updateMemoryProgress();
+
+        memoryState.firstCard = null;
+        memoryState.secondCard = null;
+        memoryState.lock = false;
+
+        if (memoryState.matched === symbolPairs.length) {
+          showMemoryFeedback(
+            "Pexeso je hotové! 🎉",
+            "Našli jste všechny dvojice symbolů a významů.",
+            "good"
+          );
+        }
+      } else {
+        showMemoryFeedback(
+          "To je zajímavý tip.",
+          "Tyto kartičky zatím netvoří dvojici. Zkusíme to ještě jednou.",
+          "try"
+        );
+
+        setTimeout(() => {
+          first.element.classList.remove("flipped");
+          second.element.classList.remove("flipped");
+
+          memoryState.firstCard = null;
+          memoryState.secondCard = null;
+          memoryState.lock = false;
+        }, 850);
+      }
+    }
+
+    function updateMemoryProgress() {
+      $("memoryProgress").textContent =
+        `Dvojice: ${memoryState.matched} z ${symbolPairs.length}`;
+    }
+
+    document.querySelectorAll("[data-screen]").forEach(button => {
+      button.addEventListener("click", () => {
+        showScreen(button.dataset.screen);
+      });
+    });
+
+    $("homeButton").addEventListener("click", () => {
+      closeGallery();
+      showScreen("homeScreen");
+    });
+
+    $("restartMatchingButton").addEventListener("click", startMatching);
+    $("restartMemoryButton").addEventListener("click", startMemory);
+
+    $("closeButton").addEventListener("click", closeGallery);
+    $("previousButton").addEventListener("click", showPreviousGallerySymbol);
+    $("nextButton").addEventListener("click", showNextGallerySymbol);
+
+    $("overlay").addEventListener("click", event => {
+      if (event.target === $("overlay")) {
+        closeGallery();
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (!$("overlay").classList.contains("open")) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeGallery();
+      }
+
+      if (event.key === "ArrowLeft") {
+        showPreviousGallerySymbol();
+      }
+
+      if (event.key === "ArrowRight") {
+        showNextGallerySymbol();
+      }
+    });
+
+    showScreen("homeScreen");
+  </script>
+</body>
+</html>
