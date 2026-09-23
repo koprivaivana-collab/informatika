@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Symboly – klikni a zvětši</title>
+
+  <style>
+    :root {
+      --ink: #24324a;
+      --blue: #8ecae6;
+      --yellow: #ffd166;
+      --pink: #ffafcc;
+      --purple: #cdb4db;
+      --green: #95d5b2;
+      --white: #ffffff;
+      --shadow: 0 10px 24px rgba(36, 50, 74, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #dff6ff 0, transparent 32%),
+        radial-gradient(circle at bottom right, #ffe0ec 0, transparent 32%),
+        #fffaf0;
+    }
+
+    header {
+      padding: 24px 20px 12px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+    }
+
+    .instruction {
+      margin: 10px 0 0;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: #4e5d73;
+    }
+
+    .gallery {
+      width: min(1200px, 94vw);
+      margin: 18px auto 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+    }
+
+    .symbol-card {
+      min-height: 145px;
+      border: 0;
+      border-radius: 24px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: clamp(4.5rem, 9vw, 7rem);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .symbol-card:nth-child(5n + 1) { background: #e4f6ff; }
+    .symbol-card:nth-child(5n + 2) { background: #fff4c8; }
+    .symbol-card:nth-child(5n + 3) { background: #ffe2ee; }
+    .symbol-card:nth-child(5n + 4) { background: #e9ddf4; }
+    .symbol-card:nth-child(5n + 5) { background: #dcf5e6; }
+
+    .symbol-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 16px 30px rgba(36, 50, 74, 0.2);
+    }
+
+    .symbol-card:focus-visible,
+    .close-button:focus-visible,
+    .nav-button:focus-visible {
+      outline: 5px solid #1667c7;
+      outline-offset: 4px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(27, 42, 68, 0.94);
+    }
+
+    .overlay.open {
+      display: grid;
+    }
+
+    .big-symbol {
+      font-size: clamp(12rem, 55vw, 42rem);
+      line-height: 1;
+      animation: appear 0.22s ease-out;
+      user-select: none;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .close-button,
+    .nav-button {
+      position: fixed;
+      border: 0;
+      cursor: pointer;
+      color: var(--ink);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      font-size: 2rem;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .close-button {
+      top: 22px;
+      right: 22px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+    }
+
+    .nav-button {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 64px;
+      height: 84px;
+      border-radius: 20px;
+    }
+
+    .previous {
+      left: 20px;
+    }
+
+    .next {
+      right: 20px;
+    }
+
+    .fullscreen-note {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: calc(100vw - 40px);
+      padding: 10px 16px;
+      border-radius: 999px;
+      text-align: center;
+      color: white;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .gallery {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .symbol-card {
+        min-height: 105px;
+        border-radius: 18px;
+      }
+
+      .nav-button {
+        width: 50px;
+        height: 64px;
+        font-size: 1.5rem;
+      }
+
+      .previous {
+        left: 10px;
+      }
+
+      .next {
+        right: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Symboly</h1>
+    <p class="instruction">
+      Klikni na symbol a zobrazí se přes celou obrazovku.
+    </p>
+  </header>
+
+  <main class="gallery" id="gallery" aria-label="Galerie symbolů"></main>
+
+  <section
+    class="overlay"
+    id="overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Zvětšený symbol"
+  >
+    <button class="close-button" id="closeButton" type="button" aria-label="Zavřít zvětšený symbol">
+      ×
+    </button>
+
+    <button class="nav-button previous" id="previousButton" type="button" aria-label="Předchozí symbol">
+      ←
+    </button>
+
+    <div class="big-symbol" id="bigSymbol" aria-live="polite"></div>
+
+    <button class="nav-button next" id="nextButton" type="button" aria-label="Další symbol">
+      →
+    </button>
+
+    <div class="fullscreen-note">
+      Klikni mimo symbol nebo stiskni Esc pro návrat.
+    </div>
+  </section>
+
+  <script>
+    // Zde můžete symboly jednoduše přidat, odebrat nebo změnit.
+    // Jsou uvedené bez názvů, stejně jako na kartičkách.
+    const symbols = [
+      "⚠️", "🔒", "🔓", "♻️",
+      "🚻", "🚪", "🔥", "🚫",
+      "⛔", "✅", "❌", "ℹ️",
+      "🚭", "🅿️", "🆘", "▶️",
+      "⏸️", "⏹️", "🔍", "🏠",
+      "⚙️", "🗑️", "💾", "📎",
+      "↩️", "➡️", "⬇️", "⬆️",
+      "📶", "🔋", "🔊", "🔇",
+      "🔒", "🔓", "♻️", "🚻", 
+ 
+    ];
+
+    const gallery = document.getElementById("gallery");
+    const overlay = document.getElementById("overlay");
+    const bigSymbol = document.getElementById("bigSymbol");
+    const closeButton = document.getElementById("closeButton");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
+
+    let activeIndex = 0;
+    let lastClickedCard = null;
+
+    function createGallery() {
+      symbols.forEach((symbol, index) => {
+        const button = document.createElement("button");
+        button.className = "symbol-card";
+        button.type = "button";
+        button.textContent = symbol;
+        button.setAttribute("aria-label", `Zvětšit symbol ${index + 1}`);
+
+        button.addEventListener("click", () => {
+          lastClickedCard = button;
+          openSymbol(index);
+        });
+
+        gallery.appendChild(button);
+      });
+    }
+
+    function openSymbol(index) {
+      activeIndex = index;
+      bigSymbol.textContent = symbols[activeIndex];
+      overlay.classList.add("open");
+      closeButton.focus();
+    }
+
+    function closeSymbol() {
+      overlay.classList.remove("open");
+
+      if (lastClickedCard) {
+        lastClickedCard.focus();
+      }
+    }
+
+    function showPrevious() {
+      activeIndex = (activeIndex - 1 + symbols.length) % symbols.length;
+      bigSymbol.textContent = symbols[activeIndex];
+    }
+
+    function showNext() {
+      activeIndex = (activeIndex + 1) % symbols.length;
+      bigSymbol.textContent = symbols[activeIndex];
+    }
+
+    closeButton.addEventListener("click", closeSymbol);
+    previousButton.addEventListener("click", showPrevious);
+    nextButton.addEventListener("click", showNext);
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        closeSymbol();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!overlay.classList.contains("open")) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeSymbol();
+      }
+
+      if (event.key === "ArrowLeft") {
+        showPrevious();
+      }
+
+      if (event.key === "ArrowRight") {
+        showNext();
+      }
+    });
+
+    createGallery();
+  </script>
+</body>
+</html>
