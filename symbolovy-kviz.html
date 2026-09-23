@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Symbolový kvíz</title>
+  <style>
+    :root {
+      --ink: #24324a;
+      --muted: #64748b;
+      --cream: #fffaf0;
+      --card: #ffffff;
+      --blue: #8ecae6;
+      --yellow: #ffd166;
+      --green: #95d5b2;
+      --pink: #ffafcc;
+      --purple: #cdb4db;
+      --orange: #f4a261;
+      --shadow: 0 12px 30px rgba(36, 50, 74, .12);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #dff6ff 0, transparent 32%),
+        radial-gradient(circle at bottom right, #ffe4ef 0, transparent 32%),
+        var(--cream);
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 22px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--ink);
+      background: white;
+      box-shadow: 0 4px 12px rgba(36, 50, 74, .1);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:focus-visible {
+      outline: 4px solid #2d6cdf;
+      outline-offset: 3px;
+    }
+
+    .primary { background: var(--blue); }
+    .success { background: var(--green); }
+    .warning { background: var(--yellow); }
+    .soft { background: #eef4fb; }
+
+    .app {
+      width: min(1180px, 94vw);
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      background: var(--yellow);
+      font-size: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(1.7rem, 4vw, 2.6rem); }
+    h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+    .subtitle { color: var(--muted); margin-bottom: 0; }
+
+    .card {
+      background: rgba(255,255,255,.9);
+      border-radius: 28px;
+      padding: clamp(20px, 4vw, 38px);
+      box-shadow: var(--shadow);
+    }
+
+    .center { text-align: center; }
+    .hidden { display: none !important; }
+
+    .start-card {
+      max-width: 760px;
+      margin: 7vh auto 0;
+    }
+
+    .start-symbol {
+      font-size: clamp(4rem, 13vw, 8rem);
+      margin: 20px 0;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .setup {
+      display: grid;
+      gap: 16px;
+      margin: 24px auto;
+      max-width: 520px;
+      text-align: left;
+    }
+
+    label { font-weight: 700; }
+    select, input {
+      width: 100%;
+      margin-top: 7px;
+      padding: 13px 14px;
+      border: 2px solid #d8e1ed;
+      border-radius: 13px;
+      font: inherit;
+      color: var(--ink);
+      background: white;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .progress {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #e7edf5;
+      margin: 12px 0 24px;
+    }
+
+    .progress > div {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      transition: width .35s ease;
+    }
+
+    .round-label {
+      display: inline-block;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: #eef4fb;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 20px;
+    }
+
+    .question-card { text-align: center; }
+
+    .symbol {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      font-size: clamp(6rem, 15vw, 10rem);
+      border-radius: 24px;
+      background: linear-gradient(135deg, #fff4c8, #ffe1ed);
+      margin: 16px 0 24px;
+    }
+
+    .question {
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 800;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .answer {
+      min-height: 72px;
+      text-align: left;
+      background: #f8fbff;
+      border: 3px solid transparent;
+    }
+
+    .answer:hover { border-color: var(--blue); }
+    .answer.correct {
+      background: #d9f5e5;
+      border-color: #45ad70;
+    }
+    .answer.revealed {
+      background: #fff0c2;
+      border-color: #e8ad2b;
+    }
+
+    .feedback {
+      margin: 22px 0 0;
+      padding: 18px;
+      border-radius: 18px;
+      background: #f3f7fc;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .feedback.good { background: #e2f7e9; }
+    .feedback.gentle { background: #fff5d7; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .score-card h3 { margin-bottom: 12px; }
+    .team {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e7edf5;
+    }
+
+    .team:last-child { border-bottom: 0; }
+    .team-score { font-size: 1.4rem; font-weight: 800; }
+
+    .team-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .team-buttons button {
+      padding: 9px 12px;
+      font-size: .9rem;
+    }
+
+    .reflection {
+      display: grid;
+      gap: 14px;
+      margin: 25px auto;
+      max-width: 760px;
+      text-align: left;
+    }
+
+    .reflection div {
+      padding: 18px;
+      border-radius: 18px;
+      background: #f7faff;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    @media (max-width: 800px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .score-card { order: -1; }
+    }
+
+    @media (max-width: 560px) {
+      .answers { grid-template-columns: 1fr; }
+      header { align-items: flex-start; }
+      .symbol { min-height: 150px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">💡</div>
+        <div>
+          <h1>Symbolový kvíz</h1>
+          <p class="subtitle">Společná hra pro celou třídu</p>
+        </div>
+      </div>
+      <button class="soft" id="homeButton" type="button">⌂ Začátek</button>
+    </header>
+
+    <section id="startScreen" class="card start-card center">
+      <div class="start-symbol" aria-hidden="true">🔍 🔒 ⚠️</div>
+      <h2>Vítejte ve světě symbolů!</h2>
+      <p>
+        Učitel ukáže symbol, děti společně přemýšlejí a vysvětlují,
+        co by mohl znamenat.
+      </p>
+
+      <div class="setup">
+        <label>
+          Vyberte kolo
+          <select id="roundSelect">
+            <option value="meaning">Poznáme symbol?</option>
+            <option value="place">Kde se používá?</option>
+            <option value="create">Jaký symbol vytvoříme?</option>
+          </select>
+        </label>
+
+        <label>
+          Bodování
+          <select id="scoreSelect">
+            <option value="on">Chci používat týmové body</option>
+            <option value="off">Bez bodování</option>
+          </select>
+        </label>
+
+        <label id="teamCountLabel">
+          Počet týmů
+          <select id="teamCount">
+            <option value="2">2 týmy</option>
+            <option value="3">3 týmy</option>
+            <option value="4">4 týmy</option>
+          </select>
+        </label>
+      </div>
+
+      <button class="primary" id="startButton" type="button">Začít hru</button>
+      <p class="small-note">Aplikace neobsahuje časový limit ani rušivé zvuky.</p>
+    </section>
+
+    <section id="gameScreen" class="hidden">
+      <div class="topbar">
+        <span class="round-label" id="roundLabel"></span>
+        <span id="questionCounter"></span>
+      </div>
+
+      <div class="progress" aria-label="Postup hrou">
+        <div id="progressBar" style="width: 0%"></div>
+      </div>
+
+      <div class="game-grid">
+        <article class="card question-card">
+          <div class="symbol" id="symbol" aria-label="Zobrazený symbol"></div>
+          <div class="question" id="question"></div>
+          <div class="answers" id="answers"></div>
+
+          <div id="feedback" class="feedback hidden" role="status"></div>
+
+          <div class="controls">
+            <button class="warning" id="revealButton" type="button">
+              Zobrazit význam
+            </button>
+            <button class="soft" id="backButton" type="button">← Předchozí</button>
+            <button class="primary" id="nextButton" type="button">Další symbol →</button>
+          </div>
+        </article>
+
+        <aside id="scorePanel" class="card score-card">
+          <h3>Týmové body</h3>
+          <div id="teams"></div>
+          <div id="teamButtons" class="team-buttons"></div>
+          <p class="small-note">Body přidává učitel podle společné domluvy.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="endScreen" class="card hidden center">
+      <div class="start-symbol" aria-hidden="true">🌟</div>
+      <h2>Skvělá práce!</h2>
+      <p>
+        Dnes jsme zjistili, že symboly dokážou rychle a jednoduše
+        něco sdělit.
+      </p>
+
+      <div id="finalScores"></div>
+
+      <div class="reflection">
+        <div><strong>Který symbol jste poznali nejrychleji?</strong></div>
+        <div><strong>Který byl nejtěžší?</strong></div>
+        <div><strong>Jaký symbol byste vytvořili pro naši třídu?</strong></div>
+      </div>
+
+      <button class="primary" id="restartButton" type="button">Hrát znovu</button>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        symbol: "🔍",
+        question: "Co tento symbol nejčastěji znamená?",
+        answers: ["Hledání", "Nastavení", "Smazání", "Přehrávání"],
+        correct: 0,
+        explanation: "Lupa označuje hledání nebo vyhledávání. Najdeme ji například v internetových stránkách a aplikacích."
+      },
+      {
+        symbol: "🔒",
+        question: "Co nám může říkat symbol zámku?",
+        answers: ["Je něco zabezpečené", "Je třeba něco přehrát", "Je zapnutý zvuk", "Je čas odejít"],
+        correct: 0,
+        explanation: "Zámek často znamená, že je něco uzamčené, soukromé nebo zabezpečené."
+      },
+      {
+        symbol: "⚠️",
+        question: "Na co nás upozorňuje tento symbol?",
+        answers: ["Na nebezpečí nebo důležité upozornění", "Na domácí stránku", "Na baterii", "Na recyklaci"],
+        correct: 0,
+        explanation: "Trojúhelník s vykřičníkem upozorňuje, že máme být opatrní."
+      },
+      {
+        symbol: "♻️",
+        question: "Kde bychom mohli vidět tento symbol?",
+        answers: ["U třídění a recyklace", "U nastavení tabletu", "U přehrávání videa", "U dveří"],
+        correct: 0,
+        explanation: "Tři šipky v kruhu označují recyklaci nebo možnost opětovného využití."
+      },
+      {
+        symbol: "▶️",
+        question: "Co se stane, když stiskneme tlačítko s tímto symbolem?",
+        answers: ["Spustí se video nebo zvuk", "Všechno se smaže", "Otevře se nastavení", "Zařízení se zamkne"],
+        correct: 0,
+        explanation: "Trojúhelník směřující doprava znamená spustit nebo přehrát."
+      },
+      {
+        symbol: "⏸️",
+        question: "Co znamenají dvě svislé čárky?",
+        answers: ["Pozastavit", "Hledat", "Domů", "Zvýšit hlasitost"],
+        correct: 0,
+        explanation: "Dvě svislé čárky znamenají pozastavit. Aktivita se na chvíli zastaví."
+      },
+      {
+        symbol: "🗑️",
+        question: "K čemu slouží symbol odpadkového koše?",
+        answers: ["Ke smazání", "K uložení", "K připojení", "K návratu domů"],
+        correct: 0,
+        explanation: "Odpadkový koš označuje smazání nebo odstranění souboru."
+      },
+      {
+        symbol: "⚙️",
+        question: "Kde bychom hledali nastavení?",
+        answers: ["U ozubeného kolečka", "U symbolu baterie", "U symbolu zámku", "U symbolu východu"],
+        correct: 0,
+        explanation: "Ozubené kolečko je běžný symbol pro nastavení aplikace nebo zařízení."
+      },
+      {
+        symbol: "📶",
+        question: "Co označují obloučky nad sebou?",
+        answers: ["Připojení k síti", "Tisk dokumentu", "Zákaz vstupu", "Recyklaci"],
+        correct: 0,
+        explanation: "Tento symbol ukazuje sílu bezdrátového připojení k síti."
+      },
+      {
+        symbol: "🔋",
+        question: "Co nám ukazuje tento symbol?",
+        answers: ["Stav baterie", "Hlasitost", "Informace", "Zákaz"],
+        correct: 0,
+        explanation: "Symbol baterie ukazuje, kolik energie zařízení ještě má."
+      },
+      {
+        symbol: "🚫",
+        question: "Co znamená červený přeškrtnutý kruh?",
+        answers: ["Zákaz", "Spuštění", "Domů", "Pomoc"],
+        correct: 0,
+        explanation: "Přeškrtnutý kruh obvykle znamená, že něco není dovoleno."
+      },
+      {
+        symbol: "ℹ️",
+        question: "Co můžeme očekávat u symbolu i v kroužku?",
+        answers: ["Informaci", "Nebezpečí požáru", "Smazání", "Nabíjení"],
+        correct: 0,
+        explanation: "Písmeno i znamená informace nebo další vysvětlení."
+      }
+    ];
+
+    const placeQuestions = [
+      { ...questions[0], question: "Kde bychom mohli najít symbol lupy?", answers: ["U vyhledávání", "Na dveřích toalety", "U třídění odpadu", "U baterie"], correct: 0 },
+      { ...questions[2], question: "Který symbol bychom použili u mokré podlahy?", answers: ["⚠️", "🏠", "🔊", "▶️"], correct: 0 },
+      { ...questions[3], question: "Který symbol se hodí ke třídění odpadu?", answers: ["♻️", "🔒", "⏸️", "🔍"], correct: 0 },
+      { ...questions[7], question: "Který symbol bychom čekali v nabídce Nastavení?", answers: ["⚙️", "🚪", "🗑️", "📶"], correct: 0 },
+      { ...questions[8], question: "Který symbol hledáme, když chceme zjistit připojení k internetu?", answers: ["📶", "❌", "✅", "🚫"], correct: 0 },
+      { ...questions[9], question: "Který symbol ukazuje, že iPad potřebuje nabít?", answers: ["🔋", "ℹ️", "♻️", "🏠"], correct: 0 }
+    ];
+
+    const createPrompts = [
+      { symbol: "🤫", question: "Jaký symbol by se hodil pro zprávu: „Prosíme, mluvte potichu“?", explanation: "Zkuste navrhnout jednoduchý obrázek, kterému by rozuměli i lidé bez textu." },
+      { symbol: "🔋", question: "Jaký symbol by se hodil pro místo, kde se nabíjejí iPady?", explanation: "Mohl by spojovat obrázek tabletu, baterie nebo elektrické zásuvky." },
+      { symbol: "📄", question: "Jaký symbol by se hodil pro místo, kam odevzdáváme úkoly?", explanation: "Můžete využít papír, šipku nebo schránku." },
+      { symbol: "♻️", question: "Jaký symbol by se hodil pro místo, kde třídíme odpad?", explanation: "Zkuste vymyslet vlastní symbol nebo upravit známý recyklační znak." }
+    ];
+
+    let state = {
+      mode: "meaning",
+      items: [],
+      index: 0,
+      answered: false,
+      scoreOn: true,
+      teams: []
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function shuffle(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function show(screen) {
+      ["startScreen", "gameScreen", "endScreen"].forEach(id => $(id).classList.add("hidden"));
+      $(screen).classList.remove("hidden");
+    }
+
+    function startGame() {
+      state.mode = $("roundSelect").value;
+      state.scoreOn = $("scoreSelect").value === "on";
+      state.index = 0;
+      state.answered = false;
+
+      const source = state.mode === "place" ? placeQuestions :
+                     state.mode === "create" ? createPrompts : questions;
+
+      state.items = shuffle(source);
+
+      const count = Number($("teamCount").value);
+      state.teams = Array.from({ length: count }, (_, index) => ({
+        name: ["Modří", "Zelení", "Žlutí", "Fialoví"][index],
+        score: 0
+      }));
+
+      $("scorePanel").classList.toggle("hidden", !state.scoreOn);
+      show("gameScreen");
+      render();
+    }
+
+    function render() {
+      const item = state.items[state.index];
+      const total = state.items.length;
+
+      $("roundLabel").textContent =
+        state.mode === "meaning" ? "Kolo 1 · Poznáme symbol?" :
+        state.mode === "place" ? "Kolo 2 · Kde se používá?" :
+        "Kolo 3 · Jaký symbol vytvoříme?";
+
+      $("questionCounter").textContent = `${state.index + 1} z ${total}`;
+      $("progressBar").style.width = `${((state.index + 1) / total) * 100}%`;
+      $("symbol").textContent = item.symbol;
+      $("question").textContent = item.question;
+      $("feedback").className = "feedback hidden";
+      $("feedback").textContent = "";
+      $("revealButton").disabled = false;
+      state.answered = false;
+
+      const answers = $("answers");
+      answers.innerHTML = "";
+
+      if (state.mode === "create") {
+        answers.innerHTML = `
+          <div class="feedback">
+            <strong>Úkol pro třídu:</strong><br>
+            Navrhněte společně jednoduchý symbol. Můžete ho nakreslit na tabuli,
+            ukázat gestem nebo popsat slovy.
+          </div>`;
+        $("revealButton").textContent = "Zobrazit nápovědu";
+      } else {
+        $("revealButton").textContent = "Zobrazit význam";
+        item.answers.forEach((answer, index) => {
+          const button = document.createElement("button");
+          button.className = "answer";
+          button.type = "button";
+          button.textContent = `${String.fromCharCode(65 + index)}) ${answer}`;
+          button.addEventListener("click", () => chooseAnswer(index));
+          answers.appendChild(button);
+        });
+      }
+
+      $("backButton").disabled = state.index === 0;
+      $("nextButton").textContent = state.index === total - 1 ? "Dokončit hru" : "Další symbol →";
+      renderTeams();
+    }
+
+    function chooseAnswer(selected) {
+      if (state.answered) return;
+
+      const item = state.items[state.index];
+      const buttons = [...document.querySelectorAll(".answer")];
+      state.answered = true;
+      buttons.forEach(button => button.disabled = true);
+
+      if (selected === item.correct) {
+        buttons[selected].classList.add("correct");
+        showFeedback("Skvělé! To je správná odpověď. 🌟", item.explanation, true);
+      } else {
+        buttons[selected].classList.add("revealed");
+        showFeedback("To je zajímavý tip. Zkusme se na symbol podívat ještě jednou.", item.explanation, false);
+      }
+    }
+
+    function showFeedback(title, text, good) {
+      const feedback = $("feedback");
+      feedback.className = `feedback ${good ? "good" : "gentle"}`;
+      feedback.innerHTML = `<strong>${title}</strong><br>${text}`;
+    }
+
+    function reveal() {
+      const item = state.items[state.index];
+      showFeedback(
+        state.mode === "create" ? "Nápověda pro učitele" : "Význam symbolu",
+        item.explanation,
+        true
+      );
+      state.answered = true;
+    }
+
+    function next() {
+      if (state.index === state.items.length - 1) {
+        finishGame();
+      } else {
+        state.index++;
+        render();
+      }
+    }
+
+    function previous() {
+      if (state.index > 0) {
+        state.index--;
+        render();
+      }
+    }
+
+    function renderTeams() {
+      $("teams").innerHTML = state.teams.map((team, index) => `
+        <div class="team">
+          <span>${team.name}</span>
+          <span class="team-score">${team.score}</span>
+        </div>
+      `).join("");
+
+      $("teamButtons").innerHTML = state.teams.map((team, index) => `
+        <button type="button" data-team="${index}" class="success">
+          + bod ${team.name}
+        </button>
+      `).join("");
+
+      document.querySelectorAll("[data-team]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.teams[Number(button.dataset.team)].score++;
+          renderTeams();
+        });
+      });
+    }
+
+    function finishGame() {
+      show("endScreen");
+      $("finalScores").innerHTML = state.scoreOn
+        ? `<p><strong>Body týmů:</strong> ${state.teams.map(team => `${team.name}: ${team.score}`).join(" · ")}</p>`
+        : "";
+    }
+
+    $("startButton").addEventListener("click", startGame);
+    $("revealButton").addEventListener("click", reveal);
+    $("nextButton").addEventListener("click", next);
+    $("backButton").addEventListener("click", previous);
+    $("restartButton").addEventListener("click", () => show("startScreen"));
+    $("homeButton").addEventListener("click", () => show("startScreen"));
+
+    $("scoreSelect").addEventListener("change", event => {
+      $("teamCountLabel").classList.toggle("hidden", event.target.value === "off");
+    });
+  </script>
+</body>
+</html>
