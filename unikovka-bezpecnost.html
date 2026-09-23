@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operace: Zachraň školní časopis</title>
+<style>
+  :root {
+    color-scheme: dark;
+    font-family: system-ui, sans-serif;
+    line-height: 1.55;
+    color: #edf3ff;
+    background: #0c1426;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  header {
+    padding: 24px;
+    background: #142440;
+    border-bottom: 1px solid #405475;
+  }
+  header div, main { max-width: 1080px; margin: auto; }
+  h1 { margin: 0; font-size: clamp(24px, 5vw, 36px); }
+  h2 { margin-top: 0; font-size: 24px; }
+  p { margin: 10px 0 16px; }
+  main { padding: 18px; }
+  .card {
+    background: #16243c;
+    border: 1px solid #425677;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+  .muted { color: #c0cde2; font-size: 14px; }
+  button, input { font: inherit; }
+  button {
+    min-height: 48px;
+    border: 1px solid #7085a8;
+    border-radius: 10px;
+    padding: 10px 15px;
+    color: #edf3ff;
+    background: #273b5d;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:hover:not(:disabled) { background: #35517d; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 3px solid #ffd36d;
+    outline-offset: 4px;
+  }
+  .primary { background: #135c49; border-color: #4bd9ac; }
+  .primary:hover:not(:disabled) { background: #1c755d; }
+  .toolbar, #map, #digits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .room-indicator, .digit {
+    border: 1px solid #7085a8;
+    border-radius: 9px;
+    padding: 9px 14px;
+  }
+  .room-indicator.current { outline: 2px solid #ffd36d; }
+  .room-indicator.done { background: #164b40; }
+  .digit { font-size: 26px; font-weight: bold; min-width: 50px; text-align: center; }
+  .evidence {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #0c172a;
+    border-left: 4px solid #ffd36d;
+    padding: 18px;
+    border-radius: 8px;
+  }
+  fieldset { border: 0; padding: 0; margin: 18px 0; min-width: 0; }
+  legend { font-weight: bold; margin-bottom: 12px; }
+  label.choice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #20324e;
+    padding: 14px;
+    border: 1px solid #526987;
+    border-radius: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+  }
+  label.choice:has(input:checked) { border-color: #65dfbc; background: #1b443f; }
+  input[type="checkbox"], input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    margin-top: 2px;
+    accent-color: #3ccfa2;
+  }
+  .feedback, #hint {
+    padding: 16px;
+    background: #213a5b;
+    border-radius: 10px;
+    margin: 16px 0;
+  }
+  .feedback.good { background: #164b40; }
+  .feedback.bad { background: #57391b; }
+  #hint { white-space: pre-wrap; background: #443b23; }
+  #orderList { list-style: none; padding: 0; }
+  #orderList li {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    background: #20324e;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .order-controls { display: flex; gap: 6px; flex-shrink: 0; }
+  #code {
+    background: #0c172a;
+    color: white;
+    border: 2px solid #849bbd;
+    border-radius: 10px;
+    padding: 12px;
+    width: 200px;
+    max-width: 100%;
+    letter-spacing: 6px;
+    font-size: 24px;
+  }
+  summary { cursor: pointer; padding: 10px 0; min-height: 48px; }
+  progress { width: 100%; accent-color: #3ccfa2; }
+  [hidden] { display: none !important; }
+  @media (max-width: 600px) {
+    main { padding: 10px; }
+    .card { padding: 16px; }
+    #orderList li { align-items: flex-start; flex-direction: column; }
+  }
+  @media print {
+    body { color: black; background: white; }
+    header, #intro, #play, #teacher, .toolbar { display: none !important; }
+    #ending { display: block !important; border: 0; background: white; color: black; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🔐 Operace: Zachraň školní časopis</h1>
+    <p>Pět místností. Pět bezpečnostních rozhodnutí. Jeden archiv.</p>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="intro">
+    <h2>Vítej v bezpečnostním týmu</h2>
+    <p>
+      Redakce připravuje nové číslo školního časopisu. Před zveřejněním
+      musí váš tým projít cvičením digitální bezpečnosti.
+      Archiv se otevře až po vyřešení pěti incidentů.
+    </p>
+    <p>
+      V každé místnosti získáš jednu číslici. Zapisují se automaticky
+      do zápisníku. Na konci je použiješ ve stejném pořadí.
+    </p>
+    <ul>
+      <li>Všechno je smyšlené. Žádný skutečný účet není napadený.</li>
+      <li>Nikdy sem nepiš své heslo ani osobní údaje.</li>
+      <li>Nápověda je dovolená. Za chyby se nevyřazuje.</li>
+      <li>Čas je pouze orientační — hra nemá časový limit.</li>
+      <li>Po zavření nebo obnovení stránky se hra spustí od začátku.</li>
+    </ul>
+    <button class="primary" id="start">Vstoupit do cvičení →</button>
+  </section>
+
+  <section id="play" hidden>
+    <div class="card">
+      <div id="map" aria-label="Postup místnostmi"></div>
+      <progress id="progress" max="5" value="0"
+                aria-label="Počet odemčených místností"></progress>
+      <p class="muted" id="time">Čas: 0:00</p>
+      <b>Zápisník získaných číslic</b>
+      <div id="digits" aria-label="Získané číslice"></div>
+    </div>
+
+    <section class="card" id="room">
+      <h2 id="roomTitle" tabindex="-1"></h2>
+      <p id="story"></p>
+      <div class="evidence" id="evidence"></div>
+
+      <fieldset id="choices">
+        <legend id="question"></legend>
+        <div id="answers"></div>
+      </fieldset>
+
+      <div id="ordering" hidden>
+        <p id="orderQuestion"></p>
+        <ol id="orderList"></ol>
+      </div>
+
+      <div class="toolbar">
+        <button id="check" class="primary">Prověřit řešení</button>
+        <button id="hintButton">💡 Nápověda</button>
+        <button id="next" class="primary" hidden>Pokračovat →</button>
+      </div>
+
+      <p id="hint" hidden></p>
+      <div id="feedback" class="feedback" role="status" aria-live="polite">
+        Prohlédni si důkazy a rozhodni.
+      </div>
+    </section>
+
+    <section class="card" id="vault" hidden>
+      <h2>🚪 Poslední dveře: archiv časopisu</h2>
+      <p>Použij číslice ze zápisníku v pořadí místností 1 až 5.</p>
+      <form id="codeForm">
+        <label for="code">Pětimístný kód:</label>
+        <p>
+          <input id="code" inputmode="numeric" pattern="[0-9]{5}"
+                 maxlength="5" autocomplete="off" required>
+        </p>
+        <button class="primary" type="submit">Odemknout archiv</button>
+      </form>
+      <p id="vaultMessage" role="status" aria-live="polite"></p>
+    </section>
+  </section>
+
+  <section class="card" id="ending" hidden>
+    <h2 tabindex="-1" id="endingTitle">🎉 Archiv je otevřený!</h2>
+    <p>
+      Cvičení je dokončené. Časopis může pokračovat do další redakční fáze.
+      Nejdůležitější nejsou získané číslice, ale vysvětlení tvých rozhodnutí.
+    </p>
+    <div id="summary"></div>
+    <h3>Krátká porada týmu</h3>
+    <ol>
+      <li>Co bylo na podvodné zprávě přesvědčivé?</li>
+      <li>Jak ověříš žádost, která vypadá, že přišla od známého?</li>
+      <li>Proč není dobré mít stejné heslo všude?</li>
+      <li>Co bys udělal/a jako svědek kyberšikany?</li>
+      <li>Jaké jedno pravidlo chceš používat i mimo hru?</li>
+    </ol>
+    <div class="toolbar">
+      <button id="download" class="primary">Stáhnout přehled (.txt)</button>
+      <button id="restart">Nová hra</button>
+    </div>
+  </section>
+
+  <details class="card" id="teacher">
+    <summary>Pro učitele — organizace a řešení (obsahuje prozrazení)</summary>
+    <p>
+      Návrh hodiny: 5 minut úvod, 30 minut hra, 10 minut reflexe.
+      Ve dvojici se po každé místnosti vystřídejte u ovládání.
+      Po žácích požadujte i ústní zdůvodnění, ne pouze odemčení.
+    </p>
+    <p>
+      Řešení: 1 — první dvě možnosti; 2 — první možnost;
+      3 — druhá možnost; 4 — ověřit, uložit práci, aktualizovat;
+      5 — první tři možnosti. Finální kód: 74926.
+    </p>
+    <p>
+      Čas ani počet pokusů nepoužívejte jako známku.
+      Jde o výuku, nikoli zabezpečený test. Řešení jsou dostupná
+      v souboru a v této učitelské části.
+    </p>
+    <p>
+      Při debatě o kyberšikaně nevyžadujte osobní zkušenosti před třídou.
+      Pokud se téma někoho týká, nabídněte mu soukromý rozhovor
+      a podporu školního poradenského pracoviště.
+    </p>
+  </details>
+</main>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const rooms = [
+  {
+    title: "1. Poštovní místnost",
+    story: "Do redakční schránky přišla zpráva. Jejím cílem je přimět vás k rychlé reakci.",
+    evidence:
+`OD: „Školní IT“ <podpora@skola-overeni.example>
+PŘEDMĚT: Za 10 minut smažeme vaše články!
+
+Okamžitě potvrďte účet svým heslem.
+Použijte tlačítko OBNOVIT PŘÍSTUP.
+
+Poznámka ze školení:
+Známou školní adresu máte uloženou v záložkách.
+Odesílatel v této zprávě používá jinou doménu.
+Ve hře není žádný aktivní odkaz.`,
+    question: "Vyber DVĚ vhodné reakce.",
+    type: "multi",
+    options: [
+      "Neotevřu nabízený odkaz. Ověřím situaci přes známou školní stránku nebo u školního IT.",
+      "Podezřelou zprávu nahlásím učiteli nebo školnímu IT domluveným způsobem.",
+      "Odpovím svým heslem, abych stihl/a časový limit.",
+      "Věřím zprávě, protože zobrazované jméno odesílatele obsahuje Školní IT."
+    ],
+    correct: [0, 1],
+    hints: [
+      "Odděl tvrzení ve zprávě od toho, co můžeš ověřit nezávisle.",
+      "Bezpečná dvojice je: neklikat a ověřit známou cestou; zprávu nahlásit."
+    ],
+    explanation: "Časový nátlak a žádost o heslo jsou varovné signály. Jméno odesílatele samo o sobě nepotvrzuje jeho totožnost. Ověření provádíme mimo podezřelou zprávu.",
+    digit: "7"
+  },
+  {
+    title: "2. Trezor účtů",
+    story: "Redaktoři si vybírají způsob zabezpečení svých účtů. Vyber nejlepší plán.",
+    evidence:
+`Požadavek redakce:
+Když unikne heslo k jedné službě,
+nesmí automaticky otevřít i všechny ostatní účty.
+
+Nikdo v této hře nepotřebuje znát tvoje skutečné heslo.`,
+    question: "Který plán nejlépe odpovídá požadavku?",
+    type: "single",
+    options: [
+      "Pro každou službu dlouhé náhodné jedinečné heslo uložené ve správci hesel a zapnuté vícefaktorové ověření, pokud je dostupné.",
+      "Jedno dlouhé heslo pro všechny služby. Délka přece vyřeší i jeho opakované použití.",
+      "Pro každou službu název školy a aktuální rok.",
+      "Jedno společné heslo pro celou redakci poslané do skupinového chatu."
+    ],
+    correct: [0],
+    hints: [
+      "Nestačí řešit délku. Přemýšlej, co se stane po úniku hesla z jedné služby.",
+      "Hledej plán s jedinečnými hesly pro různé služby a další vrstvou ověření."
+    ],
+    explanation: "Jedinečnost omezuje dopad úniku hesla z jiné služby. Správce hesel pomáhá tvořit a uchovávat silná hesla. Vícefaktorové ověření přidává další ochranu.",
+    digit: "4"
+  },
+  {
+    title: "3. Falešný pomocník",
+    story: "V chatu se ozval účet pojmenovaný jako správce školního časopisu.",
+    evidence:
+`„Ahoj, opravuji tvůj přístup.
+Za chvíli ti přijde výzva k přihlášení.
+Potvrď ji, i když se teď sám/sama nepřihlašuješ.
+Jinak dnes nestihneme vydání!“
+
+Právě se žádné přihlášení nepokoušíš provést.`,
+    question: "Jak zareaguješ?",
+    type: "single",
+    options: [
+      "Výzvu potvrdím, protože účet má fotografii známého správce.",
+      "Nečekanou výzvu odmítnu a situaci ověřím u správce přes známý kontakt. Podezřelou žádost nahlásím.",
+      "Pošlu odesílateli ověřovací kód, ale heslo si nechám pro sebe.",
+      "Počkám na druhou stejnou výzvu a tu už potvrdím."
+    ],
+    correct: [1],
+    hints: [
+      "Výzva přišla bez tvého přihlašování. Profilová fotografie není důkaz.",
+      "Nepotvrzuj cizí pokus. Ověř situaci jinou, známou cestou."
+    ],
+    explanation: "Druhý faktor chrání účet jen tehdy, když nepovolíme cizí přihlášení. Nevyžádanou výzvu odmítáme a řešíme ji přes známý kontakt.",
+    digit: "9"
+  },
+  {
+    title: "4. Servisní dílna",
+    story: "Na školním zařízení máte rozpracovaný článek. Objevila se nabídka aktualizace.",
+    evidence:
+`V prohlížeči vyskočil banner:
+„Zařízení je v nebezpečí! Stáhni náš opravný program.“
+
+Školní postup říká:
+Aktualizace ověřujeme v systémovém nastavení
+nebo u školního IT. Před restartem ukládáme práci.
+Instalujeme pouze aktualizace povolené školou.`,
+    question: "Seřaď tři kroky podle školního postupu. Použij šipky.",
+    type: "order",
+    items: [
+      "Nainstalovat schválenou aktualizaci oficiálním mechanismem; případný restart podle pokynů.",
+      "Ignorovat stažení z banneru a ověřit aktualizaci v nastavení nebo u školního IT.",
+      "Uložit rozpracovaný článek a připravit zařízení na případný restart."
+    ],
+    correctOrder: [1, 2, 0],
+    hints: [
+      "Nejdřív potřebuješ vědět, že nabídka aktualizace pochází ze správného místa.",
+      "Pořadí je: ověřit oficiální cestou → uložit práci → schválená aktualizace."
+    ],
+    explanation: "Aktualizace pomáhají opravovat bezpečnostní chyby. Reklamní banner ale není důvěryhodný instalační kanál. Na školním zařízení dodržujeme školní postup.",
+    digit: "2"
+  },
+  {
+    title: "5. Redakční chat",
+    story: "V chatu se opakovaně objevují ponižující příspěvky o spolužákovi. Jsi svědek.",
+    evidence:
+`Někdo opakovaně sdílí zesměšňující obrázek spolužáka.
+Další členové skupiny přidávají urážky.
+Spolužák napsal: „Prosím, přestaňte.“
+Příspěvky ale pokračují.
+
+Jde o smyšlenou situaci.
+Ve třídě nemusíš popisovat vlastní zážitky.`,
+    question: "Vyber TŘI kroky, které pomohou.",
+    type: "multi",
+    options: [
+      "Soukromě spolužáka podpořím a nebudu se přidávat ani obrázek dál šířit.",
+      "Pomohu uchovat důkazy o těchto příspěvcích, například snímky s datem, bez dalšího veřejného šíření.",
+      "Obrátím se na důvěryhodného dospělého a pomohu využít nahlášení obsahu.",
+      "Přepošlu obrázek do dalších tříd, aby všichni věděli, co se děje.",
+      "Napíšu spolužákovi, že si za to může sám a má si zvyknout."
+    ],
+    correct: [0, 1, 2],
+    hints: [
+      "Cílem je podpora, omezení dalšího šíření a zapojení někoho, kdo může pomoci.",
+      "Vyber podporu spolužáka, uchování důkazů a kontaktování důvěryhodného dospělého."
+    ],
+    explanation: "Člověk vystavený kyberšikaně nemá zůstat sám. Podpora, uchování důkazů a nahlášení pomáhají situaci řešit. Dalším šířením ponižujícího obsahu bychom škodu zvětšovali.",
+    digit: "6"
+  }
+];
+
+let current = 0;
+let solved = Array(rooms.length).fill(false);
+let attempts = Array(rooms.length).fill(0);
+let hintCounts = Array(rooms.length).fill(0);
+let order = [];
+let startedAt = null;
+let finishedAt = null;
+
+function elapsed() {
+  if (startedAt === null) return 0;
+  return Math.max(0, Math.floor(((finishedAt ?? Date.now()) - startedAt) / 1000));
+}
+function formatTime(seconds) {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+setInterval(() => {
+  $("time").textContent = "Orientační čas: " + formatTime(elapsed());
+}, 1000);
+
+function updateProgress() {
+  $("map").replaceChildren();
+  $("digits").replaceChildren();
+  $("progress").value = solved.filter(Boolean).length;
+
+  rooms.forEach((room, index) => {
+    const marker = document.createElement("span");
+    marker.className = "room-indicator" +
+      (solved[index] ? " done" : "") +
+      (index === current ? " current" : "");
+    marker.textContent = `${solved[index] ? "✓" : "🔒"} ${index + 1}`;
+    marker.setAttribute("aria-label",
+      `Místnost ${index + 1}: ${solved[index] ? "splněná" : "nesplněná"}`);
+    if (index === current) marker.setAttribute("aria-current", "step");
+    $("map").append(marker);
+
+    const digit = document.createElement("span");
+    digit.className = "digit";
+    digit.textContent = solved[index] ? room.digit : "–";
+    digit.setAttribute("aria-label",
+      `Číslice z místnosti ${index + 1}: ${solved[index] ? room.digit : "nezískaná"}`);
+    $("digits").append(digit);
+  });
+}
+
+function renderOrder(focusId = null) {
+  const room = rooms[current];
+  $("orderList").replaceChildren();
+
+  order.forEach((itemId, position) => {
+    const li = document.createElement("li");
+    const text = document.createElement("span");
+    text.textContent = `${position + 1}. ${room.items[itemId]}`;
+    li.append(text);
+
+    const controls = document.createElement("div");
+    controls.className = "order-controls";
+
+    [-1, 1].forEach(direction => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = direction === -1 ? "↑ Nahoru" : "↓ Dolů";
+      button.id = `move-${itemId}-${direction}`;
+      button.setAttribute("aria-label",
+        `Krok ${position + 1}: přesunout ${direction === -1 ? "nahoru" : "dolů"}`);
+      button.disabled = solved[current] ||
+        position + direction < 0 || position + direction >= order.length;
+
+      button.onclick = () => {
+        const target = position + direction;
+        [order[position], order[target]] = [order[target], order[position]];
+        const nextDirection = target === 0 ? 1 :
+          target === order.length - 1 ? -1 : direction;
+        renderOrder(`move-${itemId}-${nextDirection}`);
+      };
+      controls.append(button);
+    });
+    li.append(controls);
+    $("orderList").append(li);
+  });
+  if (focusId) document.getElementById(focusId)?.focus();
+}
+
+function renderRoom() {
+  const room = rooms[current];
+  $("roomTitle").textContent = room.title;
+  $("story").textContent = room.story;
+  $("evidence").textContent = room.evidence;
+  $("question").textContent = room.question;
+  $("orderQuestion").textContent = room.question;
+  $("answers").replaceChildren();
+  $("choices").hidden = room.type === "order";
+  $("ordering").hidden = room.type !== "order";
+  $("choices").disabled = false;
+  $("hint").hidden = true;
+  $("feedback").className = "feedback";
+  $("feedback").textContent = "Prohlédni si důkazy a rozhodni.";
+  $("check").disabled = false;
+  $("hintButton").disabled = false;
+  $("next").hidden = true;
+
+  if (room.type === "order") {
+    order = room.items.map((_, index) => index);
+    renderOrder();
+  } else {
+    room.options.forEach((option, index) => {
+      const label = document.createElement("label");
+      label.className = "choice";
+      const input = document.createElement("input");
+      input.type = room.type === "single" ? "radio" : "checkbox";
+      input.name = "answer";
+      input.value = String(index);
+      const text = document.createElement("span");
+      text.textContent = option;
+      label.append(input, text);
+      $("answers").append(label);
+    });
+  }
+  updateProgress();
+  $("roomTitle").focus();
+}
+
+$("start").onclick = () => {
+  startedAt = Date.now();
+  $("intro").hidden = true;
+  $("play").hidden = false;
+  renderRoom();
+};
+
+$("check").onclick = () => {
+  if (solved[current]) return;
+  const room = rooms[current];
+  let correct;
+
+  if (room.type === "order") {
+    correct = order.every((id, i) => id === room.correctOrder[i]);
+  } else {
+    const selected = [...$("answers").querySelectorAll("input:checked")]
+      .map(input => Number(input.value));
+
+    if (!selected.length) {
+      $("feedback").textContent = "Nejprve vyber alespoň jednu odpověď.";
+      return;
+    }
+    correct = selected.length === room.correct.length &&
+      selected.every(id => room.correct.includes(id));
+  }
+
+  attempts[current]++;
+  if (!correct) {
+    $("feedback").className = "feedback bad";
+    $("feedback").textContent = room.type === "order"
+      ? "Pořadí zatím nesedí. Co je potřeba ověřit před instalací a udělat před restartem? Můžeš použít nápovědu."
+      : "Tato kombinace ještě není správná. Zkontroluj také požadovaný počet odpovědí. Promysli důsledky jednotlivých možností nebo použij nápovědu.";
+    return;
+  }
+
+  solved[current] = true;
+  $("feedback").className = "feedback good";
+  $("feedback").textContent =
+    `Odemčeno! Získáváš číslici ${room.digit}. ${room.explanation}`;
+  $("choices").disabled = true;
+  $("check").disabled = true;
+  $("hintButton").disabled = true;
+  $("next").hidden = false;
+  $("next").textContent = current === rooms.length - 1
+    ? "Přejít k archivu →" : "Další místnost →";
+  if (room.type === "order") renderOrder();
+  updateProgress();
+};
+
+$("hintButton").onclick = () => {
+  const hints = rooms[current].hints;
+  hintCounts[current] = Math.min(hintCounts[current] + 1, hints.length);
+  $("hint").hidden = false;
+  $("hint").textContent = hints.slice(0, hintCounts[current]).join("\n\n");
+};
+
+$("next").onclick = () => {
+  if (!solved[current]) return;
+  if (current < rooms.length - 1) {
+    current++;
+    renderRoom();
+  } else {
+    $("room").hidden = true;
+    $("vault").hidden = false;
+    $("code").focus();
+  }
+};
+
+function reportText() {
+  return [
+    "OPERACE: ZACHRAŇ ŠKOLNÍ ČASOPIS",
+    "Cvičení dokončeno — archiv odemčen.",
+    `Orientační čas: ${formatTime(elapsed())}`,
+    "",
+    ...rooms.map((room, i) =>
+      `${room.title}\nPokusy: ${attempts[i]}, použité stupně nápovědy: ${hintCounts[i]}\n${room.explanation}`),
+    "",
+    "Moje reflexe:",
+    "Jedno pravidlo, které začnu používat:",
+    "",
+    "Jde o přehled výukové hry, nikoli ověřený test znalostí."
+  ].join("\n");
+}
+
+$("codeForm").onsubmit = event => {
+  event.preventDefault();
+  if (!solved.every(Boolean)) return;
+  const expected = rooms.map(room => room.digit).join("");
+  if ($("code").value.trim() !== expected) {
+    $("vaultMessage").textContent = "Archiv zůstává zavřený. Čti zápisník zleva doprava.";
+    return;
+  }
+  finishedAt = Date.now();
+  $("play").hidden = true;
+  $("ending").hidden = false;
+  $("summary").replaceChildren();
+
+  const time = document.createElement("p");
+  time.textContent = "Orientační čas: " + formatTime(elapsed());
+  $("summary").append(time);
+
+  const list = document.createElement("ul");
+  rooms.forEach((room, i) => {
+    const item = document.createElement("li");
+    item.textContent =
+      `${room.title} — pokusy: ${attempts[i]}, stupně nápovědy: ${hintCounts[i]}.`;
+    list.append(item);
+  });
+  $("summary").append(list);
+  $("endingTitle").focus();
+};
+
+$("download").onclick = () => {
+  if (finishedAt === null) return;
+  const blob = new Blob(["\ufeff", reportText()], {
+    type: "text/plain;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "unikovka-vysledky.txt";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+};
+
+$("restart").onclick = () => {
+  if (confirm("Začít znovu? Nejdříve si případně stáhni výsledky.")) {
+    location.reload();
+  }
+};
+</script>
+</body>
+</html>
