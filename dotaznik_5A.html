@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dotazníkový průvodce pro 5.A</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-dark: #312e81;
+      --secondary: #e0e7ff;
+      --background: #f4f7ff;
+      --panel: #ffffff;
+      --border: #d5dcf0;
+      --text: #20243a;
+      --muted: #626b84;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --warning: #9a3412;
+      --warning-bg: #fff7ed;
+      --shadow: 0 8px 24px rgba(55, 65, 120, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--background) 100%);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      color: var(--primary-dark);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+    }
+
+    section {
+      margin: 20px 0;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    label {
+      display: block;
+      margin: 14px 0;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      display: block;
+      width: min(100%, 550px);
+      margin-top: 6px;
+      padding: 10px 12px;
+      border: 1px solid #aeb8d2;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+    }
+
+    input:focus,
+    select:focus {
+      outline: 3px solid rgba(67, 56, 202, .18);
+      border-color: var(--primary);
+    }
+
+    button {
+      margin: 5px 6px 5px 0;
+      padding: 10px 15px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    button:disabled {
+      background: #a4a7b9;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: var(--secondary);
+      color: var(--primary-dark);
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #c7d2fe;
+    }
+
+    button.danger {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    button.danger:hover:not(:disabled) {
+      background: #fecaca;
+    }
+
+    .intro {
+      text-align: center;
+    }
+
+    .hint {
+      color: var(--muted);
+    }
+
+    .privacy-note {
+      padding: 12px 14px;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .notice {
+      padding: 12px 14px;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .status {
+      min-height: 24px;
+      margin: 12px 0 0;
+      font-weight: bold;
+    }
+
+    .status.success {
+      color: var(--success);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .question {
+      margin: 14px 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #f8f9ff;
+    }
+
+    .question-title {
+      margin-top: 0;
+    }
+
+    .answer-form {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfcff;
+    }
+
+    .table-wrap {
+      max-width: 100%;
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th,
+    td {
+      padding: 9px 11px;
+      border: 1px solid #cbd3e5;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #e8eaff;
+      color: var(--primary-dark);
+    }
+
+    tr:nth-child(even) td {
+      background: #fafbff;
+    }
+
+    .empty {
+      padding: 14px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: var(--muted);
+    }
+
+    .chart-box {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 850px;
+      height: auto;
+      margin: 14px auto 4px;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      section {
+        padding: 17px;
+      }
+
+      table {
+        font-size: .9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <section class="intro">
+      <h1>Dotazníkový průvodce pro 5.A</h1>
+      <p>
+        Vytvoř dotazník, zapiš odpovědi spolužáků a zjisti,
+        co se ve třídě nejčastěji objevuje.
+      </p>
+    </section>
+
+    <section>
+      <h2>1. Připrav dotazník</h2>
+
+      <label for="author">
+        Jméno žáka nebo žákyně, který/á dotazník zpracovává
+        <input
+          id="author"
+          type="text"
+          maxlength="60"
+          placeholder="Například Jana Nováková"
+        >
+      </label>
+
+      <label for="topic">
+        Téma dotazníku
+        <input
+          id="topic"
+          type="text"
+          maxlength="80"
+          value="Volný čas"
+        >
+      </label>
+
+      <p class="hint">
+        Pro porovnání dvou otázek vytvoř alespoň dvě otázky typu
+        „Výběr z možností“.
+      </p>
+
+      <div class="privacy-note">
+        Jméno dítěte slouží pouze ke kontrole, zda už bylo dotazované.
+        Nepřidávej adresy, telefonní čísla ani jiné citlivé údaje.
+      </div>
+
+      <div id="questions"></div>
+
+      <button id="addQuestion" type="button" class="secondary">
+        + Přidat otázku
+      </button>
+
+      <button id="lockQuestions" type="button">
+        Otázky jsou hotové →
+      </button>
+
+      <p id="setupMessage" class="status" role="status"></p>
+    </section>
+
+    <section>
+      <h2>2. Zapiš odpovědi</h2>
+
+      <p class="hint">
+        Každé uložení vytvoří jeden řádek v tabulce.
+        Nejprve zadej jméno dítěte a potom jeho odpovědi.
+      </p>
+
+      <form id="answerForm" class="answer-form">
+        <p class="empty">
+          Nejdříve připrav otázky v předchozím kroku.
+        </p>
+      </form>
+
+      <p id="answerMessage" class="status" role="status"></p>
+    </section>
+
+    <section>
+      <h2>3. Odpovědi v tabulce</h2>
+
+      <div id="preview" class="table-wrap">
+        <p class="empty">Zatím nejsou zapsané žádné odpovědi.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Jednoduché vyhodnocení</h2>
+
+      <div id="analysis" class="table-wrap">
+        <p class="empty">
+          Vyhodnocení se zobrazí po uložení alespoň jedné odpovědi.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Grafy a porovnání otázek</h2>
+
+      <div id="chartArea">
+        <p class="empty">
+          Grafy se zobrazí po uložení odpovědí.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Export do Excelu</h2>
+
+      <p>
+        Soubor bude pojmenován podle jména žáka, například:
+        <strong>dotaznik-jana-novakova.xlsx</strong>
+      </p>
+
+      <button id="exportButton" type="button" disabled>
+        Stáhnout excelovou tabulku (.xlsx)
+      </button>
+
+      <p class="hint">
+        Soubor se stáhne do počítače. Tato verze jej automaticky
+        neukládá do GitHubu.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const questionsElement =
+      document.getElementById("questions");
+
+    const answerForm =
+      document.getElementById("answerForm");
+
+    const records = [];
+
+    let questions = null;
+
+    function setStatus(element, text, type = "") {
+      element.textContent = text;
+      element.className = `status ${type}`;
+    }
+
+    function normalizeName(name) {
+      return name.trim().toLocaleLowerCase("cs");
+    }
+
+    function getAnswer(record, questionIndex) {
+      // record[0] je jméno dítěte
+      return record[questionIndex + 1];
+    }
+
+    function addQuestion(
+      text = "",
+      kind = "choice",
+      choices = ""
+    ) {
+      if (questionsElement.children.length >= 8) {
+        alert("Dotazník může obsahovat nejvýše 8 otázek.");
+        return;
+      }
+
+      const block = document.createElement("div");
+      block.className = "question";
+
+      const heading = document.createElement("h3");
+      heading.className = "question-title";
+      heading.textContent =
+        `Otázka ${questionsElement.children.length + 1}`;
+
+      const textLabel = document.createElement("label");
+      textLabel.textContent = "Znění otázky";
+
+      const textInput = document.createElement("input");
+      textInput.type = "text";
+      textInput.maxLength = 100;
+      textInput.value = text;
+      textInput.placeholder =
+        "Například: Jak nejčastěji trávíš volný čas?";
+      textInput.className = "question-text";
+
+      textLabel.appendChild(textInput);
+
+      const kindLabel = document.createElement("label");
+      kindLabel.textContent = "Typ odpovědi";
+
+      const kindSelect = document.createElement("select");
+      kindSelect.className = "question-kind";
+
+      const choiceOption = document.createElement("option");
+      choiceOption.value = "choice";
+      choiceOption.textContent = "Výběr z možností";
+
+      const numberOption = document.createElement("option");
+      numberOption.value = "number";
+      numberOption.textContent = "Číslo";
+
+      kindSelect.append(choiceOption, numberOption);
+      kindSelect.value = kind;
+      kindLabel.appendChild(kindSelect);
+
+      const choicesLabel = document.createElement("label");
+      choicesLabel.textContent =
+        "Možnosti oddělené čárkami";
+
+      const choicesInput = document.createElement("input");
+      choicesInput.type = "text";
+      choicesInput.value = choices;
+      choicesInput.placeholder =
+        "Sport, čtení, hry, něco jiného";
+      choicesInput.className = "question-choices";
+
+      choicesLabel.appendChild(choicesInput);
+
+      function updateChoicesVisibility() {
+        choicesLabel.hidden =
+          kindSelect.value !== "choice";
+      }
+
+      kindSelect.addEventListener(
+        "change",
+        updateChoicesVisibility
+      );
+
+      updateChoicesVisibility();
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.textContent = "Odstranit otázku";
+      removeButton.className = "danger";
+
+      removeButton.addEventListener("click", () => {
+        block.remove();
+        refreshQuestionTitles();
+      });
+
+      block.append(
+        heading,
+        textLabel,
+        kindLabel,
+        choicesLabel,
+        removeButton
+      );
+
+      questionsElement.appendChild(block);
+    }
+
+    function refreshQuestionTitles() {
+      [...questionsElement.children].forEach((block, index) => {
+        block.querySelector(".question-title").textContent =
+          `Otázka ${index + 1}`;
+      });
+    }
+
+    function readQuestions() {
+      return [
+        ...questionsElement.querySelectorAll(".question")
+      ].map(block => {
+        const text = block
+          .querySelector(".question-text")
+          .value
+          .trim();
+
+        const kind = block
+          .querySelector(".question-kind")
+          .value;
+
+        const rawChoices = block
+          .querySelector(".question-choices")
+          .value;
+
+        const choices = rawChoices
+          .split(",")
+          .map(choice => choice.trim())
+          .filter(Boolean);
+
+        return {
+          text,
+          kind,
+          choices: kind === "choice" ? choices : []
+        };
+      });
+    }
+
+    addQuestion(
+      "Jak nejčastěji trávíš volný čas?",
+      "choice",
+      "Sport, čtení, hry, něco jiného"
+    );
+
+    addQuestion(
+      "Jak chodíš nejčastěji do školy?",
+      "choice",
+      "Pěšky, autobusem, autem, na kole"
+    );
+
+    document
+      .getElementById("addQuestion")
+      .addEventListener("click", () => {
+        addQuestion();
+      });
+
+    document
+      .getElementById("lockQuestions")
+      .addEventListener("click", () => {
+        const author = document
+          .getElementById("author")
+          .value
+          .trim();
+
+        const topic = document
+          .getElementById("topic")
+          .value
+          .trim();
+
+        const proposedQuestions = readQuestions();
+        const message =
+          document.getElementById("setupMessage");
+
+        if (!author || !topic) {
+          setStatus(
+            message,
+            "Vyplň jméno zpracovatele i téma dotazníku.",
+            "error"
+          );
+          return;
+        }
+
+        if (!proposedQuestions.length) {
+          setStatus(
+            message,
+            "Přidej alespoň jednu otázku.",
+            "error"
+          );
+          return;
+        }
+
+        const hasInvalidQuestion =
+          proposedQuestions.some(question => {
+            if (!question.text) {
+              return true;
+            }
+
+            if (question.kind === "choice") {
+              const normalizedChoices =
+                question.choices.map(choice =>
+                  choice.toLocaleLowerCase("cs")
+                );
+
+              const uniqueChoices =
+                new Set(normalizedChoices);
+
+              return (
+                question.choices.length < 2 ||
+                uniqueChoices.size !== question.choices.length
+              );
+            }
+
+            return false;
+          });
+
+        if (hasInvalidQuestion) {
+          setStatus(
+            message,
+            "Každá otázka musí mít text. Výběrová otázka musí mít alespoň dvě různé možnosti.",
+            "error"
+          );
+          return;
+        }
+
+        questions = proposedQuestions;
+
+        document.getElementById("author").disabled = true;
+        document.getElementById("topic").disabled = true;
+        document.getElementById("addQuestion").disabled = true;
+        document.getElementById("lockQuestions").disabled = true;
+
+        questionsElement
+          .querySelectorAll("input, select, button")
+          .forEach(control => {
+            control.disabled = true;
+          });
+
+        createAnswerForm();
+
+        setStatus(
+          message,
+          "Otázky jsou připravené. Nyní zapisuj odpovědi.",
+          "success"
+        );
+      });
+
+    function createAnswerForm() {
+      answerForm.innerHTML = "";
+
+      const nameLabel = document.createElement("label");
+      nameLabel.textContent =
+        "Jméno dotazovaného dítěte";
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.id = "respondentName";
+      nameInput.maxLength = 60;
+      nameInput.placeholder =
+        "Například Petr Novák";
+      nameInput.required = true;
+
+      nameLabel.appendChild(nameInput);
+      answerForm.appendChild(nameLabel);
+
+      questions.forEach((question, index) => {
+        const label = document.createElement("label");
+        label.textContent =
+          `${index + 1}. ${question.text}`;
+
+        let control;
+
+        if (question.kind === "choice") {
+          control = document.createElement("select");
+
+          const emptyOption =
+            document.createElement("option");
+
+          emptyOption.value = "";
+          emptyOption.textContent = "Vyber odpověď";
+          control.appendChild(emptyOption);
+
+          question.choices.forEach(choice => {
+            const option =
+              document.createElement("option");
+
+            option.value = choice;
+            option.textContent = choice;
+            control.appendChild(option);
+          });
+        } else {
+          control = document.createElement("input");
+          control.type = "number";
+          control.step = "any";
+          control.placeholder = "Zadej číslo";
+        }
+
+        control.required = true;
+        control.dataset.questionIndex = String(index);
+
+        label.appendChild(control);
+        answerForm.appendChild(label);
+      });
+
+      const submitButton =
+        document.createElement("button");
+
+      submitButton.type = "submit";
+      submitButton.textContent =
+        "Uložit tento řádek odpovědí";
+
+      answerForm.appendChild(submitButton);
+    }
+
+    answerForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!questions) {
+        return;
+      }
+
+      const nameInput =
+        document.getElementById("respondentName");
+
+      const respondentName =
+        nameInput.value.trim();
+
+      if (!respondentName) {
+        setStatus(
+          document.getElementById("answerMessage"),
+          "Nejdříve zadej jméno dotazovaného dítěte.",
+          "error"
+        );
+        return;
+      }
+
+      const duplicate = records.some(record => {
+        return normalizeName(record[0]) ===
+          normalizeName(respondentName);
+      });
+
+      if (duplicate) {
+        setStatus(
+          document.getElementById("answerMessage"),
+          `Dítě „${respondentName}“ už bylo zapsané.`,
+          "error"
+        );
+        return;
+      }
+
+      const controls = [
+        ...answerForm.querySelectorAll(
+          "[data-question-index]"
+        )
+      ];
+
+      const values = controls.map((control, index) => {
+        if (questions[index].kind === "number") {
+          return control.valueAsNumber;
+        }
+
+        return control.value;
+      });
+
+      const invalid = values.some(value => {
+        return (
+          value === "" ||
+          value === null ||
+          (
+            typeof value === "number" &&
+            !Number.isFinite(value)
+          )
+        );
+      });
+
+      if (invalid) {
+        setStatus(
+          document.getElementById("answerMessage"),
+          "Vyplň všechny odpovědi.",
+          "error"
+        );
+        return;
+      }
+
+      records.push([
+        respondentName,
+        ...values
+      ]);
+
+      answerForm.reset();
+
+      setStatus(
+        document.getElementById("answerMessage"),
+        `Odpovědi dítěte „${respondentName}“ byly uloženy. ` +
+        `Celkem dětí: ${records.length}.`,
+        "success"
+      );
+
+      document.getElementById("exportButton").disabled = false;
+
+      renderAllResults();
+    });
+
+    function makeTable(headers, rows) {
+      const table = document.createElement("table");
+      const headerRow = document.createElement("tr");
+
+      headers.forEach(header => {
+        const cell = document.createElement("th");
+        cell.textContent = header;
+        headerRow.appendChild(cell);
+      });
+
+      table.appendChild(headerRow);
+
+      rows.forEach(row => {
+        const tableRow = document.createElement("tr");
+
+        row.forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = String(value);
+          tableRow.appendChild(cell);
+        });
+
+        table.appendChild(tableRow);
+      });
+
+      return table;
+    }
+
+    function renderPreview() {
+      const preview =
+        document.getElementById("preview");
+
+      preview.innerHTML = "";
+
+      if (!records.length) {
+        preview.innerHTML =
+          '<p class="empty">Zatím nejsou zapsané žádné odpovědi.</p>';
+        return;
+      }
+
+      const headers = [
+        "Číslo odpovědi",
+        "Jméno dítěte",
+        ...questions.map(question => question.text)
+      ];
+
+      const rows = records.map((record, index) => [
+        index + 1,
+        ...record
+      ]);
+
+      preview.appendChild(makeTable(headers, rows));
+    }
+
+    function renderAnalysis() {
+      const analysis =
+        document.getElementById("analysis");
+
+      analysis.innerHTML = "";
+
+      if (!records.length) {
+        analysis.innerHTML =
+          '<p class="empty">Zatím nejsou zapsané žádné odpovědi.</p>';
+        return;
+      }
+
+      questions.forEach((question, questionIndex) => {
+        const title = document.createElement("h3");
+        title.textContent = question.text;
+        analysis.appendChild(title);
+
+        if (question.kind === "choice") {
+          const rows = question.choices.map(choice => {
+            const count = records.filter(record => {
+              return getAnswer(record, questionIndex) === choice;
+            }).length;
+
+            const percentage =
+              (100 * count / records.length).toFixed(1);
+
+            return [
+              choice,
+              count,
+              `${percentage} %`
+            ];
+          });
+
+          const mostCommon = [...rows]
+            .sort((a, b) => b[1] - a[1])[0];
+
+          const summary = document.createElement("p");
+          summary.innerHTML =
+            `<strong>Nejčastější odpověď:</strong> ` +
+            `${mostCommon[0]} (${mostCommon[1]} odpovědí)`;
+
+          analysis.appendChild(summary);
+
+          analysis.appendChild(
+            makeTable(
+              ["Odpověď", "Počet", "Podíl"],
+              rows
+            )
+          );
+        } else {
+          const numbers = records
+            .map(record => Number(
+              getAnswer(record, questionIndex)
+            ))
+            .sort((a, b) => a - b);
+
+          const sum = numbers.reduce(
+            (total, value) => total + value,
+            0
+          );
+
+          const average = sum / numbers.length;
+
+          const frequency = numbers.reduce(
+            (result, number) => {
+              result[number] =
+                (result[number] || 0) + 1;
+              return result;
+            },
+            {}
+          );
+
+          const mostCommonValue =
+            Object.entries(frequency)
+              .sort((a, b) => b[1] - a[1])[0][0];
+
+          analysis.appendChild(
+            makeTable(
+              ["Ukazatel", "Hodnota"],
+              [
+                ["Počet odpovědí", numbers.length],
+                ["Součet", sum],
+                ["Průměr", average.toFixed(2)],
+                ["Nejčastější hodnota", mostCommonValue],
+                ["Nejmenší hodnota", numbers[0]],
+                [
+                  "Největší hodnota",
+                  numbers[numbers.length - 1]
+                ]
+              ]
+            )
+          );
+        }
+      });
+    }
+
+    function getChoiceQuestions() {
+      return questions
+        .map((question, index) => ({
+          question,
+          index
+        }))
+        .filter(item => item.question.kind === "choice");
+    }
+
+    function getChoiceCounts(questionIndex) {
+      const question = questions[questionIndex];
+
+      return question.choices.map(choice => ({
+        choice,
+        count: records.filter(record => {
+          return getAnswer(record, questionIndex) === choice;
+        }).length
+      }));
+    }
+
+    function renderChartControls() {
+      const chartArea =
+        document.getElementById("chartArea");
+
+      chartArea.innerHTML = "";
+
+      const choiceQuestions =
+        getChoiceQuestions();
+
+      if (!choiceQuestions.length) {
+        chartArea.innerHTML = `
+          <div class="notice">
+            Pro vytvoření grafu je potřeba mít alespoň jednu
+            otázku typu „Výběr z možností“.
+          </div>
+        `;
+        return;
+      }
+
+      const chartHeading =
+        document.createElement("h3");
+
+      chartHeading.textContent =
+        "Sloupcový graf odpovědí";
+
+      chartArea.appendChild(chartHeading);
+
+      const chartLabel =
+        document.createElement("label");
+
+      chartLabel.textContent =
+        "Vyber otázku pro graf";
+
+      const chartSelect =
+        document.createElement("select");
+
+      chartSelect.id = "chartQuestion";
+
+      choiceQuestions.forEach(item => {
+        const option =
+          document.createElement("option");
+
+        option.value = String(item.index);
+        option.textContent = item.question.text;
+        chartSelect.appendChild(option);
+      });
+
+      chartLabel.appendChild(chartSelect);
+      chartArea.appendChild(chartLabel);
+
+      const chartBox =
+        document.createElement("div");
+
+      chartBox.className = "chart-box";
+
+      const canvas =
+        document.createElement("canvas");
+
+      canvas.id = "answerChart";
+      canvas.width = 850;
+      canvas.height = 380;
+      canvas.setAttribute(
+        "aria-label",
+        "Sloupcový graf odpovědí"
+      );
+
+      chartBox.appendChild(canvas);
+      chartArea.appendChild(chartBox);
+
+      chartSelect.addEventListener(
+        "change",
+        drawBarChart
+      );
+
+      const comparisonHeading =
+        document.createElement("h3");
+
+      comparisonHeading.textContent =
+        "Porovnání odpovědí na dvě otázky";
+
+      chartArea.appendChild(comparisonHeading);
+
+      const comparisonGrid =
+        document.createElement("div");
+
+      comparisonGrid.className =
+        "comparison-grid";
+
+      const firstLabel =
+        document.createElement("label");
+
+      firstLabel.textContent =
+        "První otázka";
+
+      const firstSelect =
+        document.createElement("select");
+
+      firstSelect.id =
+        "comparisonQuestionA";
+
+      const secondLabel =
+        document.createElement("label");
+
+      secondLabel.textContent =
+        "Druhá otázka";
+
+      const secondSelect =
+        document.createElement("select");
+
+      secondSelect.id =
+        "comparisonQuestionB";
+
+      choiceQuestions.forEach(item => {
+        const firstOption =
+          document.createElement("option");
+
+        firstOption.value =
+          String(item.index);
+
+        firstOption.textContent =
+          item.question.text;
+
+        const secondOption =
+          firstOption.cloneNode(true);
+
+        firstSelect.appendChild(firstOption);
+        secondSelect.appendChild(secondOption);
+      });
+
+      if (choiceQuestions.length >= 2) {
+        secondSelect.selectedIndex = 1;
+      }
+
+      firstLabel.appendChild(firstSelect);
+      secondLabel.appendChild(secondSelect);
+
+      comparisonGrid.append(
+        firstLabel,
+        secondLabel
+      );
+
+      chartArea.appendChild(comparisonGrid);
+
+      const comparisonOutput =
+        document.createElement("div");
+
+      comparisonOutput.id =
+        "comparisonTable";
+
+      comparisonOutput.className =
+        "table-wrap";
+
+      chartArea.appendChild(comparisonOutput);
+
+      firstSelect.addEventListener(
+        "change",
+        renderComparisonTable
+      );
+
+      secondSelect.addEventListener(
+        "change",
+        renderComparisonTable
+      );
+
+      drawBarChart();
+      renderComparisonTable();
+    }
+
+    function drawBarChart() {
+      const canvas =
+        document.getElementById("answerChart");
+
+      const select =
+        document.getElementById("chartQuestion");
+
+      if (!canvas || !select || !records.length) {
+        return;
+      }
+
+      const context =
+        canvas.getContext("2d");
+
+      const questionIndex =
+        Number(select.value);
+
+      const question =
+        questions[questionIndex];
+
+      const counts =
+        getChoiceCounts(questionIndex);
+
+      context.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      const left = 70;
+      const top = 55;
+      const right = 30;
+      const bottom = 95;
+
+      const chartWidth =
+        canvas.width - left - right;
+
+      const chartHeight =
+        canvas.height - top - bottom;
+
+      const maximum =
+        Math.max(
+          ...counts.map(item => item.count),
+          1
+        );
+
+      context.fillStyle = "#20243a";
+      context.font = "bold 18px Arial";
+      context.textAlign = "left";
+
+      context.fillText(
+        question.text,
+        left,
+        28
+      );
+
+      context.strokeStyle = "#aeb8d2";
+      context.lineWidth = 1;
+
+      context.beginPath();
+      context.moveTo(left, top);
+      context.lineTo(left, top + chartHeight);
+      context.lineTo(left + chartWidth, top + chartHeight);
+      context.stroke();
+
+      const gap = 18;
+
+      const barWidth = Math.max(
+        24,
+        (chartWidth - gap * (counts.length - 1)) /
+          counts.length
+      );
+
+      counts.forEach((item, index) => {
+        const height =
+          item.count / maximum * chartHeight;
+
+        const x =
+          left + index * (barWidth + gap);
+
+        const y =
+          top + chartHeight - height;
+
+        context.fillStyle = "#4338ca";
+
+        context.fillRect(
+          x,
+          y,
+          barWidth,
+          height
+        );
+
+        context.fillStyle = "#20243a";
+        context.font = "bold 14px Arial";
+        context.textAlign = "center";
+
+        context.fillText(
+          String(item.count),
+          x + barWidth / 2,
+          y - 8
+        );
+
+        const label =
+          item.choice.length > 15
+            ? `${item.choice.slice(0, 14)}…`
+            : item.choice;
+
+        context.font = "13px Arial";
+
+        context.fillText(
+          label,
+          x + barWidth / 2,
+          top + chartHeight + 24
+        );
+      });
+
+      context.textAlign = "left";
+    }
+
+    function renderComparisonTable() {
+      const output =
+        document.getElementById("comparisonTable");
+
+      const firstSelect =
+        document.getElementById("comparisonQuestionA");
+
+      const secondSelect =
+        document.getElementById("comparisonQuestionB");
+
+      if (!output || !firstSelect || !secondSelect) {
+        return;
+      }
+
+      const firstIndex =
+        Number(firstSelect.value);
+
+      const secondIndex =
+        Number(secondSelect.value);
+
+      if (
+        !questions[firstIndex] ||
+        !questions[secondIndex] ||
+        !records.length
+      ) {
+        output.innerHTML = `
+          <p class="empty">
+            Pro porovnání je potřeba mít dvě otázky
+            a alespoň jednu odpověď.
+          </p>
+        `;
+        return;
+      }
+
+      if (firstIndex === secondIndex) {
+        output.innerHTML = `
+          <p class="notice">
+            Vyber dvě různé otázky.
+          </p>
+        `;
+        return;
+      }
+
+      const firstQuestion =
+        questions[firstIndex];
+
+      const secondQuestion =
+        questions[secondIndex];
+
+      const headers = [
+        "Odpověď na 1. otázku",
+        "Odpověď na 2. otázku",
+        "Počet dětí",
+        "Co to znamená"
+      ];
+
+      const rows = [];
+
+      firstQuestion.choices.forEach(firstChoice => {
+        secondQuestion.choices.forEach(secondChoice => {
+          const count = records.filter(record => {
+            return (
+              getAnswer(record, firstIndex) === firstChoice &&
+              getAnswer(record, secondIndex) === secondChoice
+            );
+          }).length;
+
+          rows.push([
+            firstChoice,
+            secondChoice,
+            count,
+            `${count} dětí odpovědělo: ` +
+            `${firstChoice} + ${secondChoice}`
+          ]);
+        });
+      });
+
+      const highestCount =
+        Math.max(...rows.map(row => row[2]), 0);
+
+      output.innerHTML = "";
+
+      const description =
+        document.createElement("p");
+
+      description.innerHTML =
+        `Každý řádek ukazuje jednu dvojici odpovědí. ` +
+        `Hledej největší číslo ve sloupci ` +
+        `<strong>Počet dětí</strong>.`;
+
+      output.appendChild(description);
+
+      const table =
+        makeTable(headers, rows);
+
+      [...table.querySelectorAll("tr")]
+        .slice(1)
+        .forEach((row, index) => {
+          if (rows[index][2] === highestCount) {
+            [...row.children].forEach(cell => {
+              cell.style.background = "#bbf7d0";
+              cell.style.fontWeight = "bold";
+            });
+          }
+        });
+
+      output.appendChild(table);
+    }
+
+    function renderAllResults() {
+      renderPreview();
+      renderAnalysis();
+      renderChartControls();
+    }
+
+    function safeFilename(value) {
+      return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 60) || "zak";
+    }
+
+    function excelColumn(number) {
+      let result = "";
+
+      for (
+        let current = number;
+        current > 0;
+        current = Math.floor((current - 1) / 26)
+      ) {
+        result =
+          String.fromCharCode(
+            65 + ((current - 1) % 26)
+          ) + result;
+      }
+
+      return result;
+    }
+
+    const excelStyles = {
+      title: {
+        font: {
+          bold: true,
+          color: { rgb: "FFFFFF" },
+          sz: 16
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: "4F46E5" }
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center"
+        }
+      },
+
+      header: {
+        font: {
+          bold: true,
+          color: { rgb: "1E1B4B" }
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: "C7D2FE" }
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+          wrapText: true
+        },
+        border: {
+          top: {
+            style: "thin",
+            color: { rgb: "818CF8" }
+          },
+          bottom: {
+            style: "thin",
+            color: { rgb: "818CF8" }
+          },
+          left: {
+            style: "thin",
+            color: { rgb: "818CF8" }
+          },
+          right: {
+            style: "thin",
+            color: { rgb: "818CF8" }
+          }
+        }
+      },
+
+      normal: {
+        alignment: {
+          vertical: "center",
+          wrapText: true
+        },
+        border: {
+          bottom: {
+            style: "thin",
+            color: { rgb: "E5E7EB" }
+          }
+        }
+      },
+
+      alternate: {
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: "F5F3FF" }
+        },
+        alignment: {
+          vertical: "center",
+          wrapText: true
+        }
+      },
+
+      highlight: {
+        font: {
+          bold: true,
+          color: { rgb: "166534" }
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: "BBF7D0" }
+        },
+        alignment: {
+          vertical: "center",
+          wrapText: true
+        },
+        border: {
+          top: {
+            style: "thin",
+            color: { rgb: "4ADE80" }
+          },
+          bottom: {
+            style: "thin",
+            color: { rgb: "4ADE80" }
+          }
+        }
+      },
+
+      note: {
+        font: {
+          italic: true,
+          color: { rgb: "475569" }
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: "FEF3C7" }
+        },
+        alignment: {
+          vertical: "center",
+          wrapText: true
+        }
+      }
+    };
+
+    function styleCell(sheet, address, style) {
+      if (!sheet[address]) {
+        sheet[address] = {
+          t: "s",
+          v: ""
+        };
+      }
+
+      sheet[address].s = style;
+    }
+
+    function styleRow(
+      sheet,
+      rowNumber,
+      firstColumn,
+      lastColumn,
+      style
+    ) {
+      for (
+        let column = firstColumn;
+        column <= lastColumn;
+        column++
+      ) {
+        const address =
+          `${excelColumn(column)}${rowNumber}`;
+
+        styleCell(sheet, address, style);
+      }
+    }
+
+    function styleWholeTable(
+      sheet,
+      firstRow,
+      lastRow,
+      firstColumn,
+      lastColumn
+    ) {
+      for (
+        let row = firstRow;
+        row <= lastRow;
+        row++
+      ) {
+        const style =
+          row % 2 === 0
+            ? excelStyles.alternate
+            : excelStyles.normal;
+
+        styleRow(
+          sheet,
+          row,
+          firstColumn,
+          lastColumn,
+          style
+        );
+      }
+    }
+
+    function getQuestionIcon(question) {
+      if (question.kind === "number") {
+        return "🔢";
+      }
+
+      const text =
+        question.text.toLocaleLowerCase("cs");
+
+      if (
+        text.includes("sport") ||
+        text.includes("pohyb")
+      ) {
+        return "⚽";
+      }
+
+      if (
+        text.includes("jíd") ||
+        text.includes("jíš")
+      ) {
+        return "🍎";
+      }
+
+      if (
+        text.includes("zvíř") ||
+        text.includes("mazlí")
+      ) {
+        return "🐶";
+      }
+
+      if (
+        text.includes("čte") ||
+        text.includes("knih")
+      ) {
+        return "📚";
+      }
+
+      if (
+        text.includes("škola") ||
+        text.includes("předmět")
+      ) {
+        return "🏫";
+      }
+
+      return "❓";
+    }
+
+    document
+      .getElementById("exportButton")
+      .addEventListener("click", () => {
+        if (!records.length || !questions) {
+          return;
+        }
+
+        if (typeof XLSX === "undefined") {
+          alert(
+            "Excelová knihovna se nenačetla. " +
+            "Zkontroluj připojení k internetu."
+          );
+          return;
+        }
+
+        const author =
+          document.getElementById("author").value.trim();
+
+        const topic =
+          document.getElementById("topic").value.trim();
+
+        /*
+         * LIST 1: MOJE ODPOVĚDI
+         */
+        const answerRows = [
+          ["DOTAZNÍK PRO 5.A"],
+          ["Téma dotazníku", topic],
+          ["Dotazník zpracoval/a", author],
+          [],
+          [
+            "Číslo",
+            "Jméno dotazovaného dítěte",
+            ...questions.map(question => question.text)
+          ],
+          ...records.map((record, index) => [
+            index + 1,
+            ...record
+          ])
+        ];
+
+        const answersSheet =
+          XLSX.utils.aoa_to_sheet(answerRows);
+
+        const answerLastColumn =
+          questions.length + 2;
+
+        answersSheet["!merges"] = [
+          {
+            s: { r: 0, c: 0 },
+            e: {
+              r: 0,
+              c: answerLastColumn - 1
+            }
+          }
+        ];
+
+        answersSheet["!cols"] = [
+          { wch: 12 },
+          { wch: 30 },
+          ...questions.map(() => ({
+            wch: 34
+          }))
+        ];
+
+        answersSheet["!rows"] = [
+          { hpt: 30 },
+          { hpt: 22 },
+          { hpt: 22 },
+          { hpt: 8 },
+          { hpt: 34 }
+        ];
+
+        styleRow(
+          answersSheet,
+          1,
+          1,
+          answerLastColumn,
+          excelStyles.title
+        );
+
+        styleRow(
+          answersSheet,
+          5,
+          1,
+          answerLastColumn,
+          excelStyles.header
+        );
+
+        styleWholeTable(
+          answersSheet,
+          6,
+          records.length + 5,
+          1,
+          answerLastColumn
+        );
+
+        answersSheet["!freeze"] = {
+          xSplit: 0,
+          ySplit: 5
+        };
+
+        answersSheet["!autofilter"] = {
+          ref:
+            `A5:${excelColumn(answerLastColumn)}` +
+            `${records.length + 5}`
+        };
+
+        /*
+         * LIST 2: CO JSME ZJISTILI
+         */
+        const discoveryRows = [
+          ["🌈 CO JSME ZJISTILI"],
+          ["Téma", topic],
+          ["Zpracoval/a", author],
+          ["Počet dotazovaných dětí", records.length],
+          [],
+          [
+            "Ikona",
+            "Otázka",
+            "Co jsme zjistili",
+            "Výsledek",
+            "Vysvětlení"
+          ]
+        ];
+
+        const highlightedDiscoveryRows = [];
+        let discoveryRowNumber = 7;
+
+        questions.forEach((question, questionIndex) => {
+          const icon = getQuestionIcon(question);
+
+          if (question.kind === "choice") {
+            const counts =
+              getChoiceCounts(questionIndex);
+
+            const mostCommon = [...counts]
+              .sort((a, b) => b.count - a.count)[0];
+
+            discoveryRows.push([
+              icon,
+              question.text,
+              "⭐ Nejčastější odpověď",
+              mostCommon.choice,
+              `Tuto možnost vybralo ` +
+              `${mostCommon.count} ` +
+              `${mostCommon.count === 1 ? "dítě" : "dětí"}.`
+            ]);
+
+            highlightedDiscoveryRows.push(
+              discoveryRowNumber
+            );
+
+            discoveryRowNumber++;
+
+            const percentage = Math.round(
+              mostCommon.count / records.length * 100
+            );
+
+            discoveryRows.push([
+              "💬",
+              question.text,
+              "Krátké shrnutí",
+              `Nejvíce dětí odpovědělo ` +
+              `„${mostCommon.choice}“.`,
+              `To je ${percentage} % ` +
+              `dotazovaných dětí.`
+            ]);
+
+            highlightedDiscoveryRows.push(
+              discoveryRowNumber
+            );
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([]);
+            discoveryRowNumber++;
+
+            counts.forEach(result => {
+              const resultPercentage = Math.round(
+                result.count / records.length * 100
+              );
+
+              discoveryRows.push([
+                icon,
+                question.text,
+                result.choice,
+                `${result.count} dětí`,
+                `Tuto odpověď zvolilo ` +
+                `${resultPercentage} % dětí.`
+              ]);
+
+              discoveryRowNumber++;
+            });
+
+            discoveryRows.push([]);
+            discoveryRowNumber++;
+          } else {
+            const numbers = records
+              .map(record => Number(
+                getAnswer(record, questionIndex)
+              ))
+              .sort((a, b) => a - b);
+
+            const sum = numbers.reduce(
+              (total, value) => total + value,
+              0
+            );
+
+            const average =
+              sum / numbers.length;
+
+            const frequency = numbers.reduce(
+              (result, number) => {
+                result[number] =
+                  (result[number] || 0) + 1;
+
+                return result;
+              },
+              {}
+            );
+
+            const mostCommonNumber =
+              Object.entries(frequency)
+                .sort((a, b) => b[1] - a[1])[0][0];
+
+            discoveryRows.push([
+              icon,
+              question.text,
+              "📊 Průměrná hodnota",
+              average.toFixed(1),
+              "Průměr ukazuje přibližnou " +
+              "hodnotu za celou skupinu."
+            ]);
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([
+              "➕",
+              question.text,
+              "Součet všech hodnot",
+              sum,
+              "Sečetli jsme všechny zadané " +
+              "hodnoty dohromady."
+            ]);
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([
+              "⭐",
+              question.text,
+              "Nejčastější hodnota",
+              mostCommonNumber,
+              "Toto číslo se objevilo " +
+              "nejvícekrát."
+            ]);
+
+            highlightedDiscoveryRows.push(
+              discoveryRowNumber
+            );
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([
+              "⬇️",
+              question.text,
+              "Nejmenší hodnota",
+              numbers[0],
+              "Toto byla nejnižší zadaná hodnota."
+            ]);
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([
+              "⬆️",
+              question.text,
+              "Největší hodnota",
+              numbers[numbers.length - 1],
+              "Toto byla nejvyšší zadaná hodnota."
+            ]);
+
+            discoveryRowNumber++;
+
+            discoveryRows.push([]);
+            discoveryRowNumber++;
+          }
+        });
+
+        const discoverySheet =
+          XLSX.utils.aoa_to_sheet(discoveryRows);
+
+        const discoveryLastColumn = 5;
+
+        discoverySheet["!merges"] = [
+          {
+            s: { r: 0, c: 0 },
+            e: {
+              r: 0,
+              c: discoveryLastColumn - 1
+            }
+          }
+        ];
+
+        discoverySheet["!cols"] = [
+          { wch: 10 },
+          { wch: 38 },
+          { wch: 28 },
+          { wch: 34 },
+          { wch: 48 }
+        ];
+
+        discoverySheet["!rows"] = [
+          { hpt: 32 },
+          { hpt: 22 },
+          { hpt: 22 },
+          { hpt: 22 },
+          { hpt: 8 },
+          { hpt: 34 }
+        ];
+
+        styleRow(
+          discoverySheet,
+          1,
+          1,
+          discoveryLastColumn,
+          excelStyles.title
+        );
+
+        styleRow(
+          discoverySheet,
+          6,
+          1,
+          discoveryLastColumn,
+          excelStyles.header
+        );
+
+        styleWholeTable(
+          discoverySheet,
+          7,
+          discoveryRows.length,
+          1,
+          discoveryLastColumn
+        );
+
+        highlightedDiscoveryRows.forEach(rowNumber => {
+          styleRow(
+            discoverySheet,
+            rowNumber,
+            1,
+            discoveryLastColumn,
+            excelStyles.highlight
+          );
+        });
+
+        discoverySheet["!freeze"] = {
+          xSplit: 0,
+          ySplit: 6
+        };
+
+        /*
+         * LIST 3: POROVNÁNÍ ODPOVĚDÍ
+         */
+        const comparisonRows = [
+          ["🔎 POROVNÁNÍ ODPOVĚDÍ"],
+          ["Téma dotazníku", topic],
+          ["Zpracoval/a", author],
+          [],
+          [
+            "Jak tabulku číst",
+            "Každý řádek ukazuje jednu dvojici odpovědí."
+          ],
+          [
+            "Co hledat",
+            "Hledej největší číslo ve sloupci Počet dětí."
+          ],
+          []
+        ];
+
+        const choiceQuestions =
+          getChoiceQuestions();
+
+        let comparisonHeaderRow = null;
+        let comparisonFirstDataRow = null;
+        let comparisonLastDataRow = null;
+        let comparisonLastColumn = 4;
+
+        if (choiceQuestions.length >= 2) {
+          const first = choiceQuestions[0];
+          const second = choiceQuestions[1];
+
+          comparisonRows.push([
+            "První otázka",
+            first.question.text
+          ]);
+
+          comparisonRows.push([
+            "Druhá otázka",
+            second.question.text
+          ]);
+
+          comparisonRows.push([]);
+
+          comparisonRows.push([
+            "Odpověď na 1. otázku",
+            "Odpověď na 2. otázku",
+            "Počet dětí",
+            "Co to znamená"
+          ]);
+
+          comparisonHeaderRow =
+            comparisonRows.length;
+
+          comparisonFirstDataRow =
+            comparisonHeaderRow + 1;
+
+          first.question.choices.forEach(firstChoice => {
+            second.question.choices.forEach(secondChoice => {
+              const count = records.filter(record => {
+                return (
+                  getAnswer(record, first.index) === firstChoice &&
+                  getAnswer(record, second.index) === secondChoice
+                );
+              }).length;
+
+              comparisonRows.push([
+                firstChoice,
+                secondChoice,
+                count,
+                `${count} dětí odpovědělo: ` +
+                `${firstChoice} + ${secondChoice}`
+              ]);
+            });
+          });
+
+          comparisonLastDataRow =
+            comparisonRows.length;
+
+          comparisonRows.push([]);
+
+          comparisonRows.push([
+            "Otázka pro přemýšlení",
+            "Která dvojice odpovědí se objevila nejčastěji?"
+          ]);
+
+          comparisonRows.push([
+            "Tip",
+            "Hledej největší číslo ve sloupci Počet dětí."
+          ]);
+        } else {
+          comparisonRows.push([
+            "Porovnání zatím nelze vytvořit.",
+            "Vytvoř alespoň dvě otázky typu „Výběr z možností“."
+          ]);
+        }
+
+        const comparisonSheet =
+          XLSX.utils.aoa_to_sheet(comparisonRows);
+
+        comparisonSheet["!merges"] = [
+          {
+            s: { r: 0, c: 0 },
+            e: {
+              r: 0,
+              c: comparisonLastColumn - 1
+            }
+          }
+        ];
+
+        comparisonSheet["!cols"] = [
+          { wch: 30 },
+          { wch: 32 },
+          { wch: 16 },
+          { wch: 55 }
+        ];
+
+        comparisonSheet["!rows"] = [
+          { hpt: 32 },
+          { hpt: 22 },
+          { hpt: 22 },
+          { hpt: 8 },
+          { hpt: 32 },
+          { hpt: 32 },
+          { hpt: 8 }
+        ];
+
+        styleRow(
+          comparisonSheet,
+          1,
+          1,
+          comparisonLastColumn,
+          excelStyles.title
+        );
+
+        styleRow(
+          comparisonSheet,
+          5,
+          1,
+          comparisonLastColumn,
+          excelStyles.note
+        );
+
+        styleRow(
+          comparisonSheet,
+          6,
+          1,
+          comparisonLastColumn,
+          excelStyles.note
+        );
+
+        if (comparisonHeaderRow) {
+          styleRow(
+            comparisonSheet,
+            comparisonHeaderRow,
+            1,
+            comparisonLastColumn,
+            excelStyles.header
+          );
+
+          styleWholeTable(
+            comparisonSheet,
+            comparisonFirstDataRow,
+            comparisonLastDataRow,
+            1,
+            comparisonLastColumn
+          );
+
+          /*
+           * Největší počet dětí zvýrazníme zeleně.
+           */
+          let highestCount = -1;
+
+          for (
+            let row = comparisonFirstDataRow;
+            row <= comparisonLastDataRow;
+            row++
+          ) {
+            const cell =
+              comparisonSheet[`C${row}`];
+
+            if (
+              cell &&
+              typeof cell.v === "number" &&
+              cell.v > highestCount
+            ) {
+              highestCount = cell.v;
+            }
+          }
+
+          for (
+            let row = comparisonFirstDataRow;
+            row <= comparisonLastDataRow;
+            row++
+          ) {
+            const cell =
+              comparisonSheet[`C${row}`];
+
+            if (
+              cell &&
+              cell.v === highestCount
+            ) {
+              styleRow(
+                comparisonSheet,
+                row,
+                1,
+                comparisonLastColumn,
+                excelStyles.highlight
+              );
+            }
+          }
+        }
+
+        comparisonSheet["!freeze"] = {
+          xSplit: 0,
+          ySplit: 10
+        };
+
+        /*
+         * Vytvoření Excelového sešitu.
+         */
+        const workbook =
+          XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          answersSheet,
+          "Moje odpovedi"
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          discoverySheet,
+          "Co jsme zjistili"
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          comparisonSheet,
+          "Porovnani"
+        );
+
+        const filename =
+          `dotaznik-${safeFilename(author)}.xlsx`;
+
+        XLSX.writeFile(workbook, filename);
+      });
+
+    renderAllResults();
+  </script>
+</body>
+</html>
