@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Morseovka – Hravá výuka dat a informací</title>
+  <style>
+    :root {
+      --bg1: #0b1020;
+      --bg2: #121d36;
+      --panel: rgba(19, 29, 54, 0.96);
+      --accent: #7ee7ff;
+      --accent2: #ffd166;
+      --good: #7ef1a8;
+      --bad: #ff7a7a;
+      --purple: #c5a3ff;
+      --text: #edf6ff;
+      --muted: #b9c9e5;
+      --shadow: rgba(0,0,0,0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(126,231,255,0.12), transparent 28%),
+        radial-gradient(circle at left, rgba(197,163,255,0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+
+    .container {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 22px 16px 80px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #20376d, #0f1730);
+      border: 1px solid rgba(126,231,255,0.26);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 40px var(--shadow);
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: ".-  -...  -.-.";
+      position: absolute;
+      right: 24px;
+      bottom: 18px;
+      font-size: 1.5rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.08);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.3rem);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      color: var(--accent);
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+    }
+
+    h3 {
+      margin-top: 0;
+      color: var(--accent2);
+    }
+
+    p {
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 850px;
+      margin: 0;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 18px 0 22px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(126,231,255,0.18);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--accent2);
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid rgba(126,231,255,0.18);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 14px 30px var(--shadow);
+    }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      background: rgba(126,231,255,0.12);
+      border: 1px solid rgba(126,231,255,0.3);
+      color: var(--accent);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      background: #0d1426;
+      border: 1px solid rgba(126,231,255,0.28);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #07131d;
+      background: linear-gradient(135deg, var(--accent), #4dc0ff);
+      box-shadow: 0 8px 18px rgba(77,192,255,0.24);
+      transition: transform 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    button.secondary {
+      background: linear-gradient(135deg, var(--accent2), #ffb74d);
+      box-shadow: 0 8px 18px rgba(255,177,77,0.22);
+      color: #2b1c00;
+    }
+
+    button.warning {
+      background: linear-gradient(135deg, #ff9f6e, #ff7a7a);
+      color: white;
+    }
+
+    button.ghost {
+      background: linear-gradient(135deg, #d4c2ff, #a6a4ff);
+      color: #1a1233;
+    }
+
+    .result, .scoreboard, .statusbox, .big-display {
+      background: rgba(8,15,28,0.72);
+      border: 1px solid rgba(126,231,255,0.18);
+      border-radius: 14px;
+      min-height: 72px;
+      padding: 14px;
+      margin-top: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .big-display {
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .morse-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 10px;
+    }
+
+    .morse-cell {
+      background: linear-gradient(180deg, #1b294d, #162541);
+      border: 1px solid rgba(126,231,255,0.15);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .morse-cell strong {
+      display: block;
+      color: var(--accent2);
+      font-size: 1.15rem;
+      margin-bottom: 4px;
+    }
+
+    .morse-cell span {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .good { color: var(--good); font-weight: 800; }
+    .bad { color: var(--bad); font-weight: 800; }
+    .mono { font-family: "Courier New", monospace; }
+
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      background: #11223b;
+      color: var(--text);
+      border: 1px solid rgba(126,231,255,0.2);
+      box-shadow: none;
+    }
+
+    .option-btn.correct {
+      background: rgba(126,241,168,0.15);
+      border-color: rgba(126,241,168,0.8);
+      color: var(--good);
+    }
+
+    .option-btn.wrong {
+      background: rgba(255,122,122,0.12);
+      border-color: rgba(255,122,122,0.8);
+      color: var(--bad);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(126,231,255,0.12);
+      border: 1px solid rgba(126,231,255,0.35);
+      color: var(--accent);
+      font-weight: 800;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .speed-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+
+    .speed-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 28px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 700px) {
+      header, .section { padding: 16px; }
+      header::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Morseovka: Hravá výuka dat a informací</h1>
+      <p class="subtitle">
+        Interaktivní aplikace pro 6. a 7. třídu. Převáděj text do Morseovky, poslouchej tóny, soutěž ve dvojicích, hádej písmena, doplňuj kódy a sbírej body.
+      </p>
+    </header>
+
+    <section class="toolbar">
+      <div class="stat">
+        <div class="stat-label">Celkové body</div>
+        <div class="stat-value" id="totalPoints">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Úroveň</div>
+        <div class="stat-value" id="levelLabel">Začátečník</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Počet správných odpovědí</div>
+        <div class="stat-value" id="correctCount">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pochvala</div>
+        <div class="stat-value" id="praiseLabel">Jdeme na to!</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Nastavení rychlosti přehrávání</h2>
+      <div class="speed-box">
+        <div class="card">
+          <label for="speedSelect">Vyber rychlost Morseovky</label>
+          <select id="speedSelect">
+            <option value="180">Rychlé</option>
+            <option value="320">Normální</option>
+            <option value="550" selected>Pomalé</option>
+            <option value="800">Velmi pomalé pro žáky</option>
+          </select>
+          <div class="speed-note">
+            Tečka trvá 1 jednotku, čárka 3 jednotky.
+          </div>
+        </div>
+
+        <div class="card">
+          <label>Aktuální nastavení</label>
+          <div class="big-display" id="speedDisplay">550 ms na tečku</div>
+          <div class="speed-note">
+            Doporučení pro zapisování ve třídě: <strong>550–800 ms</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1) Co jsou data a informace?</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="badge">DATA</div>
+          <p>Data jsou znaky, symboly, čísla nebo zaznamenané hodnoty. Například tečky a čárky v Morseově abecedě.</p>
+        </div>
+        <div class="card">
+          <div class="badge">INFORMACE</div>
+          <p>Informace vznikne tehdy, když datům rozumíme. Například když víme, že <span class="mono">... --- ...</span> znamená <strong>SOS</strong>.</p>
+        </div>
+        <div class="card">
+          <div class="badge">KÓDOVÁNÍ</div>
+          <p>Kódování je převod zprávy do domluveného systému znaků. Dekódování je převod zpět na srozumitelnou zprávu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2) Morseova abeceda</h2>
+      <div id="morseGrid" class="morse-grid"></div>
+    </section>
+
+    <section class="section">
+      <h2>3) Převodník text ↔ Morse</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Text na Morseovku</h3>
+          <label for="plainText">Napiš text</label>
+          <input id="plainText" type="text" value="AHOJ" placeholder="Např. AHOJ" />
+          <div class="buttons">
+            <button id="convertToMorseBtn">Převést</button>
+            <button id="randomWordBtn" class="secondary">Náhodné slovo</button>
+            <button id="playMorseBtn">Přehrát</button>
+            <button id="playMorseVerySlowBtn" class="ghost">Přehrát velmi pomalu</button>
+            <button id="stopAudioBtn" class="warning">Zastavit</button>
+          </div>
+          <div class="result" id="morseOutput">Výsledek se zobrazí zde.</div>
+        </div>
+
+        <div class="card">
+          <h3>Morseovka na text</h3>
+          <label for="morseInput">Zadej Morseův kód</label>
+          <textarea id="morseInput" placeholder="Např. .- .... --- .---"></textarea>
+          <div class="buttons">
+            <button id="convertToTextBtn">Rozluštit</button>
+            <button id="clearMorseBtn" class="secondary">Vymazat</button>
+          </div>
+          <div class="result" id="textOutput">Rozluštěný text se zobrazí zde.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>4) Režim Vysílač / Přijímač</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Vysílač</h3>
+          <label for="senderText">Tajná zpráva</label>
+          <input id="senderText" type="text" value="DATA" />
+          <div class="buttons">
+            <button id="senderConvertBtn">Ukázat Morseovku</button>
+            <button id="senderPlayBtn">Vyslat zvukem</button>
+            <button id="senderPlayVerySlowBtn" class="secondary">Vyslat velmi pomalu</button>
+          </div>
+          <div class="big-display" id="senderDisplay">Zpráva čeká na odeslání</div>
+        </div>
+
+        <div class="card">
+          <h3>Přijímač</h3>
+          <label for="receiverHeard">Co jsi slyšel/a?</label>
+          <textarea id="receiverHeard" placeholder="Zapiš Morseův kód"></textarea>
+          <div class="buttons">
+            <button id="receiverDecodeBtn">Rozluštit</button>
+            <button id="receiverCheckBtn" class="secondary">Porovnat</button>
+            <button id="receiverClearBtn" class="warning">Vymazat</button>
+          </div>
+          <div class="big-display" id="receiverDisplay">Čekám na zprávu…</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5) Souboj dvojic</h2>
+      <p>Jeden tým vysílá, druhý poslouchá a zapisuje. Za správnost a rychlost získává body.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Nastavení hry</h3>
+          <label for="teamAName">Dvojice A</label>
+          <input id="teamAName" type="text" value="Dvojice A" />
+
+          <label for="teamBName" style="margin-top:12px;">Dvojice B</label>
+          <input id="teamBName" type="text" value="Dvojice B" />
+
+          <label for="battleWord" style="margin-top:12px;">Tajné slovo</label>
+          <input id="battleWord" type="text" value="SKOLA" />
+
+          <div class="buttons">
+            <button id="battleRandomBtn" class="secondary">Náhodné slovo</button>
+            <button id="startBattleBtn">Spustit kolo</button>
+            <button id="playBattleBtn">Přehrát zprávu</button>
+            <button id="playBattleVerySlowBtn" class="ghost">Velmi pomalu</button>
+            <button id="endBattleBtn" class="warning">Ukončit kolo</button>
+          </div>
+
+          <div class="statusbox" id="battleStatus">Hra čeká na spuštění.</div>
+        </div>
+
+        <div class="card">
+          <h3>Přijímač v souboji</h3>
+          <label for="battleMorseInput">Zapiš Morseův kód</label>
+          <textarea id="battleMorseInput"></textarea>
+
+          <label for="battleDecodedText" style="margin-top:12px;">Nebo rovnou rozluštěný text</label>
+          <input id="battleDecodedText" type="text" />
+
+          <div class="buttons">
+            <button id="evaluateBattleBtn">Vyhodnotit kolo</button>
+            <button id="nextRoundBtn" class="secondary">Další kolo</button>
+            <button id="resetBattleBtn" class="warning">Reset hry</button>
+          </div>
+
+          <div class="result" id="battleResult">Výsledek kola se zobrazí zde.</div>
+        </div>
+      </div>
+
+      <div class="scoreboard">
+        <span class="pill">Kolo: <span id="roundLabel">1</span></span>
+        <span class="pill">Vysílá: <span id="turnLabel">Dvojice A</span></span>
+        <span class="pill">Čas: <span id="roundTimeLabel">0.0 s</span></span>
+        <span class="pill">A: <span id="scoreA">0</span></span>
+        <span class="pill">B: <span id="scoreB">0</span></span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>6) Hra: Hádej písmeno</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Jaké písmeno je toto?</h3>
+          <div class="big-display mono" id="guessLetterCode">...</div>
+          <div class="buttons">
+            <button id="newGuessLetterBtn">Nové písmeno</button>
+            <button id="playGuessLetterBtn" class="secondary">Přehrát zvuk</button>
+            <button id="playGuessLetterVerySlowBtn" class="ghost">Velmi pomalu</button>
+          </div>
+        </div>
+        <div class="card">
+          <label for="guessLetterInput">Tvoje odpověď</label>
+          <input id="guessLetterInput" type="text" maxlength="1" placeholder="Napiš písmeno" />
+          <div class="buttons">
+            <button id="checkGuessLetterBtn">Ověřit</button>
+          </div>
+          <div class="result" id="guessLetterResult">Tipni si, jaké písmeno Morseovka skrývá.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>7) Hra: Doplň Morseovku</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Doplň správný kód</h3>
+          <div class="big-display" id="fillWordDisplay">Písmeno: A</div>
+          <div class="buttons">
+            <button id="newFillTaskBtn">Nový úkol</button>
+          </div>
+        </div>
+        <div class="card">
+          <label for="fillMorseInput">Napiš Morseův kód</label>
+          <input id="fillMorseInput" type="text" placeholder="Např. .-" />
+          <div class="buttons">
+            <button id="checkFillTaskBtn">Ověřit</button>
+          </div>
+          <div class="result" id="fillTaskResult">Napiš správný Morseův kód pro zadané písmeno.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>8) Rychlý kvíz</h2>
+      <div id="quizWrap" class="grid-2"></div>
+    </section>
+
+    <section class="section">
+      <h2>9) Závěr</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Co jsou data?</h3>
+          <p>Například tečky, čárky, písmena nebo čísla.</p>
+        </div>
+        <div class="card">
+          <h3>Co je informace?</h3>
+          <p>Význam, kterému rozumíme a umíme ho použít.</p>
+        </div>
+        <div class="card">
+          <h3>Co je Morseova abeceda?</h3>
+          <p>Způsob, jak převádět text na tečky a čárky.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">Aplikace funguje přímo v prohlížeči bez instalace.</p>
+  </div>
+
+  <script>
+    const morseAlphabet = {
+      "A": ".-","B": "-...","C": "-.-.","D": "-..","E": ".","F": "..-.",
+      "G": "--.","H": "....","I": "..","J": ".---","K": "-.-","L": ".-..",
+      "M": "--","N": "-.","O": "---","P": ".--.","Q": "--.-","R": ".-.",
+      "S": "...","T": "-","U": "..-","V": "...-","W": ".--","X": "-..-",
+      "Y": "-.--","Z": "--..",
+      "0": "-----","1": ".----","2": "..---","3": "...--","4": "....-",
+      "5": ".....","6": "-....","7": "--...","8": "---..","9": "----.",
+      " ": "/"
+    };
+
+    const reverseMorse = {};
+    Object.entries(morseAlphabet).forEach(([k, v]) => reverseMorse[v] = k);
+
+    const wordBank = [
+      "AHOJ","DATA","KOD","SKOLA","ROBOT","MORSE","INFORMACE",
+      "TAJNA ZPRAVA","SIGNAL","PISMENO","TECKA","CARKA","ZPRAVA"
+    ];
+
+    let totalPoints = 0;
+    let correctAnswers = 0;
+
+    function addPoints(points, praise) {
+      totalPoints += points;
+      correctAnswers++;
+      document.getElementById("totalPoints").textContent = totalPoints;
+      document.getElementById("correctCount").textContent = correctAnswers;
+      document.getElementById("praiseLabel").textContent = praise;
+      updateLevel();
+    }
+
+    function updateLevel() {
+      let level = "Začátečník";
+      if (totalPoints >= 20) level = "Objevitel";
+      if (totalPoints >= 40) level = "Morse expert";
+      if (totalPoints >= 70) level = "Mistr kódu";
+      document.getElementById("levelLabel").textContent = level;
+    }
+
+    function normalizeText(text) {
+      return text.toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Z0-9\s]/g, "");
+    }
+
+    function textToMorse(text) {
+      const clean = normalizeText(text);
+      const out = [];
+      for (const ch of clean) {
+        if (morseAlphabet[ch]) out.push(morseAlphabet[ch]);
+      }
+      return out.join(" ");
+    }
+
+    function morseToText(morse) {
+      return morse.trim().split(/\s+/).map(part => {
+        if (part === "/") return " ";
+        return reverseMorse[part] || "";
+      }).join("").replace(/\s+/g, " ").trim();
+    }
+
+    function randomWord() {
+      return wordBank[Math.floor(Math.random() * wordBank.length)];
+    }
+
+    function getCurrentSpeed() {
+      return Number(document.getElementById("speedSelect").value);
+    }
+
+    function updateSpeedDisplay() {
+      const speed = getCurrentSpeed();
+      document.getElementById("speedDisplay").textContent = `${speed} ms na tečku`;
+    }
+
+    document.getElementById("speedSelect").addEventListener("change", updateSpeedDisplay);
+    updateSpeedDisplay();
+
+    // Build Morse table
+    const morseGrid = document.getElementById("morseGrid");
+    Object.entries(morseAlphabet).forEach(([letter, code]) => {
+      if (letter === " ") return;
+      const cell = document.createElement("div");
+      cell.className = "morse-cell";
+      cell.innerHTML = `<strong>${letter}</strong><span>${code}</span>`;
+      morseGrid.appendChild(cell);
+    });
+
+    // Audio
+    let audioCtx = null;
+    let stopRequested = false;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function beep(duration = 120, frequency = 650, volume = 0.15) {
+      ensureAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = frequency;
+      gain.gain.value = volume;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      await wait(duration);
+      osc.stop();
+    }
+
+    async function playMorse(morse, unit = 120) {
+      stopRequested = false;
+      const chars = morse.split("");
+      for (let i = 0; i < chars.length; i++) {
+        if (stopRequested) break;
+        const ch = chars[i];
+        if (ch === ".") {
+          await beep(unit);
+          await wait(unit);
+        } else if (ch === "-") {
+          await beep(unit * 3);
+          await wait(unit);
+        } else if (ch === " ") {
+          await wait(unit * 3);
+        } else if (ch === "/") {
+          await wait(unit * 7);
+        }
+      }
+    }
+
+    document.getElementById("stopAudioBtn").addEventListener("click", () => {
+      stopRequested = true;
+    });
+
+    // Translator
+    const plainText = document.getElementById("plainText");
+    const morseOutput = document.getElementById("morseOutput");
+    const morseInput = document.getElementById("morseInput");
+    const textOutput = document.getElementById("textOutput");
+
+    document.getElementById("convertToMorseBtn").addEventListener("click", () => {
+      const morse = textToMorse(plainText.value);
+      morseOutput.textContent = morse || "Zadej text pro převod.";
+    });
+
+    document.getElementById("randomWordBtn").addEventListener("click", () => {
+      plainText.value = randomWord();
+      morseOutput.textContent = textToMorse(plainText.value);
+    });
+
+    document.getElementById("playMorseBtn").addEventListener("click", async () => {
+      const morse = textToMorse(plainText.value);
+      morseOutput.textContent = morse || "Zadej text pro převod.";
+      if (morse) await playMorse(morse, getCurrentSpeed());
+    });
+
+    document.getElementById("playMorseVerySlowBtn").addEventListener("click", async () => {
+      const morse = textToMorse(plainText.value);
+      morseOutput.textContent = morse || "Zadej text pro převod.";
+      if (morse) await playMorse(morse, Math.max(getCurrentSpeed(), 800));
+    });
+
+    document.getElementById("convertToTextBtn").addEventListener("click", () => {
+      const text = morseToText(morseInput.value);
+      textOutput.textContent = text || "Neplatný nebo prázdný Morseův kód.";
+    });
+
+    document.getElementById("clearMorseBtn").addEventListener("click", () => {
+      morseInput.value = "";
+      textOutput.textContent = "Rozluštěný text se zobrazí zde.";
+    });
+
+    // Sender/Receiver
+    const senderText = document.getElementById("senderText");
+    const senderDisplay = document.getElementById("senderDisplay");
+    const receiverHeard = document.getElementById("receiverHeard");
+    const receiverDisplay = document.getElementById("receiverDisplay");
+
+    document.getElementById("senderConvertBtn").addEventListener("click", () => {
+      senderDisplay.textContent = textToMorse(senderText.value) || "Zadej zprávu.";
+    });
+
+    document.getElementById("senderPlayBtn").addEventListener("click", async () => {
+      const morse = textToMorse(senderText.value);
+      senderDisplay.textContent = morse || "Zadej zprávu.";
+      if (morse) await playMorse(morse, getCurrentSpeed());
+    });
+
+    document.getElementById("senderPlayVerySlowBtn").addEventListener("click", async () => {
+      const morse = textToMorse(senderText.value);
+      senderDisplay.textContent = morse || "Zadej zprávu.";
+      if (morse) await playMorse(morse, Math.max(getCurrentSpeed(), 850));
+    });
+
+    document.getElementById("receiverDecodeBtn").addEventListener("click", () => {
+      const text = morseToText(receiverHeard.value);
+      receiverDisplay.textContent = text || "Nepodařilo se rozluštit zprávu.";
+    });
+
+    document.getElementById("receiverCheckBtn").addEventListener("click", () => {
+      const expected = normalizeText(senderText.value).trim();
+      const decoded = morseToText(receiverHeard.value).trim();
+      if (!decoded) {
+        receiverDisplay.innerHTML = `<span class="bad">Nejdříve zapiš Morseův kód.</span>`;
+        return;
+      }
+      if (decoded === expected) {
+        receiverDisplay.innerHTML = `<span class="good">Správně! Přijímač zachytil zprávu: ${decoded}</span>`;
+        addPoints(3, "Skvělá práce!");
+      } else {
+        receiverDisplay.innerHTML = `<span class="bad">Ještě ne. Očekáváno: ${expected}, přijato: ${decoded}</span>`;
+      }
+    });
+
+    document.getElementById("receiverClearBtn").addEventListener("click", () => {
+      receiverHeard.value = "";
+      receiverDisplay.textContent = "Čekám na zprávu…";
+    });
+
+    // Battle mode
+    let battleRound = 1;
+    let currentTurn = "A";
+    let battleRunning = false;
+    let battleOriginalText = "";
+    let roundStart = null;
+    let elapsed = 0;
+    let scores = { A: 0, B: 0 };
+
+    const roundLabel = document.getElementById("roundLabel");
+    const turnLabel = document.getElementById("turnLabel");
+    const roundTimeLabel = document.getElementById("roundTimeLabel");
+    const scoreA = document.getElementById("scoreA");
+    const scoreB = document.getElementById("scoreB");
+    const battleStatus = document.getElementById("battleStatus");
+    const battleResult = document.getElementById("battleResult");
+
+    function teamName(key) {
+      return key === "A"
+        ? (document.getElementById("teamAName").value || "Dvojice A")
+        : (document.getElementById("teamBName").value || "Dvojice B");
+    }
+
+    function updateBattleBoard() {
+      roundLabel.textContent = battleRound;
+      turnLabel.textContent = teamName(currentTurn);
+      roundTimeLabel.textContent = elapsed.toFixed(1) + " s";
+      scoreA.textContent = scores.A;
+      scoreB.textContent = scores.B;
+    }
+
+    setInterval(() => {
+      if (battleRunning && roundStart) {
+        elapsed = (Date.now() - roundStart) / 1000;
+        updateBattleBoard();
+      }
+    }, 100);
+
+    document.getElementById("battleRandomBtn").addEventListener("click", () => {
+      document.getElementById("battleWord").value = randomWord();
+    });
+
+    document.getElementById("startBattleBtn").addEventListener("click", () => {
+      battleOriginalText = normalizeText(document.getElementById("battleWord").value).trim();
+      if (!battleOriginalText) {
+        battleStatus.innerHTML = `<span class="bad">Zadej tajné slovo.</span>`;
+        return;
+      }
+      battleRunning = true;
+      roundStart = Date.now();
+      elapsed = 0;
+      battleResult.textContent = "Kolo běží. Poslouchej a zapisuj.";
+      battleStatus.innerHTML = `<span class="good">Kolo ${battleRound} začalo. Vysílá ${teamName(currentTurn)}.</span>`;
+      updateBattleBoard();
+    });
+
+    document.getElementById("playBattleBtn").addEventListener("click", async () => {
+      const word = normalizeText(document.getElementById("battleWord").value).trim();
+      if (!word) {
+        battleStatus.innerHTML = `<span class="bad">Nejdříve zadej slovo.</span>`;
+        return;
+      }
+      await playMorse(textToMorse(word), getCurrentSpeed());
+    });
+
+    document.getElementById("playBattleVerySlowBtn").addEventListener("click", async () => {
+      const word = normalizeText(document.getElementById("battleWord").value).trim();
+      if (!word) {
+        battleStatus.innerHTML = `<span class="bad">Nejdříve zadej slovo.</span>`;
+        return;
+      }
+      await playMorse(textToMorse(word), Math.max(getCurrentSpeed(), 850));
+    });
+
+    document.getElementById("endBattleBtn").addEventListener("click", () => {
+      if (!battleRunning) return;
+      battleRunning = false;
+      elapsed = (Date.now() - roundStart) / 1000;
+      battleStatus.innerHTML = `Kolo ukončeno. Čas: <strong>${elapsed.toFixed(1)} s</strong>`;
+      updateBattleBoard();
+    });
+
+    document.getElementById("evaluateBattleBtn").addEventListener("click", () => {
+      const morse = document.getElementById("battleMorseInput").value.trim();
+      const decodedText = normalizeText(document.getElementById("battleDecodedText").value).trim();
+      const expected = battleOriginalText || normalizeText(document.getElementById("battleWord").value).trim();
+      const decodedFromMorse = morse ? morseToText(morse).trim() : "";
+      const finalDecoded = decodedText || decodedFromMorse;
+
+      if (!expected) {
+        battleResult.innerHTML = `<span class="bad">Nejdříve spusť kolo.</span>`;
+        return;
+      }
+
+      if (battleRunning && roundStart) {
+        elapsed = (Date.now() - roundStart) / 1000;
+        battleRunning = false;
+      }
+
+      let gained = 0;
+      let msg = "";
+
+      if (finalDecoded === expected) {
+        gained += 5;
+        msg += `Správně! +5 bodů.\n`;
+        if (elapsed <= 20) { gained += 3; msg += `Bonus za rychlost: +3 body.\n`; }
+        else if (elapsed <= 40) { gained += 2; msg += `Bonus za rychlost: +2 body.\n`; }
+        else if (elapsed <= 60) { gained += 1; msg += `Bonus za rychlost: +1 bod.\n`; }
+
+        addPoints(4, "Výborně dekóduješ!");
+      } else {
+        msg += `Zpráva nebyla správně rozluštěna.\nOčekáváno: ${expected}\nPřijato: ${finalDecoded || "(nic)"}`;
+      }
+
+      const receivingTeam = currentTurn === "A" ? "B" : "A";
+      scores[receivingTeam] += gained;
+      battleResult.textContent = msg;
+      battleStatus.innerHTML = `Body získává ${teamName(receivingTeam)}.`;
+      updateBattleBoard();
+    });
+
+    document.getElementById("nextRoundBtn").addEventListener("click", () => {
+      battleRound++;
+      currentTurn = currentTurn === "A" ? "B" : "A";
+      battleRunning = false;
+      battleOriginalText = "";
+      roundStart = null;
+      elapsed = 0;
+      document.getElementById("battleWord").value = randomWord();
+      document.getElementById("battleMorseInput").value = "";
+      document.getElementById("battleDecodedText").value = "";
+      battleResult.textContent = "Další kolo je připraveno.";
+      battleStatus.textContent = `Na tahu je ${teamName(currentTurn)} jako vysílač.`;
+      updateBattleBoard();
+    });
+
+    document.getElementById("resetBattleBtn").addEventListener("click", () => {
+      battleRound = 1;
+      currentTurn = "A";
+      battleRunning = false;
+      battleOriginalText = "";
+      roundStart = null;
+      elapsed = 0;
+      scores = { A: 0, B: 0 };
+      document.getElementById("battleWord").value = "SKOLA";
+      document.getElementById("battleMorseInput").value = "";
+      document.getElementById("battleDecodedText").value = "";
+      battleResult.textContent = "Výsledek kola se zobrazí zde.";
+      battleStatus.textContent = "Hra čeká na spuštění.";
+      updateBattleBoard();
+    });
+
+    updateBattleBoard();
+
+    // Guess letter
+    let currentGuessLetter = "S";
+
+    function newGuessLetter() {
+      const keys = Object.keys(morseAlphabet).filter(k => k !== " " && /[A-Z]/.test(k));
+      currentGuessLetter = keys[Math.floor(Math.random() * keys.length)];
+      document.getElementById("guessLetterCode").textContent = morseAlphabet[currentGuessLetter];
+      document.getElementById("guessLetterInput").value = "";
+      document.getElementById("guessLetterResult").textContent = "Tipni si, jaké písmeno Morseovka skrývá.";
+    }
+
+    document.getElementById("newGuessLetterBtn").addEventListener("click", newGuessLetter);
+
+    document.getElementById("playGuessLetterBtn").addEventListener("click", async () => {
+      await playMorse(morseAlphabet[currentGuessLetter], getCurrentSpeed());
+    });
+
+    document.getElementById("playGuessLetterVerySlowBtn").addEventListener("click", async () => {
+      await playMorse(morseAlphabet[currentGuessLetter], Math.max(getCurrentSpeed(), 850));
+    });
+
+    document.getElementById("checkGuessLetterBtn").addEventListener("click", () => {
+      const guess = normalizeText(document.getElementById("guessLetterInput").value).trim();
+      if (guess === currentGuessLetter) {
+        document.getElementById("guessLetterResult").innerHTML = `<span class="good">Správně! Bylo to písmeno ${currentGuessLetter}.</span>`;
+        addPoints(2, "Písmeno rozluštěno!");
+      } else {
+        document.getElementById("guessLetterResult").innerHTML = `<span class="bad">Zkus to znovu.</span>`;
+      }
+    });
+
+    newGuessLetter();
+
+    // Fill task
+    let currentFillLetter = "A";
+
+    function newFillTask() {
+      const keys = Object.keys(morseAlphabet).filter(k => k !== " " && /[A-Z]/.test(k));
+      currentFillLetter = keys[Math.floor(Math.random() * keys.length)];
+      document.getElementById("fillWordDisplay").textContent = `Písmeno: ${currentFillLetter}`;
+      document.getElementById("fillMorseInput").value = "";
+      document.getElementById("fillTaskResult").textContent = "Napiš správný Morseův kód pro zadané písmeno.";
+    }
+
+    document.getElementById("newFillTaskBtn").addEventListener("click", newFillTask);
+
+    document.getElementById("checkFillTaskBtn").addEventListener("click", () => {
+      const input = document.getElementById("fillMorseInput").value.trim();
+      const correct = morseAlphabet[currentFillLetter];
+      if (input === correct) {
+        document.getElementById("fillTaskResult").innerHTML = `<span class="good">Správně! ${currentFillLetter} = ${correct}</span>`;
+        addPoints(2, "Morseovka sedí!");
+      } else {
+        document.getElementById("fillTaskResult").innerHTML = `<span class="bad">Ještě ne. Zkus to znovu.</span>`;
+      }
+    });
+
+    newFillTask();
+
+    // Quiz
+    const quizData = [
+      {
+        question: "Co jsou data?",
+        options: ["Znaky, symboly nebo hodnoty", "Pouze hotové odpovědi", "Jen obrázky"],
+        correct: 0
+      },
+      {
+        question: "Co znamená Morseův kód ... ?",
+        options: ["S", "O", "T"],
+        correct: 0
+      },
+      {
+        question: "Kdy se z dat stává informace?",
+        options: ["Když jim rozumíme", "Když je smažeme", "Když je vytiskneme"],
+        correct: 0
+      },
+      {
+        question: "Co potřebuje příjemce zprávy?",
+        options: ["Znát pravidla kódu", "Pouze rychlé ruce", "Novou baterii"],
+        correct: 0
+      }
+    ];
+
+    const quizWrap = document.getElementById("quizWrap");
+    quizData.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = `${index + 1}. ${item.question}`;
+      card.appendChild(title);
+
+      const options = document.createElement("div");
+      options.className = "quiz-options";
+
+      item.options.forEach((opt, optIndex) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+
+        btn.addEventListener("click", () => {
+          Array.from(options.children).forEach(child => child.disabled = true);
+
+          if (optIndex === item.correct) {
+            btn.classList.add("correct");
+            addPoints(1, "Správná odpověď!");
+          } else {
+            btn.classList.add("wrong");
+            options.children[item.correct].classList.add("correct");
+          }
+        });
+
+        options.appendChild(btn);
+      });
+
+      card.appendChild(options);
+      quizWrap.appendChild(card);
+    });
+  </script>
+</body>
+</html>

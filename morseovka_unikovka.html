@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operace KÓD-7 – školní verze</title>
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #10213d;
+      --panel: rgba(16, 31, 57, 0.96);
+      --border: #31577f;
+      --cyan: #6ee7ff;
+      --yellow: #ffd166;
+      --green: #76edac;
+      --red: #ff7e8c;
+      --purple: #c4a2ff;
+      --text: #eef7ff;
+      --muted: #b5c7de;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(110,231,255,.12), transparent 30rem),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+    }
+
+    .app {
+      width: min(1280px, calc(100% - 26px));
+      margin: auto;
+      padding: 20px 0 60px;
+    }
+
+    header,
+    .panel {
+      border: 1px solid rgba(110,231,255,.2);
+      border-radius: 20px;
+      background: rgba(16,31,57,.96);
+      box-shadow: 0 14px 35px rgba(0,0,0,.3);
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      padding: 30px;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #1d4673, #101a35);
+    }
+
+    header::after {
+      content: "3 • SIGNAL • KLIC • SIT • MORSE";
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      color: rgba(255,255,255,.08);
+      font: 700 .95rem "Courier New", monospace;
+      transform: rotate(-5deg);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--cyan);
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      color: var(--yellow);
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .subtitle,
+    .muted {
+      color: var(--muted);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 7px 11px;
+      border: 1px solid rgba(110,231,255,.3);
+      border-radius: 999px;
+      background: rgba(110,231,255,.1);
+      color: var(--cyan);
+      font-weight: 800;
+    }
+
+    .timer {
+      min-width: 145px;
+      padding: 12px 17px;
+      border: 2px solid var(--purple);
+      border-radius: 13px;
+      color: var(--purple);
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .timer.warning {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .timer.danger {
+      border-color: var(--red);
+      color: var(--red);
+      animation: pulse .8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      to { transform: scale(1.05); }
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 12px;
+    }
+
+    .rooms {
+      display: grid;
+      gap: 9px;
+    }
+
+    .room-button {
+      position: relative;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(110,231,255,.2);
+      border-radius: 12px;
+      background: #112744;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .room-button:hover:not(:disabled) {
+      border-color: var(--cyan);
+      transform: translateX(2px);
+    }
+
+    .room-button:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .room-button.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 2px rgba(110,231,255,.13);
+    }
+
+    .room-button.completed {
+      border-color: var(--green);
+      background: rgba(118,237,172,.1);
+    }
+
+    .room-button.locked::after {
+      content: "🔒";
+      position: absolute;
+      right: 12px;
+      top: 22px;
+    }
+
+    .room-number {
+      display: block;
+      color: var(--cyan);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .room-title {
+      display: block;
+      margin: 5px 0;
+      padding-right: 25px;
+      font-weight: 900;
+    }
+
+    .room-status {
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .inventory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .item {
+      padding: 6px 8px;
+      border: 1px solid rgba(255,209,102,.4);
+      border-radius: 8px;
+      background: rgba(255,209,102,.1);
+      color: var(--yellow);
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .screens section {
+      display: none;
+    }
+
+    .screens section.active {
+      display: block;
+      animation: appear .25s ease;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border: 1px solid rgba(196,162,255,.4);
+      border-radius: 9px;
+      background: rgba(196,162,255,.1);
+      color: var(--purple);
+      font-size: .75rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mission {
+      padding: 18px;
+      margin-top: 15px;
+      border: 1px solid rgba(110,231,255,.22);
+      border-radius: 15px;
+      background: rgba(0, 8, 20, .35);
+    }
+
+    .mission-title {
+      margin-bottom: 8px;
+      color: var(--yellow);
+      font-weight: 900;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 13px;
+    }
+
+    .card {
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 13px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .display {
+      padding: 15px;
+      margin: 12px 0;
+      border: 1px solid rgba(110,231,255,.25);
+      border-radius: 11px;
+      background: #071322;
+      color: var(--cyan);
+      font-weight: 900;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .large-display {
+      padding: 25px 12px;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+    }
+
+    .mono {
+      font-family: "Courier New", monospace;
+      letter-spacing: .08em;
+    }
+
+    label {
+      display: block;
+      margin: 11px 0 6px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid rgba(110,231,255,.3);
+      border-radius: 9px;
+      outline: none;
+      background: #081526;
+      color: var(--text);
+      font: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(110,231,255,.12);
+    }
+
+    button {
+      padding: 11px 15px;
+      border: none;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--cyan), #43b8ff);
+      color: #05131f;
+      font-weight: 900;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    button.secondary {
+      background: linear-gradient(135deg, var(--yellow), #ffad48);
+      color: #291b00;
+    }
+
+    button.purple {
+      background: linear-gradient(135deg, #d4bdff, #a58bff);
+      color: #1c1238;
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #ff9e79, #e8627d);
+      color: white;
+    }
+
+    button.dark {
+      background: #435979;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .result,
+    .status {
+      min-height: 54px;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid rgba(110,231,255,.18);
+      border-radius: 10px;
+      background: rgba(0,8,20,.65);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .good { color: var(--green); font-weight: 900; }
+    .bad { color: var(--red); font-weight: 900; }
+    .hint { color: var(--yellow); font-weight: 800; }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 55px;
+      background: #112744;
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .choice.selected {
+      border: 2px solid var(--yellow);
+      background: rgba(255,209,102,.12);
+    }
+
+    .emoji-line {
+      padding: 20px 10px;
+      margin: 12px 0;
+      border: 1px solid rgba(110,231,255,.2);
+      border-radius: 12px;
+      background: #071322;
+      font-size: clamp(1.8rem, 6vw, 3.2rem);
+      text-align: center;
+      letter-spacing: .12em;
+    }
+
+    .symbol-card {
+      padding: 15px;
+      border: 1px solid rgba(110,231,255,.18);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .symbol-big {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .colors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+      padding: 15px;
+      margin: 12px 0;
+      border: 1px solid rgba(110,231,255,.2);
+      border-radius: 12px;
+      background: #071322;
+    }
+
+    .dot {
+      width: 38px;
+      height: 38px;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .blue { background: #368dff; color: #368dff; }
+    .red { background: #ff536b; color: #ff536b; }
+    .yellow { background: #ffd166; color: #ffd166; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .legend-item {
+      padding: 11px;
+      border: 1px solid rgba(110,231,255,.18);
+      border-radius: 10px;
+      background: rgba(255,255,255,.035);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .final {
+      border-color: rgba(255,209,102,.45);
+      background: radial-gradient(circle, rgba(255,209,102,.08), transparent 25rem), var(--panel);
+    }
+
+    .vault {
+      display: none;
+      padding: 22px;
+      margin-top: 18px;
+      border: 2px solid var(--yellow);
+      border-radius: 16px;
+      background: rgba(255,209,102,.08);
+      text-align: center;
+    }
+
+    .vault.open {
+      display: block;
+      animation: openVault 1.2s ease;
+    }
+
+    @keyframes openVault {
+      0% { opacity: 0; transform: scale(.8); }
+      50% { opacity: 1; transform: scale(1.06); box-shadow: 0 0 35px var(--yellow); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .teacher {
+      display: none;
+      border-color: rgba(196,162,255,.45);
+    }
+
+    .teacher.open {
+      display: block;
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 9999;
+      top: -20px;
+      width: 9px;
+      height: 15px;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .footer {
+      padding: 25px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .rooms { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .topbar,
+      .room-header {
+        display: block;
+      }
+
+      .timer {
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .rooms {
+        grid-template-columns: 1fr;
+      }
+
+      header::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>🔐 Operace KÓD-7</h1>
+      <p class="subtitle">
+        Školní úniková hra pro 7. třídu. V jednotlivých místnostech rozlišuješ data a informace,
+        pracuješ s Morseovou abecedou, interpretuješ emoji zprávy, používáš standardizované symboly
+        a skládáš výsledný přístupový řetězec.
+      </p>
+    </header>
+
+    <div class="topbar">
+      <div class="pills">
+        <span class="pill">⭐ Body: <strong id="score">0</strong></span>
+        <span class="pill">🏅 <strong id="rank">Nováček</strong></span>
+        <span class="pill">🎒 Předměty: <strong id="items">0</strong></span>
+        <span class="pill">🚪 Místnosti: <strong id="roomsDone">0 / 6</strong></span>
+      </div>
+      <div class="timer" id="timer">45:00</div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <section class="panel">
+          <h2>Mapa místností</h2>
+
+          <div class="rooms">
+            <button class="room-button active" data-room="1" id="nav1">
+              <span class="room-number">MÍSTNOST 1</span>
+              <span class="room-title">🧾 Data a informace</span>
+              <span class="room-status">Připravena</span>
+            </button>
+
+            <button class="room-button locked" data-room="2" id="nav2" disabled>
+              <span class="room-number">MÍSTNOST 2</span>
+              <span class="room-title">📻 Morseova vysílačka</span>
+              <span class="room-status">Zamčeno</span>
+            </button>
+
+            <button class="room-button locked" data-room="3" id="nav3" disabled>
+              <span class="room-number">MÍSTNOST 3</span>
+              <span class="room-title">😀 Emoji zpráva</span>
+              <span class="room-status">Zamčeno</span>
+            </button>
+
+            <button class="room-button locked" data-room="4" id="nav4" disabled>
+              <span class="room-number">MÍSTNOST 4</span>
+              <span class="room-title">📶 Síťové symboly</span>
+              <span class="room-status">Zamčeno</span>
+            </button>
+
+            <button class="room-button locked" data-room="5" id="nav5" disabled>
+              <span class="room-number">MÍSTNOST 5</span>
+              <span class="room-title">🎨 Barevný Morse kód</span>
+              <span class="room-status">Zamčeno</span>
+            </button>
+
+            <button class="room-button locked" data-room="6" id="nav6" disabled>
+              <span class="room-number">MÍSTNOST 6</span>
+              <span class="room-title">🖥️ Centrální server</span>
+              <span class="room-status">Zamčeno</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Inventář</h2>
+          <div class="inventory" id="inventory">
+            <span class="empty">Zatím prázdný.</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Nastavení hry</h2>
+
+          <label for="difficulty">Obtížnost</label>
+          <select id="difficulty">
+            <option value="easy">Lehká – 55 minut</option>
+            <option value="normal" selected>Normální – 45 minut</option>
+            <option value="hard">Výzva – 35 minut</option>
+          </select>
+
+          <div class="buttons">
+            <button id="start">Spustit misi</button>
+            <button id="reset" class="danger">Resetovat hru</button>
+            <button id="teacher" class="purple">Učitelský režim</button>
+          </div>
+
+          <div class="status" id="status">
+            Vyber obtížnost a spusť misi.
+          </div>
+        </section>
+      </aside>
+
+      <main class="screens">
+        <!-- ÚVOD -->
+        <section class="panel active" id="screen0">
+          <div class="room-header">
+            <div>
+              <h2>Instrukce ke hře</h2>
+              <p class="muted">
+                Každá místnost přináší jeden dílčí výsledek. Postupuj po pořadě, zapisuj si klíče
+                a na konci je seřaď podle významu.
+              </p>
+            </div>
+            <span class="tag">Start</span>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <h3>Data a informace</h3>
+              <p>Rozhodneš, kdy už má sdělení srozumitelný význam.</p>
+            </div>
+            <div class="card">
+              <h3>Morseova komunikace</h3>
+              <p>Rozluštíš přenos a použiješ správné vysvětlení jeho fungování.</p>
+            </div>
+            <div class="card">
+              <h3>Symbolické jazyky</h3>
+              <p>Emoji, síťové symboly a barvy převedeš na přesnější význam nebo kód.</p>
+            </div>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Zpráva KÓD-7</div>
+            <p>
+              „Jen ten, kdo správně pochopí různá sdělení, dokáže obnovit centrální server.“
+            </p>
+
+            <div class="buttons">
+              <button id="begin">Začít první místnost</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 1 -->
+        <section class="panel" id="screen1">
+          <div class="room-header">
+            <div>
+              <h2>🧾 Data a informace</h2>
+              <p class="muted">
+                Rozhodni, které záznamy už představují informaci, které mají význam pro příjemce.
+              </p>
+            </div>
+            <span class="tag">1 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Rozlišení záznamů</div>
+
+            <div class="grid">
+              <div class="card">
+                <div class="display mono">... --- ...</div>
+                <div class="choice-grid room1-group" data-id="1">
+                  <button class="choice" data-value="data">Data / kód</button>
+                  <button class="choice" data-value="info">Informace</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="display">SOS</div>
+                <div class="choice-grid room1-group" data-id="2">
+                  <button class="choice" data-value="data">Data / kód</button>
+                  <button class="choice" data-value="info">Informace</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="display">🔑📘🟦</div>
+                <div class="choice-grid room1-group" data-id="3">
+                  <button class="choice" data-value="data">Data / kód</button>
+                  <button class="choice" data-value="info">Informace</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="display">Pomoc, jsme zamčení v laboratoři!</div>
+                <div class="choice-grid room1-group" data-id="4">
+                  <button class="choice" data-value="data">Data / kód</button>
+                  <button class="choice" data-value="info">Informace</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="display">⚠️</div>
+                <div class="choice-grid room1-group" data-id="5">
+                  <button class="choice" data-value="data">Data / kód</button>
+                  <button class="choice" data-value="info">Informace</button>
+                </div>
+              </div>
+            </div>
+
+            <label for="room1Answer">Kolik záznamů zde už představuje informaci?</label>
+            <input id="room1Answer" inputmode="numeric" placeholder="Napiš číslo" />
+
+            <div class="buttons">
+              <button id="check1">Ověřit</button>
+              <button id="hint1" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="result1">
+              Místnost čeká na vyhodnocení.
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 2 -->
+        <section class="panel" id="screen2">
+          <div class="room-header">
+            <div>
+              <h2>📻 Morseova vysílačka</h2>
+              <p class="muted">
+                Poslechni Morseovu zprávu, rozlušti ji a vyber správné vysvětlení.
+              </p>
+            </div>
+            <span class="tag">2 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Přijatá zpráva</div>
+
+            <div class="display large-display mono">... .. --. -. .- .-..</div>
+
+            <div class="buttons">
+              <button id="play">Přehrát</button>
+              <button id="playSlow" class="secondary">Přehrát pomalu</button>
+              <button id="stop" class="danger">Zastavit</button>
+            </div>
+
+            <label for="morseWord">Rozluštěné slovo</label>
+            <input id="morseWord" placeholder="Napiš slovo" />
+
+            <p style="margin-top:14px;">Vyber správné vysvětlení:</p>
+
+            <div class="choice-grid" id="room2Choices">
+              <button class="choice" data-value="wrong1">
+                Morseovka funguje, i když vysílač a přijímač neznají stejný kód.
+              </button>
+              <button class="choice" data-value="correct">
+                Vysílač i přijímač musí znát stejný kód, jinak zprávě neporozumí.
+              </button>
+              <button class="choice" data-value="wrong2">
+                U Morseovy zprávy není potřeba dekódování.
+              </button>
+            </div>
+
+            <div class="buttons">
+              <button id="check2">Ověřit</button>
+              <button id="hint2" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="result2">
+              Morseova vysílačka čeká na rozluštění.
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 3 -->
+        <section class="panel" id="screen3">
+          <div class="room-header">
+            <div>
+              <h2>😀 Emoji zpráva</h2>
+              <p class="muted">
+                Vyber nejvhodnější význam emoji sdělení a doplň odpovídající heslo.
+              </p>
+            </div>
+            <span class="tag">3 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Interpretace sdělení</div>
+
+            <div class="emoji-line">🔑 + 🚪 + ✅</div>
+
+            <div class="choice-grid" id="room3Choices">
+              <button class="choice" data-value="correct">
+                Klíč otevřel dveře.
+              </button>
+              <button class="choice" data-value="wrong1">
+                Dveře se zamkly.
+              </button>
+              <button class="choice" data-value="wrong2">
+                Klíč je schovaný za dveřmi.
+              </button>
+            </div>
+
+            <label for="emojiKeyword">Jaké jednoslovné heslo s tím nejlépe souvisí?</label>
+            <input id="emojiKeyword" placeholder="Napiš heslo bez diakritiky" />
+
+            <div class="buttons">
+              <button id="check3">Ověřit</button>
+              <button id="hint3" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="result3">
+              Emoji zpráva čeká na interpretaci.
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 4 -->
+        <section class="panel" id="screen4">
+          <div class="room-header">
+            <div>
+              <h2>📶 Síťové symboly</h2>
+              <p class="muted">
+                Vyber dvojici symbolů, která nejlépe souvisí se sítí a komunikací.
+              </p>
+            </div>
+            <span class="tag">4 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Symboly v technickém prostředí</div>
+
+            <div class="grid">
+              <div class="symbol-card">
+                <div class="symbol-big">📶</div>
+                <div>1 – připojení / síť</div>
+              </div>
+
+              <div class="symbol-card">
+                <div class="symbol-big">♻️</div>
+                <div>2 – recyklace</div>
+              </div>
+
+              <div class="symbol-card">
+                <div class="symbol-big">💬</div>
+                <div>3 – zpráva / komunikace</div>
+              </div>
+
+              <div class="symbol-card">
+                <div class="symbol-big">🚭</div>
+                <div>4 – zákaz kouření</div>
+              </div>
+            </div>
+
+            <label for="symbolsOrder">Zapiš pořadí dvou správných symbolů, např. 13</label>
+            <input id="symbolsOrder" inputmode="numeric" placeholder="např. 13" />
+
+            <label for="networkWord">Jaké krátké heslo z oblasti sítí a komunikace z toho odvodíš?</label>
+            <input id="networkWord" placeholder="Napiš heslo" />
+
+            <div class="buttons">
+              <button id="check4">Ověřit</button>
+              <button id="hint4" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="result4">
+              Síťové symboly čekají na vyhodnocení.
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 5 -->
+        <section class="panel" id="screen5">
+          <div class="room-header">
+            <div>
+              <h2>🎨 Barevný Morse kód</h2>
+              <p class="muted">
+                Převeď barvy na Morseův kód a pak na běžné slovo.
+              </p>
+            </div>
+            <span class="tag">5 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Legenda barev</div>
+
+            <div class="legend">
+              <div class="legend-item">🔵 modrá = tečka</div>
+              <div class="legend-item">🔴 červená = čárka</div>
+              <div class="legend-item">🟡 žlutá = konec písmene</div>
+            </div>
+
+            <div class="colors">
+              <span class="dot red"></span>
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+
+              <span class="dot red"></span>
+              <span class="dot red"></span>
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+
+              <span class="dot blue"></span>
+              <span class="dot red"></span>
+              <span class="dot blue"></span>
+              <span class="dot yellow"></span>
+
+              <span class="dot blue"></span>
+              <span class="dot blue"></span>
+              <span class="dot blue"></span>
+              <span class="dot yellow"></span>
+
+              <span class="dot blue"></span>
+              <span class="dot yellow"></span>
+            </div>
+
+            <label for="colorMorse">Morseův kód</label>
+            <input id="colorMorse" placeholder="např. -- --- .-" />
+
+            <label for="colorWord">Rozluštěné slovo</label>
+            <input id="colorWord" placeholder="Napiš slovo" />
+
+            <div class="buttons">
+              <button id="check5">Ověřit</button>
+              <button id="hint5" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="result5">
+              Barevný kód čeká na převod.
+            </div>
+          </div>
+        </section>
+
+        <!-- MÍSTNOST 6 -->
+        <section class="panel final" id="screen6">
+          <div class="room-header">
+            <div>
+              <h2>🖥️ Centrální server</h2>
+              <p class="muted">
+                Seřaď výsledky podle logiky komunikačního procesu a aktivuj server.
+              </p>
+            </div>
+            <span class="tag">6 / 6</span>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Získané výsledky</div>
+
+            <div class="grid">
+              <div class="card">
+                <div class="display mono" id="fragment1">?</div>
+                <p class="muted">Číselný výsledek</p>
+              </div>
+
+              <div class="card">
+                <div class="display mono" id="fragment2">?</div>
+                <p class="muted">Signál / přenos</p>
+              </div>
+
+              <div class="card">
+                <div class="display mono" id="fragment3">?</div>
+                <p class="muted">Nástroj k otevření</p>
+              </div>
+
+              <div class="card">
+                <div class="display mono" id="fragment4">?</div>
+                <p class="muted">Síťové zázemí</p>
+              </div>
+
+              <div class="card">
+                <div class="display mono" id="fragment5">?</div>
+                <p class="muted">Typ kódu</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mission">
+            <div class="mission-title">Aktivace serveru</div>
+
+            <p>Seřaď výsledky v pořadí:</p>
+            <ol>
+              <li>číselný výsledek,</li>
+              <li>signál nebo přenos,</li>
+              <li>to, čím se něco otevírá,</li>
+              <li>síťové zázemí,</li>
+              <li>typ kódu.</li>
+            </ol>
+
+            <label for="finalInput">Finální řetězec</label>
+            <input id="finalInput" placeholder="Zapiš bez mezer" />
+
+            <label for="checksum">Kontrolní součet délek čtyř slov</label>
+            <input id="checksum" inputmode="numeric" placeholder="Napiš číslo" />
+
+            <div class="buttons">
+              <button id="checkFinal">Aktivovat server</button>
+              <button id="hintFinal" class="secondary">Nápověda</button>
+            </div>
+
+            <div class="result" id="resultFinal">
+              Server čeká na správný přístupový řetězec.
+            </div>
+          </div>
+
+          <div class="vault" id="vault">
+            <h2>🎉 SERVER AKTIVOVÁN</h2>
+            <div class="display large-display">LABORATOŘ OBNOVENA</div>
+            <p id="victoryText"></p>
+          </div>
+        </section>
+
+        <!-- UČITELSKÝ REŽIM -->
+        <section class="panel teacher" id="teacherPanel">
+          <h2>🧑‍🏫 Učitelský režim</h2>
+
+          <div class="grid">
+            <div class="card">
+              <h3>Správná řešení</h3>
+              <p class="mono">
+                Místnost 1: 3<br>
+                Místnost 2: SIGNAL + správná možnost 2<br>
+                Místnost 3: KLIC + správná možnost 1<br>
+                Místnost 4: 13 + SIT<br>
+                Místnost 5: -- --- .-. ... . + MORSE<br>
+                Finále: 3SIGNALKLICSITMORSE<br>
+                Kontrolní součet: 18
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>Ovládání</h3>
+              <div class="buttons">
+                <button id="unlockAll">Odemknout vše</button>
+                <button id="teacherReset" class="danger">Resetovat</button>
+                <button id="closeTeacher" class="dark">Zavřít</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="result" id="teacherResult">
+            Učitelský režim je aktivní.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer">
+      Operace KÓD-7 • Revidovaná školní verze
+    </div>
+  </main>
+
+  <script>
+    const PIN = "2468";
+    const STORAGE = "morseovka_unikovka_school_final_v1";
+    const finalCode = "3SIGNALKLICSITMORSE";
+    const finalChecksum = "18";
+
+    const times = {
+      easy: 55 * 60,
+      normal: 45 * 60,
+      hard: 35 * 60
+    };
+
+    let state = {
+      started: false,
+      finished: false,
+      difficulty: "normal",
+      timeLeft: times.normal,
+      currentRoom: 0,
+      unlocked: [true, false, false, false, false, false],
+      completed: [false, false, false, false, false, false],
+      inventory: [],
+      score: 0,
+      hints: 0
+    };
+
+    let audioContext;
+    let timerInterval;
+    let stopAudio = false;
+
+    let room1Choices = {};
+    let room2Choice = "";
+    let room3Choice = "";
+
+    const $ = id => document.getElementById(id);
+
+    function save() {
+      localStorage.setItem(STORAGE, JSON.stringify(state));
+    }
+
+    function load() {
+      const saved = localStorage.getItem(STORAGE);
+
+      if (saved) {
+        try {
+          state = { ...state, ...JSON.parse(saved) };
+        } catch {
+          localStorage.removeItem(STORAGE);
+        }
+      }
+
+      $("difficulty").value = state.difficulty;
+    }
+
+    function formatTime(seconds) {
+      return String(Math.floor(seconds / 60)).padStart(2, "0") + ":" +
+        String(seconds % 60).padStart(2, "0");
+    }
+
+    function updateTimer() {
+      $("timer").textContent = formatTime(state.timeLeft);
+      $("timer").className = "timer";
+
+      if (state.timeLeft <= 120) $("timer").classList.add("danger");
+      else if (state.timeLeft <= 300) $("timer").classList.add("warning");
+    }
+
+    function updateStats() {
+      $("score").textContent = state.score;
+      $("items").textContent = state.inventory.length;
+      $("roomsDone").textContent = `${state.completed.filter(Boolean).length} / 6`;
+
+      if (state.score >= 85) $("rank").textContent = "Mistr kódů";
+      else if (state.score >= 55) $("rank").textContent = "Analytik";
+      else if (state.score >= 25) $("rank").textContent = "Detektiv";
+      else $("rank").textContent = "Nováček";
+
+      $("inventory").innerHTML = state.inventory.length
+        ? state.inventory.map(item => `<span class="item">${item}</span>`).join("")
+        : '<span class="empty">Zatím prázdný.</span>';
+    }
+
+    function status(text, type = "") {
+      $("status").innerHTML = type ? `<span class="${type}">${text}</span>` : text;
+    }
+
+    function result(id, text, type = "") {
+      $(id).innerHTML = type ? `<span class="${type}">${text}</span>` : text;
+    }
+
+    function updateNavigation() {
+      for (let i = 1; i <= 6; i++) {
+        const button = $(`nav${i}`);
+        const statusEl = button.querySelector(".room-status");
+
+        button.disabled = !state.unlocked[i - 1];
+        button.classList.remove("active", "completed", "locked");
+
+        if (state.currentRoom === i) button.classList.add("active");
+
+        if (state.completed[i - 1]) {
+          button.classList.add("completed");
+          statusEl.textContent = "✓ Dokončeno";
+        } else if (state.unlocked[i - 1]) {
+          statusEl.textContent = "Odemčeno";
+        } else {
+          button.classList.add("locked");
+          statusEl.textContent = "Zamčeno";
+        }
+      }
+    }
+
+    function showRoom(number) {
+      document.querySelectorAll(".screens > section").forEach(section => {
+        section.classList.remove("active");
+      });
+
+      $(`screen${number}`).classList.add("active");
+      state.currentRoom = number;
+      updateNavigation();
+      save();
+    }
+
+    function addPoints(value) {
+      state.score += value;
+      updateStats();
+      save();
+    }
+
+    function addItem(item) {
+      if (!state.inventory.includes(item)) {
+        state.inventory.push(item);
+      }
+      updateStats();
+      save();
+    }
+
+    function completeRoom(index, item) {
+      state.completed[index] = true;
+      addItem(item);
+      addPoints(16);
+
+      if (index < 5) {
+        state.unlocked[index + 1] = true;
+        status(`Další místnost byla odemčena.`, "good");
+        showRoom(index + 2);
+      }
+
+      updateNavigation();
+      updateFragments();
+      save();
+    }
+
+    function updateAll() {
+      updateTimer();
+      updateStats();
+      updateNavigation();
+      updateFragments();
+    }
+
+    function resetGame() {
+      clearInterval(timerInterval);
+
+      const difficulty = $("difficulty").value;
+
+      state = {
+        started: false,
+        finished: false,
+        difficulty,
+        timeLeft: times[difficulty],
+        currentRoom: 0,
+        unlocked: [true, false, false, false, false, false],
+        completed: [false, false, false, false, false, false],
+        inventory: [],
+        score: 0,
+        hints: 0
+      };
+
+      room1Choices = {};
+      room2Choice = "";
+      room3Choice = "";
+
+      localStorage.removeItem(STORAGE);
+      updateAll();
+      showRoom(0);
+      status("Hra byla resetována.");
+    }
+
+    function startGame() {
+      state.started = true;
+      state.finished = false;
+      state.currentRoom = 1;
+
+      if (state.timeLeft <= 0) {
+        state.timeLeft = times[state.difficulty];
+      }
+
+      showRoom(1);
+      status("Mise byla spuštěna. Postupujte po místnostech a průběžně si zapisujte výsledky.", "good");
+      startTimer();
+      save();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        if (!state.started || state.finished) return;
+
+        if (state.timeLeft <= 0) {
+          clearInterval(timerInterval);
+          status("Čas vypršel. Hru lze ještě dokončit nebo restartovat.", "bad");
+          return;
+        }
+
+        state.timeLeft--;
+        updateTimer();
+        save();
+      }, 1000);
+    }
+
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function tone(freq, duration, delay = 0, type = "sine") {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const ctx = getAudioContext();
+          const oscillator = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          oscillator.type = type;
+          oscillator.frequency.value = freq;
+          gain.gain.value = .11;
+
+          oscillator.connect(gain);
+          gain.connect(ctx.destination);
+          oscillator.start();
+
+          gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration / 1000);
+          oscillator.stop(ctx.currentTime + duration / 1000);
+          setTimeout(resolve, duration);
+        }, delay);
+      });
+    }
+
+    async function successSound() {
+      await tone(440, 120);
+      await tone(660, 130, 90);
+      await tone(880, 220, 180, "triangle");
+    }
+
+    async function errorSound() {
+      await tone(180, 170, 0, "sawtooth");
+      await tone(130, 220, 140, "sawtooth");
+    }
+
+    async function victorySound() {
+      await tone(330, 160);
+      await tone(494, 160, 120);
+      await tone(659, 180, 240, "triangle");
+      await tone(988, 350, 390, "triangle");
+    }
+
+    async function playMorse(code, unit = 550) {
+      stopAudio = false;
+
+      for (const symbol of code) {
+        if (stopAudio) break;
+
+        if (symbol === ".") {
+          await tone(650, unit);
+          await wait(unit);
+        } else if (symbol === "-") {
+          await tone(650, unit * 3);
+          await wait(unit);
+        } else if (symbol === " ") {
+          await wait(unit * 3);
+        }
+      }
+    }
+
+    function confetti() {
+      const colors = ["#6ee7ff", "#ffd166", "#76edac", "#c4a2ff", "#ff7e8c"];
+
+      for (let i = 0; i < 80; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * .7 + "s";
+        piece.style.animationDuration = 2 + Math.random() * 3 + "s";
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 6000);
+      }
+    }
+
+    // Room 1
+    document.querySelectorAll(".room1-group").forEach(group => {
+      const id = group.dataset.id;
+      group.querySelectorAll(".choice").forEach(button => {
+        button.addEventListener("click", () => {
+          group.querySelectorAll(".choice").forEach(choice => choice.classList.remove("selected"));
+          button.classList.add("selected");
+          room1Choices[id] = button.dataset.value;
+        });
+      });
+    });
+
+    $("check1").addEventListener("click", () => {
+      const answer = $("room1Answer").value.trim();
+
+      const correct =
+        room1Choices["1"] === "data" &&
+        room1Choices["2"] === "info" &&
+        room1Choices["3"] === "data" &&
+        room1Choices["4"] === "info" &&
+        room1Choices["5"] === "info";
+
+      if (!correct || answer !== "3") {
+        result("result1", "Zkus znovu rozlišit, které záznamy už mají pro příjemce srozumitelný význam.", "bad");
+        errorSound();
+        return;
+      }
+
+      result("result1", "Správně. Tři záznamy zde představují informaci.", "good");
+      completeRoom(0, "🧾 Třídění sdělení");
+      successSound();
+    });
+
+    $("hint1").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-3);
+      result("result1", "Nápověda: Informace je sdělení, kterému příjemce rozumí a může ho použít.", "hint");
+    });
+
+    // Room 2
+    let room2Selected = "";
+
+    document.querySelectorAll("#room2Choices .choice").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#room2Choices .choice").forEach(choice => choice.classList.remove("selected"));
+        button.classList.add("selected");
+        room2Selected = button.dataset.value;
+      });
+    });
+
+    const morseSignal = "... .. --. -. .- .-..";
+
+    $("play").addEventListener("click", () => playMorse(morseSignal, 550));
+    $("playSlow").addEventListener("click", () => playMorse(morseSignal, 850));
+    $("stop").addEventListener("click", () => stopAudio = true);
+
+    $("check2").addEventListener("click", () => {
+      const word = $("morseWord").value.trim().toUpperCase();
+
+      if (word !== "SIGNAL" || room2Selected !== "correct") {
+        result("result2", "Rozluštěné slovo nebo vybrané vysvětlení nejsou správné.", "bad");
+        errorSound();
+        return;
+      }
+
+      result("result2", "Správně. Přijatá Morseova zpráva nese slovo SIGNAL.", "good");
+      completeRoom(1, "📻 SIGNAL");
+      successSound();
+    });
+
+    $("hint2").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-4);
+      result("result2", "Nápověda: Morseova zpráva funguje jen tehdy, když obě strany znají stejný kód.", "hint");
+    });
+
+    // Room 3
+    document.querySelectorAll("#room3Choices .choice").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#room3Choices .choice").forEach(choice => choice.classList.remove("selected"));
+        button.classList.add("selected");
+        room3Choice = button.dataset.value;
+      });
+    });
+
+    $("check3").addEventListener("click", () => {
+      const keyword = $("emojiKeyword").value.trim().toUpperCase();
+
+      if (room3Choice !== "correct" || keyword !== "KLIC") {
+        result("result3", "Význam zprávy nebo zadané heslo nejsou správné.", "bad");
+        errorSound();
+        return;
+      }
+
+      result("result3", "Správně. Emoji zpráva souvisí s heslem KLIC.", "good");
+      completeRoom(2, "😀 KLIC");
+      successSound();
+    });
+
+    $("hint3").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-4);
+      result("result3", "Nápověda: Zpráva vyjadřuje úspěšné otevření, nikoliv zamčení.", "hint");
+    });
+
+    // Room 4
+    $("check4").addEventListener("click", () => {
+      const order = $("symbolsOrder").value.trim();
+      const word = $("networkWord").value.trim().toUpperCase();
+
+      if (order !== "13" || word !== "SIT") {
+        result("result4", "Pořadí symbolů nebo síťové heslo nejsou správné.", "bad");
+        errorSound();
+        return;
+      }
+
+      result("result4", "Správně. Kombinace připojení a komunikace vede k heslu SIT.", "good");
+      completeRoom(3, "📶 SIT");
+      successSound();
+    });
+
+    $("hint4").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-4);
+      result("result4", "Nápověda: Hledej symbol pro síť a symbol pro zprávu nebo komunikaci.", "hint");
+    });
+
+    // Room 5
+    $("check5").addEventListener("click", () => {
+      const morse = $("colorMorse").value.trim();
+      const word = $("colorWord").value.trim().toUpperCase();
+
+      if (morse !== "-- --- .-. ... ." || word !== "MORSE") {
+        result("result5", "Morseův kód nebo rozluštěné slovo nejsou správné.", "bad");
+        errorSound();
+        return;
+      }
+
+      result("result5", "Správně. Barevný kód převádí na slovo MORSE.", "good");
+      completeRoom(4, "🎨 MORSE");
+      successSound();
+    });
+
+    $("hint5").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-4);
+      result("result5", "Nápověda: První dvě skupiny jsou M a O, třetí skupina odpovídá písmenu R.", "hint");
+    });
+
+    // Final
+    function updateFragments() {
+      $("fragment1").textContent = state.completed[0] ? "3" : "?";
+      $("fragment2").textContent = state.completed[1] ? "SIGNAL" : "?";
+      $("fragment3").textContent = state.completed[2] ? "KLIC" : "?";
+      $("fragment4").textContent = state.completed[3] ? "SIT" : "?";
+      $("fragment5").textContent = state.completed[4] ? "MORSE" : "?";
+    }
+
+    $("checkFinal").addEventListener("click", async () => {
+      const code = $("finalInput").value.trim().toUpperCase();
+      const checksum = $("checksum").value.trim();
+
+      if (!state.completed.slice(0, 5).every(Boolean)) {
+        result("resultFinal", "Nejdříve dokonči všech pět předchozích místností.", "bad");
+        return;
+      }
+
+      if (code !== finalCode || checksum !== finalChecksum) {
+        result("resultFinal", "Finální řetězec nebo kontrolní součet nejsou správné.", "bad");
+        errorSound();
+        return;
+      }
+
+      state.finished = true;
+      clearInterval(timerInterval);
+      addPoints(35);
+
+      result("resultFinal", "Správně. Server byl úspěšně aktivován.", "good");
+
+      $("vault").classList.add("open");
+      $("victoryText").textContent =
+        `Mise dokončena. Závěrečné skóre: ${state.score} bodů. Použité nápovědy: ${state.hints}.`;
+
+      confetti();
+      await victorySound();
+      save();
+    });
+
+    $("hintFinal").addEventListener("click", () => {
+      state.hints++;
+      addPoints(-5);
+      result("resultFinal", "Nápověda: Délky slov jsou 6 + 4 + 3 + 5.", "hint");
+    });
+
+    // Teacher mode
+    $("teacher").addEventListener("click", () => {
+      const pin = prompt("Zadej PIN učitelského režimu:");
+      if (pin !== PIN) {
+        alert("Nesprávný PIN.");
+        return;
+      }
+      $("teacherPanel").classList.add("open");
+      $("teacherPanel").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    $("closeTeacher").addEventListener("click", () => {
+      $("teacherPanel").classList.remove("open");
+    });
+
+    $("unlockAll").addEventListener("click", () => {
+      state.unlocked = [true, true, true, true, true, true];
+      state.completed = [true, true, true, true, true, false];
+      state.inventory = [
+        "🧾 Třídění sdělení",
+        "📻 SIGNAL",
+        "😀 KLIC",
+        "📶 SIT",
+        "🎨 MORSE"
+      ];
+      state.started = true;
+      state.currentRoom = 6;
+      updateAll();
+      showRoom(6);
+      $("teacherResult").innerHTML =
+        '<span class="good">Všechny místnosti byly odemčeny.</span>';
+    });
+
+    $("teacherReset").addEventListener("click", () => {
+      resetGame();
+      $("teacherResult").textContent = "Mise byla resetována.";
+    });
+
+    // Navigation
+    document.querySelectorAll(".room-button").forEach(button => {
+      button.addEventListener("click", () => {
+        const room = Number(button.dataset.room);
+        if (state.unlocked[room - 1]) {
+          showRoom(room);
+          updateFragments();
+        }
+      });
+    });
+
+    $("begin").addEventListener("click", startGame);
+    $("start").addEventListener("click", startGame);
+
+    $("reset").addEventListener("click", () => {
+      if (confirm("Opravdu chceš vymazat celý postup?")) {
+        resetGame();
+      }
+    });
+
+    $("difficulty").addEventListener("change", () => {
+      if (state.started && !confirm("Změna obtížnosti restartuje čas i postup. Pokračovat?")) {
+        $("difficulty").value = state.difficulty;
+        return;
+      }
+
+      state.difficulty = $("difficulty").value;
+      state.timeLeft = times[state.difficulty];
+      state.started = false;
+      state.finished = false;
+      save();
+      updateTimer();
+    });
+
+    load();
+    updateAll();
+
+    if (state.started && !state.finished) {
+      showRoom(state.currentRoom || 1);
+      startTimer();
+      status("Pokračuješ v rozehrané misi.", "good");
+    } else {
+      showRoom(0);
+    }
+  </script>
+</body>
+</html>
