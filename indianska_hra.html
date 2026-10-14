@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indiánská hra na přeměnu symbolů</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            background: #FFF8DC;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+            border: 5px solid #8B4513;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #654321;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #8B4513;
+            font-size: 14px;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .welcome-screen.hidden {
+            display: none;
+        }
+
+        .welcome-title {
+            text-align: center;
+        }
+
+        .welcome-title h2 {
+            color: #654321;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-title p {
+            color: #8B4513;
+            font-size: 16px;
+        }
+
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .message-card {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            border: 3px solid #654321;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message-card:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #A0522D 0%, #DC143C 100%);
+        }
+
+        .message-icon {
+            font-size: 60px;
+            margin-bottom: 8px;
+            line-height: 1;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-icon svg {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .message-text {
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .selected-message {
+            text-align: center;
+            font-size: 18px;
+            color: #654321;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        #canvas {
+            border: 3px solid #333;
+            background-color: white;
+            display: block;
+            margin: 0 auto 20px;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            max-width: 700px;
+            height: 500px;
+            border-radius: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-undo {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .btn-undo:hover {
+            background-color: #e68900;
+        }
+
+        .btn-undo:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background-color: #da190b;
+        }
+
+        .btn-next {
+            background-color: #4CAF50;
+            color: white;
+            min-width: 150px;
+        }
+
+        .btn-next:hover {
+            background-color: #45a049;
+        }
+
+        .btn-gallery {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-gallery:hover {
+            background-color: #0b7dda;
+        }
+
+        .btn-export {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background-color: #7B1FA2;
+        }
+
+        .btn-restart {
+            background-color: #8B4513;
+            color: white;
+        }
+
+        .btn-restart:hover {
+            background-color: #654321;
+        }
+
+        .preview-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .preview-section h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .preview-section canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .preview-section.hidden {
+            display: none;
+        }
+
+        .gallery-section {
+            display: none;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .gallery-section.active {
+            display: block;
+        }
+
+        .gallery-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .gallery-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .gallery-item.original {
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .gallery-item:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item canvas {
+            width: 100%;
+            height: 100px;
+            display: block;
+            border-radius: 5px;
+        }
+
+        .gallery-item-number {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .original-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #FFD700;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .original-label {
+            text-align: center;
+            font-size: 11px;
+            color: #654321;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+        }
+
+        .modal-content canvas {
+            display: block;
+            border: 2px solid #333;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .modal-close {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-close:hover {
+            background-color: #da190b;
+        }
+
+        .modal-download {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-download:hover {
+            background-color: #45a049;
+        }
+
+        .game-title {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+            color: #654321;
+            border: 2px solid #ffc107;
+        }
+
+        .gallery-controls {
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            #canvas {
+                height: 400px;
+                margin-bottom: 15px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .messages-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .message-card {
+                padding: 15px;
+                min-height: 120px;
+            }
+
+            .message-icon {
+                font-size: 45px;
+                height: 50px;
+            }
+
+            .message-icon svg {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Indiánská hra na přeměnu symbolů</h1>
+            <p>Nakresli symbol, předaj ho dál!</p>
+        </div>
+
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-title">
+                <h2>🏜️ Jaký symbol chceš poslat?</h2>
+                <p>Vyber si jeden indiánský symbol a začni kreslit!</p>
+            </div>
+
+            <div class="messages-grid" id="messagesGrid"></div>
+
+            <div class="selected-message" id="selectedMessage" style="display: none;"></div>
+
+            <button class="start-btn" id="startBtn" style="display: none;" onclick="startGame()">
+                🎮 Začít hru!
+            </button>
+        </div>
+
+        <div class="game-screen" id="gameScreen">
+            <div class="game-title" id="gameTitle"></div>
+
+            <canvas id="canvas"></canvas>
+
+            <div class="controls">
+                <button class="btn-undo" id="undoBtn">↶ Vrátit (Undo)</button>
+                <button class="btn-clear" id="clearBtn">🗑️ Smazat vše</button>
+                <button class="btn-next" id="nextBtn">➜ Hotovo - Další hráč</button>
+                <button class="btn-gallery" id="galleryBtn">📸 Galerie</button>
+                <button class="btn-restart" id="restartBtn">🔄 Nový symbol</button>
+            </div>
+
+            <div class="preview-section hidden" id="previewSection">
+                <h3>👀 Předchozí kresba:</h3>
+                <canvas id="previewCanvas"></canvas>
+            </div>
+
+            <div class="gallery-section" id="gallerySection">
+                <h2>Galerie nakreslených symbolů</h2>
+                <div class="gallery" id="gallery"></div>
+                <div class="gallery-controls">
+                    <button class="btn-export" id="exportFilmBtn">🎬 Exportovat jako pásku</button>
+                    <button class="btn-gallery" id="closeGalleryBtn" style="background-color: #666;">Zavřít galerii</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <canvas id="modalCanvas" style="width: 100%; max-width: 600px;"></canvas>
+            <div class="modal-buttons">
+                <button class="modal-download" id="downloadBtn">⬇️ Stáhnout</button>
+                <button class="modal-close" onclick="closeModal()">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="filmModal">
+        <div class="modal-content">
+            <h2 style="text-align: center; color: #333; margin-bottom: 15px;">🎬 Filmový pás - Transformace symbolu</h2>
+            <canvas id="filmCanvas" style="width: 100%; border: 3px solid #8B4513; border-radius: 8px; margin-bottom: 15px;"></canvas>
+            <div style="text-align: center; margin: 15px 0;">
+                <canvas id="qrcodeCanvas" style="width: 200px; height: 200px; border: 2px solid #333; border-radius: 8px;"></canvas>
+            </div>
+            <p style="text-align: center; color: #666; font-size: 12px; margin: 10px 0;">Naskenuj QR kód pro sdílení pásky</p>
+            <div class="modal-buttons">
+                <button class="modal-download" id="downloadFilmBtn">⬇️ Stáhnout pásku</button>
+                <button class="modal-download" id="downloadQrBtn">⬇️ Stáhnout QR kód</button>
+                <button class="modal-close" onclick="closeFilmModal()">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        const symbols = [
+            { name: 'Ráno', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="20" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="10" x2="50" y2="0" stroke="black" stroke-width="2"/><line x1="70" y1="30" x2="80" y2="30" stroke="black" stroke-width="2"/><line x1="30" y1="30" x2="20" y2="30" stroke="black" stroke-width="2"/><line x1="70" y1="10" x2="75" y2="5" stroke="black" stroke-width="2"/><line x1="30" y1="10" x2="25" y2="5" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Odpoledne', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="20" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="30" x2="50" y2="20" stroke="black" stroke-width="2"/><line x1="70" y1="50" x2="80" y2="50" stroke="black" stroke-width="2"/><line x1="30" y1="50" x2="20" y2="50" stroke="black" stroke-width="2"/><line x1="70" y1="70" x2="75" y2="75" stroke="black" stroke-width="2"/><line x1="30" y1="70" x2="25" y2="75" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Večer', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="70" r="20" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="90" x2="50" y2="100" stroke="black" stroke-width="2"/><line x1="70" y1="70" x2="80" y2="70" stroke="black" stroke-width="2"/><line x1="30" y1="70" x2="20" y2="70" stroke="black" stroke-width="2"/><line x1="70" y1="90" x2="75" y2="95" stroke="black" stroke-width="2"/><line x1="30" y1="90" x2="25" y2="95" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Noc', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 50 30 Q 40 20 30 25 Q 20 30 25 40 Q 30 50 40 48 Q 50 47 50 30" fill="none" stroke="black" stroke-width="2"/><circle cx="45" cy="35" r="3" fill="black"/></svg>'},
+            { name: 'Vidět', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="15" fill="none" stroke="black" stroke-width="2"/><circle cx="50" cy="50" r="8" fill="none" stroke="black" stroke-width="2"/><circle cx="50" cy="50" r="3" fill="black"/><path d="M 25 50 Q 50 30 75 50" fill="none" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Bojovník', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="20" r="8" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="28" x2="50" y2="50" stroke="black" stroke-width="2"/><line x1="50" y1="35" x2="30" y2="25" stroke="black" stroke-width="2"/><line x1="50" y1="35" x2="70" y2="25" stroke="black" stroke-width="2"/><line x1="50" y1="50" x2="35" y2="70" stroke="black" stroke-width="2"/><line x1="50" y1="50" x2="65" y2="70" stroke="black" stroke-width="2"/><path d="M 70 20 L 80 15 L 75 30" fill="none" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Blesk', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 50 10 L 60 40 L 40 40 L 55 75 L 35 75 L 50 10" fill="none" stroke="black" stroke-width="2" stroke-linejoin="miter"/></svg>'},
+            { name: 'Pes', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="40" r="12" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="52" x2="50" y2="70" stroke="black" stroke-width="2"/><line x1="40" y1="70" x2="40" y2="80" stroke="black" stroke-width="2"/><line x1="50" y1="70" x2="50" y2="80" stroke="black" stroke-width="2"/><line x1="60" y1="70" x2="60" y2="80" stroke="black" stroke-width="2"/><path d="M 38 28 Q 30 20 25 30" fill="none" stroke="black" stroke-width="2"/><path d="M 62 28 Q 70 20 75 30" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="40" x2="65" y2="35" stroke="black" stroke-width="2"/><circle cx="68" cy="32" r="2" fill="black"/></svg>'},
+            { name: 'Les', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 25 50 L 20 70 L 30 70" fill="none" stroke="black" stroke-width="2"/><path d="M 25 40 L 15 65 L 35 65" fill="none" stroke="black" stroke-width="2"/><path d="M 50 50 L 45 70 L 55 70" fill="none" stroke="black" stroke-width="2"/><path d="M 50 40 L 40 65 L 60 65" fill="none" stroke="black" stroke-width="2"/><path d="M 75 50 L 70 70 L 80 70" fill="none" stroke="black" stroke-width="2"/><path d="M 75 40 L 65 65 L 85 65" fill="none" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Hory', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 20 80 L 40 30 L 50 50 L 70 20 L 90 80" fill="none" stroke="black" stroke-width="2" stroke-linejoin="miter"/></svg>'},
+            { name: 'Dům', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 30 50 L 50 25 L 70 50" fill="none" stroke="black" stroke-width="2"/><rect x="30" y="50" width="40" height="35" fill="none" stroke="black" stroke-width="2"/><rect x="40" y="60" width="12" height="12" fill="none" stroke="black" stroke-width="1.5"/><rect x="58" y="60" width="12" height="12" fill="none" stroke="black" stroke-width="1.5"/><path d="M 48 75 L 48 85 L 52 85 L 52 75" fill="none" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Strom', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><line x1="50" y1="70" x2="50" y2="85" stroke="black" stroke-width="3"/><path d="M 50 70 L 35 50 L 50 50 L 30 25 L 50 25 L 20 0 L 50 15 L 50 25 L 70 5 L 50 15 L 50 25 L 80 35 L 50 50 L 65 50 L 50 70" fill="none" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Slunce', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="18" fill="black"/><circle cx="50" cy="50" r="12" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="15" x2="50" y2="5" stroke="black" stroke-width="2"/><line x1="85" y1="50" x2="95" y2="50" stroke="black" stroke-width="2"/><line x1="50" y1="85" x2="50" y2="95" stroke="black" stroke-width="2"/><line x1="15" y1="50" x2="5" y2="50" stroke="black" stroke-width="2"/><line x1="77" y1="23" x2="85" y2="15" stroke="black" stroke-width="2"/><line x1="77" y1="77" x2="85" y2="85" stroke="black" stroke-width="2"/><line x1="23" y1="77" x2="15" y2="85" stroke="black" stroke-width="2"/><line x1="23" y1="23" x2="15" y2="15" stroke="black" stroke-width="2"/></svg>'},
+            { name: 'Duha', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 20 80 Q 50 20 80 80" fill="none" stroke="red" stroke-width="3"/><path d="M 25 80 Q 50 35 75 80" fill="none" stroke="orange" stroke-width="3"/><path d="M 30 80 Q 50 50 70 80" fill="none" stroke="yellow" stroke-width="3"/><path d="M 35 80 Q 50 60 65 80" fill="none" stroke="green" stroke-width="3"/><path d="M 40 80 Q 50 68 60 80" fill="none" stroke="blue" stroke-width="3"/></svg>'},
+            { name: 'Vítr', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 20 30 Q 40 20 60 30" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round"/><path d="M 15 50 Q 35 40 70 50" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round"/><path d="M 25 70 Q 45 60 65 70" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round"/><polygon points="75,30 80,25 80,35" fill="black"/><polygon points="80,50 85,45 85,55" fill="black"/><polygon points="75,70 80,65 80,75" fill="black"/></svg>'},
+            { name: 'Sníh', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="12" fill="none" stroke="black" stroke-width="2"/><line x1="38" y1="50" x2="62" y2="50" stroke="black" stroke-width="2"/><line x1="50" y1="38" x2="50" y2="62" stroke="black" stroke-width="2"/><line x1="40" y1="40" x2="60" y2="60" stroke="black" stroke-width="2"/><line x1="60" y1="40" x2="40" y2="60" stroke="black" stroke-width="2"/><circle cx="30" cy="25" r="6" fill="none" stroke="black" stroke-width="1.5"/><line x1="24" y1="25" x2="36" y2="25" stroke="black" stroke-width="1.5"/><line x1="30" y1="19" x2="30" y2="31" stroke="black" stroke-width="1.5"/><circle cx="70" cy="75" r="6" fill="none" stroke="black" stroke-width="1.5"/><line x1="64" y1="75" x2="76" y2="75" stroke="black" stroke-width="1.5"/><line x1="70" y1="69" x2="70" y2="81" stroke="black" stroke-width="1.5"/></svg>'},
+            { name: 'Hovořit', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="35" r="15" fill="none" stroke="black" stroke-width="2"/><line x1="50" y1="50" x2="50" y2="70" stroke="black" stroke-width="2"/><line x1="35" y1="60" x2="35" y2="75" stroke="black" stroke-width="2"/><line x1="65" y1="60" x2="65" y2="75" stroke="black" stroke-width="2"/><circle cx="65" cy="20" r="3" fill="black"/><circle cx="75" cy="25" r="3" fill="black"/><circle cx="70" cy="35" r="3" fill="black"/><path d="M 63 22 L 73 27" stroke="black" stroke-width="1"/><path d="M 73 27 L 68 37" stroke="black" stroke-width="1"/></svg>'},
+            { name: 'Déšť', svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 30 30 Q 25 20 35 15 Q 45 10 50 20 Q 55 10 65 15 Q 75 20 70 30" fill="none" stroke="black" stroke-width="2"/><line x1="25" y1="45" x2="20" y2="60" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="45" x2="35" y2="60" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="55" y1="45" x2="50" y2="60" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="70" y1="45" x2="65" y2="60" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="85" y1="45" x2="80" y2="60" stroke="black" stroke-width="2" stroke-linecap="round"/></svg>'}
+        ];
+
+        let selectedMessageText = '';
+        let selectedMessageSvg = '';
+
+        function createSymbolButtons() {
+            const grid = document.getElementById('messagesGrid');
+            symbols.forEach((symbol) => {
+                const button = document.createElement('button');
+                button.className = 'message-card';
+                button.onclick = () => selectMessage(symbol.name, symbol.svg);
+
+                button.innerHTML = `
+                    <div class="message-icon">${symbol.svg}</div>
+                    <div class="message-text">${symbol.name}</div>
+                `;
+                grid.appendChild(button);
+            });
+        }
+
+        function selectMessage(text, svg) {
+            selectedMessageText = text;
+            selectedMessageSvg = svg;
+            document.getElementById('selectedMessage').textContent = `Tvůj symbol: ${text}`;
+            document.getElementById('selectedMessage').style.display = 'block';
+            document.getElementById('startBtn').style.display = 'block';
+        }
+
+        function startGame() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('gameTitle').textContent = `📬 Tvůj symbol: ${selectedMessageText}`;
+            initGame();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function closeFilmModal() {
+            document.getElementById('filmModal').classList.remove('active');
+        }
+
+        function initGame() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const undoBtn = document.getElementById('undoBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const galleryBtn = document.getElementById('galleryBtn');
+            const closeGalleryBtn = document.getElementById('closeGalleryBtn');
+            const exportFilmBtn = document.getElementById('exportFilmBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const gallery = document.getElementById('gallery');
+            const gallerySection = document.getElementById('gallerySection');
+            const previewSection = document.getElementById('previewSection');
+            const previewCanvas = document.getElementById('previewCanvas');
+            const previewCtx = previewCanvas.getContext('2d');
+            const modal = document.getElementById('modal');
+            const filmModal = document.getElementById('filmModal');
+            const modalCanvas = document.getElementById('modalCanvas');
+            const modalCtx = modalCanvas.getContext('2d');
+            const filmCanvas = document.getElementById('filmCanvas');
+            const filmCtx = filmCanvas.getContext('2d');
+
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let drawings = [];
+            let undoStack = [];
+            let currentDrawing = [];
+            let originalCanvas = null;
+
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                redrawCanvas();
+            }
+
+            function drawLine(fromX, fromY, toX, toY) {
+                ctx.beginPath();
+                ctx.moveTo(fromX, fromY);
+                ctx.lineTo(toX, toY);
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            function saveState() {
+                undoStack.push(canvas.toDataURL());
+            }
+
+            function redrawCanvas() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                if (currentDrawing.length > 0) {
+                    currentDrawing.forEach(line => drawLine(line.fromX, line.fromY, line.toX, line.toY));
+                }
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                lastX = touch.clientX - rect.left;
+                lastY = touch.clientY - rect.top;
+                saveState();
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+
+                drawLine(lastX, lastY, x, y);
+                currentDrawing.push({ fromX: lastX, fromY: lastY, toX: x, toY: y });
+                lastX = x;
+                lastY = y;
+            }
+
+            function stopDrawing() {
+                isDrawing = false;
+            }
+
+            function updateUndoButton() {
+                undoBtn.disabled = undoStack.length === 0;
+            }
+
+            function showPreview(drawingCanvas) {
+                previewCanvas.width = 200;
+                previewCanvas.height = 150;
+                previewCtx.drawImage(drawingCanvas, 0, 0, 200, 150);
+                previewSection.classList.remove('hidden');
+            }
+
+            function addToGallery(drawingCanvas, number) {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+
+                const thumbCanvas = document.createElement('canvas');
+                thumbCanvas.width = 120;
+                thumbCanvas.height = 100;
+                const thumbCtx = thumbCanvas.getContext('2d');
+                thumbCtx.drawImage(drawingCanvas, 0, 0, 120, 100);
+
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'gallery-item-number';
+                numberDiv.textContent = `Kresba ${number}`;
+
+                galleryItem.appendChild(thumbCanvas);
+                galleryItem.appendChild(numberDiv);
+
+                galleryItem.addEventListener('click', () => showModal(drawingCanvas));
+                gallery.appendChild(galleryItem);
+            }
+
+            function showModal(drawingCanvas) {
+                modalCanvas.width = drawingCanvas.width;
+                modalCanvas.height = drawingCanvas.height;
+                modalCtx.drawImage(drawingCanvas, 0, 0);
+                modal.classList.add('active');
+            }
+
+            function createOriginalSymbolInGallery() {
+                const svgMarkup = selectedMessageSvg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i)[1];
+                const svg = new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${svgMarkup}</svg>`], { type: 'image/svg+xml' });
+                const img = new Image();
+                img.onload = () => {
+                    originalCanvas = document.createElement('canvas');
+                    originalCanvas.width = 200;
+                    originalCanvas.height = 200;
+                    const tempCtx = originalCanvas.getContext('2d');
+                    tempCtx.fillStyle = 'white';
+                    tempCtx.fillRect(0, 0, 200, 200);
+                    tempCtx.drawImage(img, 25, 25, 150, 150);
+
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item original';
+
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = 120;
+                    thumbCanvas.height = 100;
+                    const thumbCtx = thumbCanvas.getContext('2d');
+                    thumbCtx.drawImage(originalCanvas, 0, 0, 120, 100);
+
+                    const label = document.createElement('div');
+                    label.className = 'original-label';
+                    label.textContent = selectedMessageText;
+
+                    const badge = document.createElement('div');
+                    badge.className = 'original-badge';
+                    badge.textContent = 'PŮVODNÍ';
+
+                    galleryItem.appendChild(badge);
+                    galleryItem.appendChild(thumbCanvas);
+                    galleryItem.appendChild(label);
+
+                    galleryItem.addEventListener('click', () => showModal(originalCanvas));
+                    gallery.insertBefore(galleryItem, gallery.firstChild);
+                };
+                img.src = URL.createObjectURL(svg);
+            }
+
+            function createFilmStrip() {
+                // Připrav všechny obrázky
+                const allCanvases = [];
+                
+                if (originalCanvas) {
+                    allCanvases.push({ canvas: originalCanvas, label: 'PŮVODNÍ' });
+                }
+
+                drawings.forEach((drawingCanvas, index) => {
+                    allCanvases.push({ canvas: drawingCanvas, label: `Kresba ${index + 1}` });
+                });
+
+                const cellWidth = 200;
+                const cellHeight = 200;
+                const padding = 10;
+
+                // Spočítej velikost pásky
+                const totalWidth = (allCanvases.length * (cellWidth + padding)) + padding;
+                const totalHeight = cellHeight + (padding * 2);
+
+                filmCanvas.width = totalWidth;
+                filmCanvas.height = totalHeight;
+
+                // Vykresli pozadí
+                filmCtx.fillStyle = '#8B4513';
+                filmCtx.fillRect(0, 0, totalWidth, totalHeight);
+
+                // Vykresli jednotlivé obrázky
+                allCanvases.forEach((item, index) => {
+                    const x = padding + (index * (cellWidth + padding));
+                    const y = padding;
+
+                    // Bílé pozadí pro obrázek
+                    filmCtx.fillStyle = 'white';
+                    filmCtx.fillRect(x, y, cellWidth, cellHeight);
+
+                    // Rámeček
+                    filmCtx.strokeStyle = '#333';
+                    filmCtx.lineWidth = 2;
+                    filmCtx.strokeRect(x, y, cellWidth, cellHeight);
+
+                    // Vykresli obrázek
+                    filmCtx.drawImage(item.canvas, x + 25, y + 25, 150, 150);
+
+                    // Text pod obrázkem (v černém pásku)
+                    filmCtx.fillStyle = '#333';
+                    filmCtx.font = 'bold 12px Arial';
+                    filmCtx.textAlign = 'center';
+                    filmCtx.fillText(item.label, x + cellWidth / 2, totalHeight - 5);
+                });
+
+                return filmCanvas;
+            }
+
+            function generateQRCode() {
+                const qrContainer = document.getElementById('qrcodeCanvas').parentElement;
+                const qrcodeCanvas = document.getElementById('qrcodeCanvas');
+                qrcodeCanvas.innerHTML = '';
+
+                const dataUrl = filmCanvas.toDataURL('image/png');
+                const shareText = `Podívej se na naši indiánskou transformaci symbolu: ${selectedMessageText}`;
+
+                new QRCode(qrcodeCanvas, {
+                    text: `data:image/png;base64,${dataUrl.split(',')[1]}`,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+
+            function downloadImage(canvasElement, filename) {
+                const link = document.createElement('a');
+                link.href = canvasElement.toDataURL('image/png');
+                link.download = filename;
+                link.click();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+
+            canvas.addEventListener('touchstart', startDrawing, false);
+            canvas.addEventListener('touchmove', draw, false);
+            canvas.addEventListener('touchend', stopDrawing, false);
+
+            undoBtn.addEventListener('click', () => {
+                if (undoStack.length > 0) {
+                    undoStack.pop();
+                    if (undoStack.length > 0) {
+                        const img = new Image();
+                        img.src = undoStack[undoStack.length - 1];
+                        img.onload = () => {
+                            ctx.clearRect(0,0,canvas.width,canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                            currentDrawing.pop();
+                        };
+                    } else {
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        currentDrawing = [];
+                    }
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Opravdu chceš smazat vše?')) {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    currentDrawing = [];
+                    undoStack = [];
+                    updateUndoButton();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const drawingCanvas = document.createElement('canvas');
+                drawingCanvas.width = canvas.width;
+                drawingCanvas.height = canvas.height;
+                const drawingCtx = drawingCanvas.getContext('2d');
+                drawingCtx.drawImage(canvas, 0, 0);
+
+                drawings.push(drawingCanvas);
+
+                addToGallery(drawingCanvas, drawings.length);
+
+                showPreview(drawingCanvas);
+
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                currentDrawing = [];
+                undoStack = [];
+                updateUndoButton();
+
+                alert(`✅ Kresba ${drawings.length} uložena! Další hráč si vezmi iPad.`);
+            });
+
+            exportFilmBtn.addEventListener('click', () => {
+                createFilmStrip();
+                generateQRCode();
+                filmModal.classList.add('active');
+            });
+
+            document.getElementById('downloadFilmBtn').addEventListener('click', () => {
+                downloadImage(filmCanvas, `Transformace-symbolu-${selectedMessageText}.png`);
+            });
+
+            document.getElementById('downloadQrBtn').addEventListener('click', () => {
+                downloadImage(document.getElementById('qrcodeCanvas'), `QRKod-${selectedMessageText}.png`);
+            });
+
+            document.getElementById('downloadBtn').addEventListener('click', () => {
+                downloadImage(modalCanvas, `Kresba-${selectedMessageText}.png`);
+            });
+
+            galleryBtn.addEventListener('click', () => gallerySection.classList.add('active'));
+            closeGalleryBtn.addEventListener('click', () => gallerySection.classList.remove('active'));
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            filmModal.addEventListener('click', (e) => {
+                if (e.target === filmModal) closeFilmModal();
+            });
+
+            restartBtn.addEventListener('click', () => {
+                if (confirm('Chceš si vybrat nový symbol?')) {
+                    document.getElementById('gameScreen').classList.remove('active');
+                    document.getElementById('welcomeScreen').classList.remove('hidden');
+                    gallery.innerHTML = '';
+                    previewSection.classList.add('hidden');
+                    gallerySection.classList.remove('active');
+                }
+            });
+
+            createOriginalSymbolInGallery();
+            updateUndoButton();
+        }
+
+        createSymbolButtons();
+    </script>
+</body>
+</html>

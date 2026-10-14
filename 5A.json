@@ -1,0 +1,37 @@
+{
+  "name": "5.A",
+  "areas": [
+    { "id": "lehci-ukol", "name": "Lehčí úkol" },
+    { "id": "tezsi-ukol", "name": "Těžší úkol" }
+  ],
+  "students": [
+    {
+      "name": "Anna Nováková",
+      "areas": {
+        "lehci-ukol": { "member": true, "leader": false },
+        "tezsi-ukol": { "member": true, "leader": true }
+      }
+    },
+    {
+      "name": "Tomáš Dvořák",
+      "areas": {
+        "lehci-ukol": { "member": true, "leader": true },
+        "tezsi-ukol": { "member": false, "leader": false }
+      }
+    },
+    {
+      "name": "Eliška Malá",
+      "areas": {
+        "lehci-ukol": { "member": true, "leader": false },
+        "tezsi-ukol": { "member": true, "leader": false }
+      }
+    },
+    {
+      "name": "David Král",
+      "areas": {
+        "lehci-ukol": { "member": false, "leader": false },
+        "tezsi-ukol": { "member": true, "leader": false }
+      }
+    }
+  ]
+}

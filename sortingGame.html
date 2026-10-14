@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Řazení prvků – 5.A</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: #1f2d3d;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1e5aa8;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .rule {
+      background: #fff7d6;
+      border: 2px solid #ffe08a;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 14px auto 18px;
+      font-size: 17px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      background: #f2f7ff;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #d8e7ff;
+    }
+
+    #game {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 26px 0;
+      min-height: 140px;
+    }
+
+    .card {
+      min-width: 72px;
+      min-height: 72px;
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      background: #4da3ff;
+      color: white;
+      border-radius: 14px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.14);
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px) scale(1.03);
+      background: #2f89e8;
+    }
+
+    .selected {
+      background: #ff9f1c !important;
+    }
+
+    .locked {
+      background: #a0b9d8 !important;
+      cursor: not-allowed;
+    }
+
+    .block-card {
+      width: 70px;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .block-card:hover {
+      background: transparent;
+    }
+
+    .block {
+      width: 70px;
+      border-radius: 12px 12px 6px 6px;
+      background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.14);
+      border: 3px solid rgba(255,255,255,0.6);
+    }
+
+    .selected .block {
+      outline: 4px solid #ffb347;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 11px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: #28a745; }
+    .btn-primary:hover { background: #218838; }
+
+    .btn-secondary { background: #1e88e5; }
+    .btn-secondary:hover { background: #1976d2; }
+
+    .btn-warning { background: #f39c12; }
+    .btn-warning:hover { background: #d68910; }
+
+    #message {
+      margin-top: 18px;
+      font-size: 22px;
+      min-height: 32px;
+      font-weight: bold;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #5f6b7a;
+      margin-top: 12px;
+    }
+
+    .exercise-list {
+      text-align: left;
+      margin-top: 20px;
+      background: #f9fbff;
+      border: 1px solid #dfeafb;
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+
+    .exercise-list h3 {
+      margin-top: 0;
+      color: #1e5aa8;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .card {
+        min-width: 62px;
+        min-height: 62px;
+        font-size: 20px;
+      }
+      .block-card, .block {
+        width: 58px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Řazení prvků – trénink</h1>
+    <div class="subtitle">Klikni na dva <strong>sousední</strong> prvky a prohoď je.</div>
+
+    <div class="topbar">
+      <div class="panel"><strong>Cvičení:</strong><br><span id="exerciseNumber">1</span> / <span id="exerciseTotal">14</span></div>
+      <div class="panel"><strong>Tahů:</strong><br><span id="moves">0</span></div>
+      <div class="panel"><strong>Správně:</strong><br><span id="score">0</span></div>
+      <div class="panel"><strong>Typ:</strong><br><span id="exerciseType">-</span></div>
+    </div>
+
+    <div class="rule" id="ruleBox">Pravidlo se načítá…</div>
+
+    <div id="game"></div>
+
+    <div id="message"></div>
+
+    <div class="controls">
+      <button class="btn-secondary" onclick="resetCurrent()">Zkusit znovu</button>
+      <button class="btn-warning" onclick="showHint()">Nápověda</button>
+      <button class="btn-primary" onclick="nextExercise()">Další cvičení</button>
+    </div>
+
+    <div class="small">
+      Pravidlo: prohazovat můžeš pouze prvky, které jsou hned vedle sebe.
+    </div>
+
+    <div class="exercise-list">
+      <h3>Přehled cvičení</h3>
+      <ol>
+        <li>Písmena od A do Z</li>
+        <li>Písmena od Z do A</li>
+        <li>Čísla vzestupně</li>
+        <li>Čísla sestupně</li>
+        <li>Slova podle abecedy</li>
+        <li>Slova podle délky od nejkratšího</li>
+        <li>Slova podle délky od nejdelšího</li>
+        <li>Dny v týdnu ve správném pořadí</li>
+        <li>Měsíce v roce ve správném pořadí</li>
+        <li>Najdi a oprav téměř správnou řadu</li>
+        <li>Kostičky od nejmenší po největší</li>
+        <li>Kostičky od největší po nejmenší</li>
+        <li>Seřaď životní cyklus</li>
+        <li>Seřaď čísla po dvou</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const exercises = [
+      {
+        type: "Písmena A–Z",
+        rule: "Seřaď písmena od A do Z.",
+        start: ["D", "A", "C", "B", "E"],
+        target: ["A", "B", "C", "D", "E"],
+        mode: "text"
+      },
+      {
+        type: "Písmena Z–A",
+        rule: "Seřaď písmena od Z do A.",
+        start: ["B", "E", "A", "D", "C"],
+        target: ["E", "D", "C", "B", "A"],
+        mode: "text"
+      },
+      {
+        type: "Čísla vzestupně",
+        rule: "Seřaď čísla od nejmenšího po největší.",
+        start: ["7", "2", "5", "1", "4"],
+        target: ["1", "2", "4", "5", "7"],
+        mode: "text"
+      },
+      {
+        type: "Čísla sestupně",
+        rule: "Seřaď čísla od největšího po nejmenší.",
+        start: ["3", "9", "1", "6", "4"],
+        target: ["9", "6", "4", "3", "1"],
+        mode: "text"
+      },
+      {
+        type: "Slova podle abecedy",
+        rule: "Seřaď slova podle abecedy.",
+        start: ["les", "auto", "míč", "dům", "kolo"],
+        target: ["auto", "dům", "kolo", "les", "míč"],
+        mode: "text"
+      },
+      {
+        type: "Délka slova vzestupně",
+        rule: "Seřaď slova od nejkratšího po nejdelší.",
+        start: ["mrak", "pes", "autobus", "dům", "vlak"],
+        target: ["pes", "dům", "mrak", "vlak", "autobus"],
+        mode: "text"
+      },
+      {
+        type: "Délka slova sestupně",
+        rule: "Seřaď slova od nejdelšího po nejkratší.",
+        start: ["list", "banán", "oko", "telefon", "pes"],
+        target: ["telefon", "banán", "list", "oko", "pes"],
+        mode: "text"
+      },
+      {
+        type: "Dny v týdnu",
+        rule: "Seřaď dny v týdnu od pondělí do pátku.",
+        start: ["středa", "pondělí", "pátek", "úterý", "čtvrtek"],
+        target: ["pondělí", "úterý", "středa", "čtvrtek", "pátek"],
+        mode: "text"
+      },
+      {
+        type: "Měsíce v roce",
+        rule: "Seřaď měsíce od začátku roku.",
+        start: ["březen", "leden", "květen", "únor", "duben"],
+        target: ["leden", "únor", "březen", "duben", "květen"],
+        mode: "text"
+      },
+      {
+        type: "Najdi chybu",
+        rule: "Řada je skoro správně. Oprav ji.",
+        start: ["A", "B", "D", "C", "E"],
+        target: ["A", "B", "C", "D", "E"],
+        mode: "text"
+      },
+      {
+        type: "Kostičky vzestupně",
+        rule: "Seřaď kostičky od nejmenší po největší.",
+        start: [4, 1, 5, 2, 3],
+        target: [1, 2, 3, 4, 5],
+        mode: "blocks"
+      },
+      {
+        type: "Kostičky sestupně",
+        rule: "Seřaď kostičky od největší po nejmenší.",
+        start: [2, 5, 1, 4, 3],
+        target: [5, 4, 3, 2, 1],
+        mode: "blocks"
+      },
+      {
+        type: "Životní cyklus",
+        rule: "Seřaď obrázkovou řadu podle správného pořadí vývoje rostliny.",
+        start: ["rostlina", "semeno", "květ", "klíček"],
+        target: ["semeno", "klíček", "rostlina", "květ"],
+        mode: "text"
+      },
+      {
+        type: "Čísla po dvou",
+        rule: "Seřaď čísla do správné řady po dvou.",
+        start: ["8", "2", "10", "4", "6"],
+        target: ["2", "4", "6", "8", "10"],
+        mode: "text"
+      }
+    ];
+
+    let currentExercise = 0;
+    let items = [];
+    let selectedIndex = null;
+    let moves = 0;
+    let score = 0;
+    let finished = false;
+
+    function arraysEqual(a, b) {
+      return a.length === b.length && a.every((val, i) => val === b[i]);
+    }
+
+    function renderTextCard(item, index) {
+      const div = document.createElement("div");
+      div.className = "card";
+      if (index === selectedIndex) div.classList.add("selected");
+      if (finished) div.classList.add("locked");
+      div.textContent = item;
+      div.onclick = () => handleClick(index);
+      return div;
+    }
+
+    function renderBlockCard(item, index) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card block-card";
+      if (index === selectedIndex) wrapper.classList.add("selected");
+      if (finished) wrapper.classList.add("locked");
+      wrapper.onclick = () => handleClick(index);
+
+      const block = document.createElement("div");
+      block.className = "block";
+      block.style.height = (35 + item * 18) + "px";
+      block.textContent = item;
+
+      wrapper.appendChild(block);
+      return wrapper;
+    }
+
+    function render() {
+      const game = document.getElementById("game");
+      game.innerHTML = "";
+
+      const ex = exercises[currentExercise];
+
+      items.forEach((item, index) => {
+        const el = ex.mode === "blocks"
+          ? renderBlockCard(item, index)
+          : renderTextCard(item, index);
+        game.appendChild(el);
+      });
+
+      document.getElementById("moves").textContent = moves;
+      document.getElementById("score").textContent = score;
+      document.getElementById("exerciseNumber").textContent = currentExercise + 1;
+      document.getElementById("exerciseTotal").textContent = exercises.length;
+      document.getElementById("exerciseType").textContent = ex.type;
+      document.getElementById("ruleBox").textContent = ex.rule;
+
+      const message = document.getElementById("message");
+      message.innerHTML = finished ? "🎉 Výborně! Cvičení je správně." : "";
+    }
+
+    function loadExercise(index) {
+      currentExercise = index;
+      items = [...exercises[index].start];
+      selectedIndex = null;
+      moves = 0;
+      finished = arraysEqual(items, exercises[index].target);
+      render();
+    }
+
+    function handleClick(index) {
+      if (finished) return;
+
+      if (selectedIndex === null) {
+        selectedIndex = index;
+      } else {
+        if (selectedIndex === index) {
+          selectedIndex = null;
+          render();
+          return;
+        }
+
+        if (Math.abs(selectedIndex - index) === 1) {
+          [items[selectedIndex], items[index]] = [items[index], items[selectedIndex]];
+          moves++;
+
+          if (arraysEqual(items, exercises[currentExercise].target)) {
+            finished = true;
+            score++;
+          }
+        } else {
+          alert("Můžeš prohodit jen sousední prvky.");
+        }
+
+        selectedIndex = null;
+      }
+
+      render();
+    }
+
+    function resetCurrent() {
+      items = [...exercises[currentExercise].start];
+      selectedIndex = null;
+      moves = 0;
+      finished = false;
+      render();
+    }
+
+    function nextExercise() {
+      if (currentExercise < exercises.length - 1) {
+        loadExercise(currentExercise + 1);
+      } else {
+        alert("Hotovo! Prošla/prošel jsi všechna cvičení. Můžeš začít znovu.");
+        score = 0;
+        loadExercise(0);
+      }
+    }
+
+    function showHint() {
+      const ex = exercises[currentExercise];
+      const target = ex.target;
+      let hint = "";
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i] !== target[i]) {
+          if (ex.mode === "blocks") {
+            hint = `Podívej se na kostičku s číslem ${items[i]}. Není ještě na správném místě.`;
+          } else {
+            hint = `Zkus se podívat na prvek „${items[i]}“. Má být na jiné pozici.`;
+          }
+          break;
+        }
+      }
+
+      if (!hint) hint = "Už je to správně seřazené.";
+      alert(hint);
+    }
+
+    loadExercise(0);
+  </script>
+</body>
+</html>

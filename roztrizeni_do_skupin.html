@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Třídění žáků do skupin – verze 3</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <h1>Třídění žáků do skupin</h1>
+        <p>Správa tříd, oblastí a leaderů pro diferenciaci úkolů.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="card">
+          <h2>Třídy</h2>
+          <div class="class-create">
+            <input id="newClassName" type="text" placeholder="Např. 5.A" />
+            <button id="addClassBtn">Přidat třídu</button>
+          </div>
+          <div id="classTabs" class="class-tabs"></div>
+        </section>
+
+        <section class="card">
+          <h2>Oblasti</h2>
+          <div class="stack">
+            <input id="newAreaName" type="text" placeholder="Např. Těžší úkol" />
+            <button id="addAreaBtn">Přidat oblast</button>
+          </div>
+          <div id="areaList" class="area-list"></div>
+        </section>
+
+        <section class="card">
+          <h2>Import / Export</h2>
+          <div class="stack">
+            <input id="importFile" type="file" accept=".json" />
+            <button id="importBtn">Importovat třídu ze souboru</button>
+            <button id="exportBtn">Exportovat aktuální třídu</button>
+          </div>
+          <p class="hint">Podporovaný formát: JSON</p>
+        </section>
+
+        <section class="card">
+          <h2>Rozdělení</h2>
+          <div class="stack">
+            <label>
+              Aktivní oblast
+              <select id="taskArea"></select>
+            </label>
+
+            <label>
+              Režim
+              <select id="groupMode">
+                <option value="pairs">Dvojice</option>
+                <option value="count">Podle počtu skupin</option>
+                <option value="size">Podle velikosti skupin</option>
+              </select>
+            </label>
+
+            <label id="groupCountWrap">
+              Počet skupin
+              <input id="groupCount" type="number" min="1" value="2" />
+            </label>
+
+            <label id="groupSizeWrap" class="hidden">
+              Velikost skupiny
+              <input id="groupSize" type="number" min="2" value="3" />
+            </label>
+
+            <label class="checkbox-row">
+              <input id="preferLeaders" type="checkbox" checked />
+              Použít leadery oblasti jako základy skupin
+            </label>
+
+            <button id="generateBtn">Vygenerovat rozdělení</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="content">
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 id="currentClassTitle">Žáci</h2>
+              <p id="activeAreaInfo" class="hint">Vyberte aktivní oblast.</p>
+            </div>
+            <button id="deleteClassBtn" class="danger">Smazat třídu</button>
+          </div>
+
+          <div class="student-add simple-add">
+            <input id="studentName" type="text" placeholder="Jméno žáka" />
+            <button id="addStudentBtn">Přidat žáka</button>
+          </div>
+
+          <div id="studentsEmpty" class="empty-state">
+            Zatím není vybraná žádná třída nebo v ní nejsou žáci.
+          </div>
+
+          <div id="studentList" class="student-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Výsledek rozdělení</h2>
+            <button id="reshuffleBtn" class="secondary">Promíchat znovu</button>
+          </div>
+          <div id="resultsEmpty" class="empty-state">
+            Zatím nebylo vytvořeno žádné rozdělení.
+          </div>
+          <div id="results" class="results"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
