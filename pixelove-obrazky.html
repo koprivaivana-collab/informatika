@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pixelové vybarvování 4A – finální (řádková paleta)</title>
+<style>
+  :root{
+    --bg:#f6f2fb;
+    --panel:#fff;
+    --line:#d9d9df;
+    --text:#26233a;
+    --accent:#6d3cc6;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:16px;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  .app{
+    max-width:1300px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 360px; gap:16px;
+  }
+  .panel,.side{
+    background:var(--panel);
+    border:1px solid #ebe8f3;
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,.04);
+  }
+  h1{font-size:1.2rem; margin:0 0 8px}
+  h2{font-size:1rem; margin:10px 0 8px}
+  .small{font-size:.88rem; color:#666}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px}
+  button,select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #d8d5e4;
+    background:#fff;
+    cursor:pointer;
+    font-size:.95rem;
+  }
+  button:hover{border-color:#b9b1d3}
+  .primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .danger{background:#fff4f4; border-color:#efc7c7}
+  .ok{
+    background:#e9f8ef;
+    color:#125b39;
+    border:1px solid #cdebd9;
+    padding:8px 10px;
+    border-radius:8px;
+    font-weight:700;
+  }
+
+  /* PALETA V JEDNOM ŘÁDKU */
+  .legend{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:6px 2px 8px;
+    margin-top:8px;
+    border:1px solid #efedf5;
+    border-radius:10px;
+    background:#fcfbff;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid #efefef;
+    border-radius:999px;
+    padding:6px 10px;
+    cursor:pointer;
+    white-space:nowrap;
+    flex:0 0 auto;
+    background:#fff;
+  }
+  .legend-item.active{
+    outline:2px solid #222;
+    background:#f4efff;
+  }
+  .sw{width:20px; height:20px; border:1px solid #888; border-radius:4px}
+
+  .topline{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:8px; flex-wrap:wrap; margin-bottom:10px;
+  }
+
+  .grid-wrap{
+    border:1px solid #eceaf2; border-radius:10px;
+    padding:10px; background:#fff; overflow:auto;
+  }
+  .grid{
+    display:grid; gap:1px; background:var(--line);
+    width:max-content; margin:0 auto;
+  }
+  .cell{
+    width:24px; height:24px;
+    border:none; margin:0; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:#555; user-select:none;
+  }
+
+  .gallery-block{margin-top:12px; border-top:1px dashed #e5e1ef; padding-top:12px}
+  .gallery{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .thumb-btn{
+    border:1px solid #e6e3ef; border-radius:10px;
+    padding:8px; background:#fcfbff; cursor:pointer;
+  }
+  .thumb-btn.active{outline:2px solid var(--accent)}
+  .thumb-canvas{
+    width:100%; aspect-ratio:1/1;
+    border:1px solid #eee; border-radius:6px; background:#fff;
+    image-rendering: pixelated;
+  }
+  .thumb-name{font-size:.82rem; margin-top:6px; text-align:center}
+
+  .mystery-box{
+    border:1px solid #eadffd;
+    background:#faf6ff;
+    border-radius:10px;
+    padding:10px;
+    margin:8px 0 12px;
+  }
+
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr}
+    .row,.row3{grid-template-columns:1fr}
+    .cell{width:22px;height:22px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="panel">
+    <h1>🧩 Pixelové vybarvování pro 4A</h1>
+    <p class="small">Vyber obrázek vpravo, zvol barvu a vybarvuj podle čísel v mřížce.</p>
+
+    <div class="topline">
+      <div><strong id="titleLine">Obrázek</strong></div>
+      <div id="score" class="ok">Zatím nezkontrolováno</div>
+    </div>
+
+    <div class="row3">
+      <div>
+        <label class="small"><strong>Zobrazení:</strong></label>
+        <select id="viewMode">
+          <option value="codes">Mřížka s čísly</option>
+          <option value="clean">Čistá mřížka</option>
+          <option value="solution">Ukázat řešení</option>
+        </select>
+      </div>
+      <div>
+        <label class="small"><strong>Typ sady:</strong></label>
+        <select id="setType">
+          <option value="binary">2-bit (0/1)</option>
+          <option value="color">Barevné</option>
+        </select>
+      </div>
+      <div>
+        <label class="small"><strong>Stav režimu:</strong></label>
+        <div id="mysteryState" class="ok">Tajemný režim: VYPNUTÝ</div>
+      </div>
+    </div>
+
+    <h2>Paleta</h2>
+    <div id="legend" class="legend"></div>
+
+    <div class="grid-wrap">
+      <div id="grid" class="grid"></div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="checkBtn" class="primary">✅ Zkontrolovat</button>
+      <button id="resetBtn">🧼 Vymazat vybarvení</button>
+    </div>
+  </main>
+
+  <aside class="side">
+    <h2>Výběr obrázků</h2>
+
+    <div class="mystery-box">
+      <p class="small"><strong>Tajemný režim</strong> skryje názvy i náhledy obrázků.</p>
+      <div class="row">
+        <button id="mysteryBinaryBtn">🎲 Tajemný 2-bit</button>
+        <button id="mysteryColorBtn">🎲 Tajemný barevný</button>
+      </div>
+      <button id="mysteryOffBtn" class="danger" style="margin-top:8px">🔓 Vypnout tajemný režim</button>
+    </div>
+
+    <div class="gallery-block">
+      <h2 style="margin-top:0">⚫ 2-bit obrázky</h2>
+      <div id="galleryBinary" class="gallery"></div>
+    </div>
+
+    <div class="gallery-block">
+      <h2 style="margin-top:0">🌈 Barevné obrázky</h2>
+      <div id="galleryColor" class="gallery"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const PALETTE = {
+  0:"#ffffff", 1:"#1e1e1e", 2:"#ff7a00", 3:"#2f7d32", 4:"#ffd60a",
+  5:"#e63946", 6:"#3a86ff", 7:"#8a2be2", 8:"#7f5539", 9:"#cfcfcf", 10:"#ff66b3"
+};
+const SIZE = 20;
+
+function blankGrid(n=SIZE){ return Array.from({length:n},()=>Array(n).fill(0)); }
+function fill(g,x1,y1,x2,y2,c){ for(let y=y1;y<=y2;y++) for(let x=x1;x<=x2;x++) if(g[y]&&g[y][x]!=null) g[y][x]=c; }
+function set(g,x,y,c){ if(g[y]&&g[y][x]!=null) g[y][x]=c; }
+
+function bBoat(){ const g=blankGrid(); fill(g,2,12,17,13,1); fill(g,4,10,15,11,1); fill(g,7,6,8,10,1); fill(g,9,7,12,10,1); set(g,13,10,1); set(g,14,10,1); return {id:"b_boat",name:"Loď",type:"binary",rows:g};}
+function bCat(){ const g=blankGrid(); fill(g,5,5,14,16,1); fill(g,6,3,8,5,1); fill(g,11,3,13,5,1); set(g,8,9,0); set(g,11,9,0); fill(g,3,10,5,14,1); fill(g,14,11,16,15,1); return {id:"b_cat",name:"Kočka",type:"binary",rows:g};}
+function bHouse(){ const g=blankGrid(); for(let y=4;y<=9;y++) fill(g,10-(y-4), y, 10+(y-4), y, 1); fill(g,5,10,15,17,1); fill(g,9,14,11,17,0); return {id:"b_house",name:"Domeček",type:"binary",rows:g};}
+function bFish(){ const g=blankGrid(); fill(g,5,8,13,13,1); fill(g,14,9,16,12,1); set(g,4,10,1); set(g,4,11,1); set(g,7,10,0); return {id:"b_fish",name:"Ryba",type:"binary",rows:g};}
+function bHeart(){ const g=blankGrid(); fill(g,6,6,8,8,1); fill(g,11,6,13,8,1); fill(g,5,8,14,12,1); fill(g,6,13,13,14,1); fill(g,7,15,12,15,1); fill(g,8,16,11,16,1); return {id:"b_heart",name:"Srdce",type:"binary",rows:g};}
+function bBat(){ const g=blankGrid(); fill(g,4,8,15,11,1); fill(g,6,6,13,13,1); fill(g,9,4,10,15,1); fill(g,4,10,5,11,0); fill(g,14,10,15,11,0); return {id:"b_bat",name:"Netopýr",type:"binary",rows:g};}
+
+function cCatPumpkin(){ const g=blankGrid(); fill(g,3,4,12,17,1); fill(g,4,2,6,4,1); fill(g,9,2,11,4,1); set(g,6,8,4); set(g,9,8,4); fill(g,11,12,18,17,2); fill(g,12,11,17,12,2); fill(g,14,9,15,10,3); set(g,13,14,1); set(g,16,14,1); fill(g,14,16,15,16,1); return {id:"c_catpumpkin",name:"Kočka s dýní",type:"color",rows:g};}
+function cPumpkin(){ const g=blankGrid(); fill(g,5,6,14,15,2); fill(g,7,4,12,6,2); fill(g,9,2,10,4,3); set(g,8,10,1); set(g,11,10,1); fill(g,8,13,11,13,1); set(g,9,12,1); set(g,10,12,1); return {id:"c_pumpkin",name:"Dýně",type:"color",rows:g};}
+function cCar(){ const g=blankGrid(); fill(g,4,11,15,15,5); fill(g,6,8,13,11,5); fill(g,7,9,9,10,6); fill(g,10,9,12,10,6); fill(g,6,15,8,17,1); fill(g,11,15,13,17,1); set(g,7,16,9); set(g,12,16,9); return {id:"c_car",name:"Auto",type:"color",rows:g};}
+function cFlower(){ const g=blankGrid(); fill(g,9,9,10,10,4); fill(g,9,5,10,8,10); fill(g,9,11,10,14,10); fill(g,5,9,8,10,10); fill(g,11,9,14,10,10); fill(g,9,14,10,18,3); set(g,8,15,3); set(g,11,16,3); return {id:"c_flower",name:"Květina",type:"color",rows:g};}
+function cOwl(){ const g=blankGrid(); fill(g,5,4,14,15,8); fill(g,6,2,8,4,8); fill(g,11,2,13,4,8); fill(g,8,8,11,14,9); fill(g,7,6,8,7,4); fill(g,11,6,12,7,4); set(g,8,7,1); set(g,11,7,1); set(g,9,8,2); set(g,10,8,2); fill(g,2,15,17,16,8); return {id:"c_owl",name:"Sova",type:"color",rows:g};}
+function cButterfly(){ const g=blankGrid(); fill(g,9,5,10,14,1); fill(g,4,4,8,9,7); fill(g,5,10,8,13,7); fill(g,11,4,15,9,7); fill(g,11,10,14,13,7); set(g,6,6,4); set(g,13,6,4); set(g,7,11,4); set(g,12,11,4); return {id:"c_butterfly",name:"Motýl",type:"color",rows:g};}
+
+const pictures = [bBoat(), bCat(), bHouse(), bFish(), bHeart(), bBat(), cCatPumpkin(), cPumpkin(), cCar(), cFlower(), cOwl(), cButterfly()];
+
+let currentId = "b_boat";
+let selectedCode = 1;
+let viewMode = "codes";
+let mysteryEnabled = false;
+let mysteryType = null;
+const solvedMystery = new Set();
+const workById = new Map();
+let isDown = false;
+
+const gridEl = document.getElementById("grid");
+const legendEl = document.getElementById("legend");
+const titleLine = document.getElementById("titleLine");
+const scoreEl = document.getElementById("score");
+const viewModeSel = document.getElementById("viewMode");
+const setTypeSel = document.getElementById("setType");
+const mysteryState = document.getElementById("mysteryState");
+
+function getPic(id){ return pictures.find(p=>p.id===id); }
+function getCurrent(){ return getPic(currentId); }
+function ensureWork(id){
+  if(!workById.has(id)) workById.set(id, getPic(id).rows.map(r=>r.map(()=>0)));
+  return workById.get(id);
+}
+function usedCodes(pic){ const s=new Set(pic.rows.flat()); s.add(0); return [...s].sort((a,b)=>a-b); }
+function pickRandomIdByType(type){ const arr=pictures.filter(p=>p.type===type); return arr[Math.floor(Math.random()*arr.length)].id; }
+function isCurrentHiddenByMystery(){ const p=getCurrent(); return mysteryEnabled && mysteryType===p.type && !solvedMystery.has(p.id); }
+
+function setMysteryStateText(){
+  mysteryState.textContent = !mysteryEnabled ? "Tajemný režim: VYPNUTÝ" : `Tajemný režim: ZAPNUTÝ (${mysteryType==="binary"?"2-bit":"barevné"})`;
+}
+function setMystery(enabled, type=null){
+  mysteryEnabled = enabled;
+  mysteryType = enabled ? type : null;
+  setMysteryStateText();
+  renderHeader();
+  renderGalleries();
+}
+
+function renderHeader(){
+  const pic=getCurrent();
+  titleLine.textContent = isCurrentHiddenByMystery() ? "Tajemný obrázek ?" : pic.name;
+}
+function renderLegend(){
+  const pic=getCurrent();
+  const codes = pic.type==="binary" ? [0,1] : usedCodes(pic);
+  if(!codes.includes(selectedCode)) selectedCode = codes.includes(1)?1:0;
+
+  legendEl.innerHTML = "";
+  codes.forEach(code=>{
+    const item=document.createElement("div");
+    item.className="legend-item"+(selectedCode===code?" active":"");
+    item.innerHTML = `<div class="sw" style="background:${PALETTE[code]}"></div><div><strong>${code}</strong></div>`;
+    item.onclick = ()=>{ selectedCode=code; renderLegend(); };
+    legendEl.appendChild(item);
+  });
+}
+function paintCellVisual(cell, code){ cell.style.background = PALETTE[code] || "#fff"; }
+
+function renderGrid(){
+  const pic=getCurrent(), ans=pic.rows, h=ans.length, w=ans[0].length;
+  const work=ensureWork(pic.id);
+
+  gridEl.innerHTML="";
+  gridEl.style.gridTemplateColumns=`repeat(${w}, 24px)`;
+  gridEl.style.gridTemplateRows=`repeat(${h}, 24px)`;
+
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const cell=document.createElement("button");
+      cell.className="cell";
+      cell.dataset.x=x; cell.dataset.y=y;
+
+      const colorCode = viewMode==="solution" ? ans[y][x] : work[y][x];
+      paintCellVisual(cell, colorCode);
+      cell.textContent = viewMode==="codes" ? ans[y][x] : "";
+
+      cell.addEventListener("mousedown",(e)=>{ e.preventDefault(); isDown=true; paintAt(x,y); });
+      cell.addEventListener("mouseenter",()=>{ if(isDown) paintAt(x,y); });
+      cell.addEventListener("touchstart",(e)=>{ e.preventDefault(); paintAt(x,y); }, {passive:false});
+
+      gridEl.appendChild(cell);
+    }
+  }
+}
+
+function drawThumb(canvas, pic, hidden){
+  const cx=canvas.getContext("2d");
+  canvas.width=120; canvas.height=120;
+  cx.fillStyle="#fff"; cx.fillRect(0,0,120,120);
+
+  cx.strokeStyle="#e9e9e9";
+  for(let i=0;i<=120;i+=6){
+    cx.beginPath(); cx.moveTo(i,0); cx.lineTo(i,120); cx.stroke();
+    cx.beginPath(); cx.moveTo(0,i); cx.lineTo(120,i); cx.stroke();
+  }
+
+  if(hidden){
+    cx.fillStyle="#6d3cc6";
+    cx.font="bold 64px Arial";
+    cx.textAlign="center"; cx.textBaseline="middle";
+    cx.fillText("?",60,60);
+  }else{
+    for(let y=0;y<SIZE;y++){
+      for(let x=0;x<SIZE;x++){
+        cx.fillStyle=PALETTE[pic.rows[y][x]];
+        cx.fillRect(x*6,y*6,6,6);
+      }
+    }
+  }
+}
+
+function renderGalleries(){
+  const gb=document.getElementById("galleryBinary");
+  const gc=document.getElementById("galleryColor");
+  gb.innerHTML=""; gc.innerHTML="";
+
+  pictures.forEach(pic=>{
+    const hidden = mysteryEnabled && mysteryType===pic.type && !solvedMystery.has(pic.id);
+
+    const btn=document.createElement("button");
+    btn.className="thumb-btn"+(pic.id===currentId?" active":"");
+    btn.title=hidden?"Tajemný obrázek ?":pic.name;
+
+    const cv=document.createElement("canvas");
+    cv.className="thumb-canvas";
+    drawThumb(cv,pic,hidden);
+
+    const nm=document.createElement("div");
+    nm.className="thumb-name";
+    nm.textContent = hidden ? "Tajemný obrázek ?" : pic.name;
+
+    btn.appendChild(cv); btn.appendChild(nm);
+
+    btn.onclick=()=>{
+      currentId=pic.id;
+      setTypeSel.value=pic.type;
+      viewMode="codes";
+      viewModeSel.value="codes";
+      renderAll();
+      scoreEl.textContent="Zatím nezkontrolováno";
+    };
+
+    (pic.type==="binary"?gb:gc).appendChild(btn);
+  });
+}
+
+function renderAll(){
+  renderHeader();
+  renderLegend();
+  renderGrid();
+  renderGalleries();
+  setMysteryStateText();
+}
+
+function paintAt(x,y){
+  if(viewMode==="solution") return;
+  const pic=getCurrent();
+  const work=ensureWork(pic.id);
+  work[y][x]=selectedCode;
+  const idx=y*pic.rows[0].length+x;
+  paintCellVisual(gridEl.children[idx], selectedCode);
+}
+
+function checkResult(){
+  const pic=getCurrent(), ans=pic.rows, work=ensureWork(pic.id);
+  let good=0,total=0;
+  for(let y=0;y<ans.length;y++){
+    for(let x=0;x<ans[0].length;x++){
+      total++;
+      if(work[y][x]===ans[y][x]) good++;
+    }
+  }
+  const pct=Math.round((good/total)*100);
+
+  if(pct===100 && isCurrentHiddenByMystery()){
+    solvedMystery.add(pic.id);
+    renderHeader();
+    renderGalleries();
+    scoreEl.textContent=`🎉 100 %! Tajemný obrázek odhalen: ${pic.name}`;
+    return;
+  }
+
+  scoreEl.textContent = pct===100 ? "Výborně! 100 % správně 🎉" : `Správně: ${good}/${total} (${pct} %)`;
+}
+
+function resetCurrentWork(){
+  const pic=getCurrent();
+  workById.set(pic.id, pic.rows.map(r=>r.map(()=>0)));
+  scoreEl.textContent="Zatím nezkontrolováno";
+  renderGrid();
+}
+
+document.addEventListener("mouseup",()=>isDown=false);
+document.addEventListener("touchend",()=>isDown=false);
+
+viewModeSel.addEventListener("change",()=>{ viewMode=viewModeSel.value; renderGrid(); });
+setTypeSel.addEventListener("change",()=>{
+  const t=setTypeSel.value;
+  const first=pictures.find(p=>p.type===t);
+  currentId=first.id;
+  viewMode="codes"; viewModeSel.value="codes";
+  renderAll(); scoreEl.textContent="Zatím nezkontrolováno";
+});
+
+document.getElementById("checkBtn").onclick=checkResult;
+document.getElementById("resetBtn").onclick=resetCurrentWork;
+
+document.getElementById("mysteryBinaryBtn").onclick=()=>{
+  setMystery(true,"binary");
+  currentId=pickRandomIdByType("binary");
+  setTypeSel.value="binary";
+  viewMode="codes"; viewModeSel.value="codes";
+  renderAll();
+  scoreEl.textContent="Tajemný 2-bit obrázek načten ✅";
+};
+document.getElementById("mysteryColorBtn").onclick=()=>{
+  setMystery(true,"color");
+  currentId=pickRandomIdByType("color");
+  setTypeSel.value="color";
+  viewMode="codes"; viewModeSel.value="codes";
+  renderAll();
+  scoreEl.textContent="Tajemný barevný obrázek načten ✅";
+};
+document.getElementById("mysteryOffBtn").onclick=()=>{
+  setMystery(false,null);
+  renderAll();
+  scoreEl.textContent="Tajemný režim vypnut. Vidíte konkrétní obrázky.";
+};
+
+renderAll();
+</script>
+</body>
+</html>

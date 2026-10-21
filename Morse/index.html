@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SPIKE Essential – Projekty</title>
+  <style>
+    :root{
+      --bg:#f4f7ff;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary2:#1d4ed8;
+      --ok:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:20px;
+    }
+    .hero{
+      background:linear-gradient(135deg,#2563eb 0%, #4f46e5 100%);
+      color:white;
+      border-radius:20px;
+      padding:22px;
+      box-shadow:0 10px 24px rgba(37,99,235,.25);
+      margin-bottom:18px;
+    }
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size:clamp(1.4rem,4.5vw,2rem);
+      line-height:1.2;
+    }
+    .hero p{margin:0;opacity:.95;font-size:1rem}
+    .note{
+      margin-top:10px;
+      font-size:.95rem;
+      opacity:.95;
+    }
+
+    .section-title{
+      margin:16px 2px 10px;
+      font-size:1.15rem;
+      font-weight:800;
+      color:#111827;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+    @media(min-width:700px){
+      .cards{grid-template-columns:1fr 1fr;}
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      border:1px solid #e5e7eb;
+    }
+    .badge{
+      display:inline-block;
+      font-size:.78rem;
+      font-weight:700;
+      color:#1e3a8a;
+      background:#dbeafe;
+      padding:6px 10px;
+      border-radius:999px;
+      margin-bottom:10px;
+    }
+    .name{
+      font-size:1.2rem;
+      font-weight:800;
+      margin:0 0 10px 0;
+    }
+    .desc{
+      margin:0 0 14px 0;
+      color:var(--muted);
+      font-size:.95rem;
+      min-height:40px;
+    }
+
+    .btn{
+      display:block;
+      width:100%;
+      text-align:center;
+      text-decoration:none;
+      font-weight:800;
+      font-size:1.05rem;
+      color:white;
+      background:var(--primary);
+      padding:15px 14px;
+      border-radius:14px;
+      box-shadow:0 6px 14px rgba(37,99,235,.35);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn:hover{background:var(--primary2)}
+
+    .filename{
+      margin-top:10px;
+      font-size:.82rem;
+      color:#6b7280;
+      word-break:break-all;
+    }
+
+    .help{
+      margin-top:18px;
+      background:white;
+      border-radius:18px;
+      padding:16px;
+      border:1px solid #e5e7eb;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
+    .help h2{
+      margin:0 0 10px 0;
+      font-size:1.1rem;
+    }
+    .steps{
+      margin:0;
+      padding-left:18px;
+      line-height:1.6;
+      font-size:1rem;
+    }
+    .tip{
+      margin-top:10px;
+      font-size:.95rem;
+      color:#065f46;
+      background:#ecfdf5;
+      border:1px solid #a7f3d0;
+      padding:10px 12px;
+      border-radius:12px;
+    }
+
+    footer{
+      margin:16px 4px 4px;
+      color:#6b7280;
+      font-size:.82rem;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <h1>LEGO SPIKE Essential – Sdílené projekty</h1>
+      <p>Klepni na tlačítko a stáhni si projekt do iPadu.</p>
+      <div class="note">Pro třídu: otevřete tuto stránku přes QR kód.</div>
+    </header>
+
+    <div class="section-title">📁 Essential projekty</div>
+    <section class="cards">
+      <article class="card">
+        <span class="badge">ESSENTIAL</span>
+        <h3 class="name">Morse 1</h3>
+        <p class="desc">Projekt pro LEGO SPIKE Essential.</p>
+        <a class="btn" href="./essential-morse-1.llsp3" download>
+          ⬇️ Stáhnout projekt
+        </a>
+        <div class="filename">Soubor: essential-morse-1.llsp3</div>
+      </article>
+
+      <article class="card">
+        <span class="badge">ESSENTIAL</span>
+        <h3 class="name">Morseovka 1</h3>
+        <p class="desc">Projekt pro LEGO SPIKE Essential.</p>
+        <a class="btn" href="./essential-morseovka-1.llsp3" download>
+          ⬇️ Stáhnout projekt
+        </a>
+        <div class="filename">Soubor: essential-morseovka-1.llsp3</div>
+      </article>
+    </section>
+
+    <section class="help">
+      <h2>🧭 Návod pro žáky (3 kroky)</h2>
+      <ol class="steps">
+        <li>Klepni na modré tlačítko <strong>Stáhnout projekt</strong>.</li>
+        <li>Otevři aplikaci <strong>Soubory</strong> → <strong>Stažené</strong>.</li>
+        <li>Klepni na soubor <code>.llsp3</code> a otevři ho v aplikaci SPIKE.</li>
+      </ol>
+      <div class="tip">
+        ✅ Když se soubor neotevře hned, je to v pořádku — najdeš ho v „Soubory / Stažené“.
+      </div>
+    </section>
+
+    <footer>
+      Vytvořeno pro sdílení školních projektů na iPadech.
+    </footer>
+  </main>
+</body>
+</html>
