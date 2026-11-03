@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vektorové hřiště · 4.A</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f1fc;color:#28334b;font:16px system-ui,sans-serif}
+header,main{max-width:1280px;margin:auto;padding:20px}
+h1{color:#6346ba;margin:0}
+h2{font-size:19px;margin:0 0 12px}
+p{line-height:1.6}
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px}
+.panel{background:white;border:1px solid #e0d9ef;border-radius:18px;padding:18px;min-width:0}
+button,select,input{font:inherit}
+button,select{min-height:46px;border:1px solid #d5cbea;border-radius:11px;padding:10px;background:white;color:inherit}
+button{cursor:pointer}
+button:hover{background:#eee7ff}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #df8713;outline-offset:2px}
+select{width:100%;margin:8px 0}
+.tray{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tray button{display:grid;justify-items:center;gap:5px;font-size:12px}
+.tray svg{width:52px;height:46px}
+.tray .active{border:2px solid #7250c9;background:#f0e9ff}
+.tray .done{background:#e6f5eb}
+.hint{font-size:13px;color:#68617b}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.primary{background:#7250c9;color:white}
+.primary:hover{background:#5b3eac}
+#board{display:block;width:100%;background:#fff;border:2px solid #ddd6ef;border-radius:12px;touch-action:none;user-select:none}
+#board:focus-visible{outline:3px solid #df8713}
+.piece{cursor:grab}
+#board.placing,.placing .piece{cursor:crosshair}
+#preview{width:100%;max-height:160px;background:#faf9ff;border-radius:10px}
+#message{background:#eee7ff;padding:14px;border-radius:12px;line-height:1.6;margin-top:12px}
+#message.success{background:#dff4e7;color:#235d3b}
+#startup{background:#fff0d6;padding:14px;border-radius:12px}
+label{display:block;margin:12px 0}
+input[type=color]{vertical-align:middle;width:60px;height:40px}
+hr{border:0;border-top:1px solid #e5dfef;margin:18px 0}
+details{font-size:14px;line-height:1.7;margin-top:18px}
+[hidden]{display:none!important}
+@media(max-width:720px){
+ header,main{padding:12px}
+ .layout{grid-template-columns:1fr}
+ .tray{grid-template-columns:repeat(4,1fr)}
+ h1{font-size:26px}
+ #preview{max-height:110px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <h1>Vektorové hřiště · 4.A</h1>
+ <p>Malé tvary, velká představivost. Poskládej 10 obrázků nebo si vymysli vlastní!</p>
+ <p id="startup" role="alert">
+  Pokud tato zpráva nezmizí, ovládání se nespustilo.
+  Ověř, že jsi zkopíroval/a celý kód až po &lt;/html&gt;
+  a že prohlížeč povoluje JavaScript.
+ </p>
+</header>
+
+<main class="layout">
+ <aside class="panel">
+  <h2>Vyber obrázek</h2>
+
+  <select id="task" aria-label="Obrázek">
+   <option value="0">Domeček · 5 dílků</option>
+   <option value="1">Zmrzlina · 4 dílky</option>
+   <option value="2">Plachetnice · 5 dílků</option>
+   <option value="3">Rybička · 5 dílků</option>
+   <option value="4">Květina · 9 dílků</option>
+   <option value="5">Raketa · 6 dílků</option>
+   <option value="6">Kočička · 8 dílků</option>
+   <option value="7">Motýl · 10 dílků</option>
+   <option value="8">Robot · 8 dílků</option>
+   <option value="9">Vláček · 11 dílků</option>
+   <option value="10">Volné tvoření</option>
+  </select>
+
+  <svg id="preview" viewBox="0 0 800 600"
+       role="img" aria-label="Předloha obrázku"></svg>
+
+  <label id="help-label">
+   <input id="help" type="checkbox" checked>
+   Pomocné obrysy
+  </label>
+
+  <hr>
+  <h2 id="tray-title">Dílky k obrázku</h2>
+
+  <p id="instructions" class="hint">
+   Klikni na dílek a potom na jeho místo na ploše.
+   Velikost i otočení už jsou připravené!
+  </p>
+
+  <div id="tray" class="tray"></div>
+
+  <div id="free-tools" hidden>
+   <label>
+    Barva
+    <input id="color" type="color" value="#f4b545">
+   </label>
+
+   <p class="hint">Klikni na tvar na ploše a uprav ho tlačítky.</p>
+
+   <div class="tools">
+    <button data-edit="smaller">− Menší</button>
+    <button data-edit="bigger">+ Větší</button>
+    <button data-edit="narrower">− Užší</button>
+    <button data-edit="wider">+ Širší</button>
+    <button data-edit="shorter">− Nižší</button>
+    <button data-edit="taller">+ Vyšší</button>
+    <button data-edit="left">↶ Otočit</button>
+    <button data-edit="right">↷ Otočit</button>
+   </div>
+
+   <div class="tools">
+    <button id="back">Dozadu</button>
+    <button id="front">Dopředu</button>
+    <button id="copy">Kopie</button>
+   </div>
+  </div>
+ </aside>
+
+ <section class="panel" aria-label="Skládání obrázku">
+  <h2 id="heading">Domeček</h2>
+
+  <p id="how">
+   1. Vyber dílek vlevo. 2. Klikni dovnitř jeho obrysu.
+   Nebo dílek přetáhni prstem či myší.
+  </p>
+
+  <div class="tools">
+   <button id="undo" disabled>↶ Zpět</button>
+   <button id="delete" disabled>Smazat dílek</button>
+   <button id="clear" disabled>Začít znovu</button>
+   <button id="save">Stáhnout SVG</button>
+  </div>
+
+  <svg id="board" viewBox="0 0 800 600" tabindex="0"
+       role="application"
+       aria-label="Skládací plocha. Dílek vyber v nabídce a kliknutím umísti. Lze také táhnout. Šipky posouvají, Tab vybírá tvary a Delete maže.">
+   <defs>
+    <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+     <circle cx="12" cy="12" r="1" fill="#ddd7ee"/>
+    </pattern>
+   </defs>
+   <rect width="800" height="600" fill="url(#grid)" pointer-events="none"/>
+   <g id="guides" pointer-events="none"></g>
+   <g id="drawing"></g>
+   <g id="outline" pointer-events="none"></g>
+  </svg>
+
+  <div id="message" role="status" aria-live="polite">
+   Vyber si první dílek.
+  </div>
+
+  <div class="tools">
+   <button id="check" class="primary">Zkontrolovat</button>
+   <button id="next" hidden>Další obrázek →</button>
+  </div>
+
+  <p id="progress" class="hint"></p>
+
+  <details>
+   <summary>Pro učitele: ovládání a vektorová grafika</summary>
+   <p>
+    U předloh se velikost a otočení neupravují.
+    Dítě vybírá připravené dílky a umísťuje je kliknutím
+    dovnitř odpovídajícího obrysu nebo tažením do něj
+    či poblíž jeho středu. Shodné dílky lze zaměňovat.
+    Vrstvy se řadí automaticky. Vypnutím obrysů můžete
+    zvýšit obtížnost.
+   </p>
+   <p>
+    Ve volném tvoření slouží tlačítka + a − pro změnu
+    velikosti. Širší/užší a vyšší/nižší mění obdélníky,
+    elipsy, trojúhelníky a hvězdy. Čtverec a kruh
+    zachovávají poměr stran. Otočení mění tlačítka po 45°.
+   </p>
+   <p>
+    Na ploše vybírá Tab jednotlivé tvary, šipky je posouvají
+    (Shift = větší krok). Escape zruší umísťování.
+    Delete maže. Zpět vrací úpravu i vyčištění plochy.
+    Každý obrázek má vlastní rozpracovanou plochu.
+   </p>
+   <p>
+    Vektorový obrázek se skládá z matematicky popsaných
+    tvarů, a proto zůstává ostrý i při zvětšení.
+    Výsledek můžete stáhnout jako SVG bez obrysů a mřížky.
+    Aplikace funguje bez internetu a nic neodesílá.
+    Po zavření stránky se rozpracovaná práce neuchovává.
+   </p>
+  </details>
+ </section>
+</main>
+
+<script>
+(() => {
+ 'use strict';
+
+ const $ = id => document.getElementById(id);
+ const NS = 'http://www.w3.org/2000/svg';
+
+ const colors = [
+  '#f4b545', '#ed796e', '#9774d8', '#75bce4',
+  '#70bc97', '#28334b', '#ffffff', '#b98760'
+ ];
+
+ const names = {
+  S:'Čtverec',
+  R:'Obdélník',
+  C:'Kruh',
+  E:'Elipsa',
+  T:'Trojúhelník',
+  H:'Hvězda'
+ };
+
+ const p = (type,x,y,w,h,c=0,a=0) =>
+  ({type,x,y,w,h,color:colors[c],a});
+
+ const tasks = [
+  [
+   p('S',400,340,260,260),
+   p('T',400,155,350,180,1),
+   p('R',400,405,70,130,2),
+   p('S',320,305,60,60,3),
+   p('S',480,305,60,60,3)
+  ],
+  [
+   p('T',400,390,180,260,7,180),
+   p('C',330,230,140,140,1),
+   p('C',470,230,140,140,2),
+   p('C',400,145,140,140,0)
+  ],
+  [
+   p('R',400,470,350,65,3),
+   p('T',400,405,360,120,7,180),
+   p('R',400,260,18,300,7),
+   p('T',300,270,180,240,1),
+   p('T',490,270,140,240,0)
+  ],
+  [
+   p('T',235,310,170,180,1,90),
+   p('E',420,310,300,200,0),
+   p('T',430,210,110,110,1),
+   p('C',505,285,45,45,6),
+   p('C',510,285,22,22,5)
+  ],
+  [
+   p('R',400,390,25,260,4),
+   p('E',465,395,130,60,4,325),
+   p('C',400,145,110,110,1),
+   p('C',485,195,110,110,1),
+   p('C',485,285,110,110,1),
+   p('C',400,335,110,110,1),
+   p('C',315,285,110,110,1),
+   p('C',315,195,110,110,1),
+   p('C',400,240,115,115,0)
+  ],
+  [
+   p('T',310,380,100,170,2,180),
+   p('T',490,380,100,170,2,180),
+   p('T',400,480,80,150,0,180),
+   p('R',400,305,150,260,3),
+   p('T',400,130,150,130,1),
+   p('C',400,270,80,80,2)
+  ],
+  [
+   p('T',305,190,120,160,0,340),
+   p('T',495,190,120,160,0,20),
+   p('C',400,310,280,280,0),
+   p('C',345,285,55,55,6),
+   p('C',455,285,55,55,6),
+   p('C',345,285,25,25,5),
+   p('C',455,285,25,25,5),
+   p('T',400,350,45,35,1,180)
+  ],
+  [
+   p('E',285,245,190,200,2,325),
+   p('E',515,245,190,200,2,35),
+   p('E',300,400,160,170,1,35),
+   p('E',500,400,160,170,1,325),
+   p('R',375,150,10,75,5,335),
+   p('R',425,150,10,75,5,25),
+   p('E',400,330,50,260,5),
+   p('C',400,185,75,75,0),
+   p('C',285,240,55,55,0),
+   p('C',515,240,55,55,0)
+  ],
+  [
+   p('R',340,465,65,110,2),
+   p('R',460,465,65,110,2),
+   p('R',255,330,55,160,0),
+   p('R',545,330,55,160,0),
+   p('S',400,330,220,220,4),
+   p('R',400,155,200,130,3),
+   p('C',355,150,40,40,5),
+   p('C',445,150,40,40,5)
+  ],
+  [
+   p('R',240,345,240,130,1),
+   p('R',315,240,90,120,1),
+   p('R',165,245,40,80,5),
+   p('R',445,365,110,20,5),
+   p('R',590,345,190,130,3),
+   p('R',315,235,55,55,6),
+   p('C',165,430,65,65,5),
+   p('C',315,430,65,65,5),
+   p('C',535,430,65,65,5),
+   p('C',645,430,65,65,5),
+   p('C',165,150,55,55,6)
+  ],
+  []
+ ];
+
+ let task = 0;
+ let pieces = [];
+ let selected = null;
+ let steps = [];
+ let serial = 0;
+ let placing = false;
+ let drag = null;
+
+ const boards = tasks.map(() => ({
+  pieces:[], selected:null, steps:[]
+ }));
+
+ const free = () => task === 10;
+ const current = () => pieces.find(item => item.id === selected);
+
+ const say = (text, success=false) => {
+  $('message').textContent = text;
+  $('message').className = success ? 'success' : '';
+ };
+
+ const snapshot = () => JSON.stringify({pieces,selected});
+
+ function record(before) {
+  if (before !== snapshot()) {
+   steps.push(before);
+   if (steps.length > 100) steps.shift();
+  }
+ }
+
+ function edit(action) {
+  const before = snapshot();
+  action();
+  record(before);
+  render();
+ }
+
+ function el(tag, attrs) {
+  const node = document.createElementNS(NS,tag);
+  for (const [k,v] of Object.entries(attrs)) {
+   node.setAttribute(k,String(v));
+  }
+  return node;
+ }
+
+ function shape(item) {
+  const {type,w,h} = item;
+  let node;
+
+  if (type === 'C' || type === 'E') {
+   node = el('ellipse',{cx:0,cy:0,rx:w/2,ry:h/2});
+  } else if (type === 'T') {
+   node = el('polygon',{
+    points:`0,${-h/2} ${w/2},${h/2} ${-w/2},${h/2}`
+   });
+  } else if (type === 'H') {
+   node = el('polygon',{
+    points:Array.from({length:10},(_,i) => {
+     const a = i*Math.PI/5-Math.PI/2;
+     const r = i%2 ? .43 : 1;
+     return `${Math.cos(a)*w*r/2},${Math.sin(a)*h*r/2}`;
+    }).join(' ')
+   });
+  } else {
+   node = el('rect',{x:-w/2,y:-h/2,width:w,height:h});
+  }
+
+  for (const [k,v] of Object.entries({
+   fill:item.color,
+   stroke:'#39425b',
+   'stroke-width':2,
+   'stroke-linejoin':'round',
+   transform:`translate(${item.x} ${item.y}) rotate(${item.a})`
+  })) {
+   node.setAttribute(k,v);
+  }
+
+  return node;
+ }
+
+ function ordered() {
+  return free()
+   ? pieces
+   : [...pieces].sort((a,b) => a.slot-b.slot);
+ }
+
+ function isDone(item) {
+  const goal = tasks[task][item.slot];
+  return !!goal &&
+   Math.hypot(item.x-goal.x,item.y-goal.y) <= 1;
+ }
+
+ function constrain(item) {
+  const a = item.a*Math.PI/180;
+  const hw = Math.min(
+   400,
+   (Math.abs(item.w*Math.cos(a)) +
+    Math.abs(item.h*Math.sin(a)))/2
+  );
+  const hh = Math.min(
+   300,
+   (Math.abs(item.w*Math.sin(a)) +
+    Math.abs(item.h*Math.cos(a)))/2
+  );
+
+  item.x = Math.round(Math.max(hw,Math.min(800-hw,item.x)));
+  item.y = Math.round(Math.max(hh,Math.min(600-hh,item.y)));
+ }
+
+ function compatible(item,goal) {
+  if (
+   item.type !== goal.type ||
+   item.w !== goal.w ||
+   item.h !== goal.h
+  ) return false;
+
+  if (item.type === 'C') return true;
+
+  const period = item.type === 'S'
+   ? 90
+   : ['R','E'].includes(item.type) ? 180 : 360;
+
+  const difference = Math.abs(item.a-goal.a)%period;
+  return Math.min(difference,period-difference) < 1;
+ }
+
+ function insideGoal(pos,goal) {
+  const a = -goal.a*Math.PI/180;
+  const dx = pos.x-goal.x;
+  const dy = pos.y-goal.y;
+  const x = dx*Math.cos(a)-dy*Math.sin(a);
+  const y = dx*Math.sin(a)+dy*Math.cos(a);
+
+  if (goal.type === 'C' || goal.type === 'E') {
+   return (2*x/goal.w)**2+(2*y/goal.h)**2 <= 1;
+  }
+
+  if (goal.type === 'T') {
+   return (
+    y >= -goal.h/2 &&
+    y <= goal.h/2 &&
+    Math.abs(x) <= goal.w*(y+goal.h/2)/(2*goal.h)
+   );
+  }
+
+  return (
+   Math.abs(x) <= goal.w/2 &&
+   Math.abs(y) <= goal.h/2
+  );
+ }
+
+ function snap(item,pos=item,allowInside=true) {
+  if (free()) return false;
+
+  const matrix = $('board').getScreenCTM();
+  const scale = Math.hypot(matrix.a,matrix.b);
+  const radius = Math.max(45,Math.min(90,24/scale));
+
+  const candidates = tasks[task]
+   .map((goal,slot) => ({
+    goal,
+    slot,
+    distance:Math.hypot(pos.x-goal.x,pos.y-goal.y)
+   }))
+   .filter(({goal,slot,distance}) => {
+    const occupied = pieces.some(other =>
+     other.id !== item.id &&
+     other.slot === slot &&
+     isDone(other)
+    );
+
+    return (
+     compatible(item,goal) &&
+     !occupied &&
+     (
+      distance <= radius ||
+      (allowInside && insideGoal(pos,goal))
+     )
+    );
+   })
+   .sort((a,b) => a.distance-b.distance);
+
+  if (!candidates.length) return false;
+
+  const {goal,slot} = candidates[0];
+  const other = pieces.find(other =>
+   other.id !== item.id && other.slot === slot
+  );
+
+  // Při záměně shodných dílků má každý cíl právě jeden dílek.
+  if (other) other.slot = item.slot;
+
+  item.slot = slot;
+  item.x = goal.x;
+  item.y = goal.y;
+
+  return true;
+ }
+
+ function feedback() {
+  if (free()) return;
+
+  const count = pieces.filter(isDone).length;
+  const total = tasks[task].length;
+
+  say(
+   count === total
+    ? 'Paráda! Obrázek je hotový. Jsi vektorový grafik!'
+    : `Na správném místě je ${count} z ${total} dílků. ` +
+      'Vyber další dílek nebo přesuň ten, který ještě nesedí.',
+   count === total
+  );
+ }
+
+ function render() {
+  $('drawing').replaceChildren(...ordered().map(item => {
+   const node = shape(item);
+   node.dataset.id = item.id;
+   node.classList.add('piece');
+   return node;
+  }));
+
+  const item = current();
+  $('outline').replaceChildren();
+
+  if (item) {
+   $('outline').append(el('rect',{
+    x:-item.w/2-6,
+    y:-item.h/2-6,
+    width:item.w+12,
+    height:item.h+12,
+    fill:'none',
+    stroke:'#7250c9',
+    'stroke-width':3,
+    'stroke-dasharray':'7 5',
+    transform:`translate(${item.x} ${item.y}) rotate(${item.a})`
+   }));
+  }
+
+  $('board').classList.toggle('placing',placing);
+  $('undo').disabled = !steps.length;
+  $('delete').disabled = !item;
+  $('clear').disabled = !pieces.length;
+
+  document.querySelectorAll('[data-edit]').forEach(button => {
+   button.disabled = !item;
+  });
+
+  $('copy').disabled = !item;
+  $('back').disabled = !item || pieces.indexOf(item) === 0;
+  $('front').disabled =
+   !item || pieces.indexOf(item) === pieces.length-1;
+
+  if (free() && item) $('color').value = item.color;
+
+  document.querySelectorAll('#tray button').forEach(button => {
+   const existing = pieces.find(
+    q => q.slot === Number(button.dataset.slot)
+   );
+
+   button.classList.toggle(
+    'active',
+    !free() && !!existing && existing.id === selected
+   );
+
+   button.classList.toggle(
+    'done',
+    !free() && !!existing && isDone(existing)
+   );
+
+   button.setAttribute(
+    'aria-pressed',
+    String(!free() && !!existing && existing.id === selected)
+   );
+  });
+
+  const count = pieces.filter(isDone).length;
+  const done = !free() && count === tasks[task].length;
+
+  $('progress').textContent = free()
+   ? `Tvarů na ploše: ${pieces.length}`
+   : `Hotovo: ${count} / ${tasks[task].length} dílků`;
+
+  $('next').hidden = !done;
+ }
+
+ function choose(slot,type) {
+  const existing = !free() &&
+   pieces.find(item => item.slot === slot);
+
+  if (existing) {
+   selected = existing.id;
+   placing = true;
+   render();
+  } else {
+   if (pieces.length >= 100) {
+    say('Na ploše je 100 tvarů. Nejprve některý smaž.');
+    return;
+   }
+
+   edit(() => {
+    const item = free()
+     ? {
+        ...p(
+         type,110,140,100,
+         ['R','E'].includes(type) ? 65 : 100
+        ),
+        color:$('color').value
+       }
+     : {...tasks[task][slot],x:110,y:140,slot};
+
+    item.id = ++serial;
+    constrain(item);
+    pieces.push(item);
+    selected = item.id;
+    placing = true;
+   });
+  }
+
+  say(
+   'Teď klikni na místo, kam dílek patří. Nebo ho přetáhni. ' +
+   'Escape zruší umísťování.'
+  );
+ }
+
+ function buildTask() {
+  const options = $('task').options;
+
+  $('heading').textContent = options[task].textContent;
+  $('preview').hidden = free();
+  $('help-label').hidden = free();
+  $('free-tools').hidden = !free();
+  $('check').hidden = free();
+
+  $('tray-title').textContent = free()
+   ? 'Krabička tvarů'
+   : 'Dílky k obrázku';
+
+  $('instructions').textContent = free()
+   ? 'Klikni na tvar, potom na plochu. Velikost upravíš tlačítky + a −.'
+   : 'Velikost i otočení jsou připravené. Klikni na dílek a potom dovnitř jeho obrysu.';
+
+  $('how').textContent = free()
+   ? 'Přidávej tvary, měň jejich barvy a tvoř podle fantazie.'
+   : '1. Vyber dílek vlevo. 2. Klikni dovnitř jeho obrysu. Nebo dílek přetáhni prstem či myší.';
+
+  $('preview').replaceChildren(...tasks[task].map(shape));
+
+  $('guides').replaceChildren(...tasks[task].map(item => {
+   const node = shape(item);
+   node.setAttribute('fill','none');
+   node.setAttribute('stroke','#b8a8d7');
+   node.setAttribute('stroke-dasharray','8 6');
+   return node;
+  }));
+
+  $('guides').style.display = $('help').checked ? '' : 'none';
+
+  const list = free()
+   ? Object.keys(names).map(type =>
+      p(type,0,0,90,['R','E'].includes(type)?55:90,2)
+     )
+   : tasks[task];
+
+  $('tray').replaceChildren(...list.map((item,index) => {
+   const button = document.createElement('button');
+   button.dataset.slot = index;
+
+   const icon = el('svg',{
+    viewBox:'-65 -65 130 130',
+    'aria-hidden':'true'
+   });
+
+   const scale = 90/Math.max(item.w,item.h);
+   const sample = shape({
+    ...item,
+    x:0,
+    y:0,
+    w:item.w*scale,
+    h:item.h*scale
+   });
+
+   icon.append(sample);
+   button.append(
+    icon,
+    document.createTextNode(
+     free() ? names[item.type] : `${index+1}. ${names[item.type]}`
+    )
+   );
+
+   button.onclick = () => choose(index,item.type);
+   return button;
+  }));
+
+  render();
+ }
+
+ $('task').onchange = () => {
+  boards[task] = {pieces,selected,steps};
+  task = Number($('task').value);
+
+  ({pieces,selected,steps} = boards[task]);
+
+  placing = false;
+  drag = null;
+  buildTask();
+
+  say(
+   'Vyber si dílek. Rozpracované obrázky zůstávají ' +
+   'při přepínání zachované.'
+  );
+ };
+
+ $('help').onchange = () => {
+  $('guides').style.display = $('help').checked ? '' : 'none';
+ };
+
+ const board = $('board');
+
+ const point = e =>
+  new DOMPoint(e.clientX,e.clientY)
+   .matrixTransform(board.getScreenCTM().inverse());
+
+ board.onpointerdown = e => {
+  if (e.button !== 0 || drag) return;
+
+  const pos = point(e);
+  const node = e.target.closest('[data-id]');
+
+  board.focus();
+  e.preventDefault();
+
+  if (
+   placing &&
+   current() &&
+   (!node || Number(node.dataset.id) !== selected)
+  ) {
+   edit(() => {
+    const item = current();
+    item.x = pos.x;
+    item.y = pos.y;
+    constrain(item);
+    snap(item,pos,true);
+    placing = false;
+   });
+
+   feedback();
+   return;
+  }
+
+  placing = false;
+  selected = node ? Number(node.dataset.id) : null;
+  render();
+
+  if (!current()) return;
+  const item = current();
+
+  drag = {
+   pointer:e.pointerId,
+   x:pos.x,
+   y:pos.y,
+   startX:item.x,
+   startY:item.y,
+   before:snapshot(),
+   moved:false
+  };
+
+  board.setPointerCapture(e.pointerId);
+ };
+
+ board.onpointermove = e => {
+  if (!drag || drag.pointer !== e.pointerId) return;
+
+  const pos = point(e);
+  const item = current();
+
+  if (Math.hypot(pos.x-drag.x,pos.y-drag.y) > 3) {
+   drag.moved = true;
+  }
+
+  item.x = drag.startX + pos.x-drag.x;
+  item.y = drag.startY + pos.y-drag.y;
+
+  constrain(item);
+  render();
+ };
+
+ const finish = e => {
+  if (!drag || drag.pointer !== e.pointerId) return;
+
+  if (drag.moved) {
+   snap(current());
+  } else {
+   snap(current(),{x:drag.x,y:drag.y},true);
+  }
+
+  record(drag.before);
+  drag = null;
+  render();
+  feedback();
+ };
+
+ board.onpointerup = finish;
+ board.onpointercancel = finish;
+ board.onlostpointercapture = finish;
+
+ $('undo').onclick = () => {
+  if (!steps.length) return;
+
+  const state = JSON.parse(steps.pop());
+  pieces = state.pieces;
+  selected = state.selected;
+  placing = false;
+
+  render();
+  say('Poslední krok je vrácený.');
+ };
+
+ $('delete').onclick = () => {
+  if (!current()) return;
+
+  edit(() => {
+   pieces = pieces.filter(item => item.id !== selected);
+   selected = null;
+   placing = false;
+  });
+
+  say('Dílek je smazaný. Můžeš ho znovu vybrat v nabídce.');
+ };
+
+ $('clear').onclick = () => {
+  if (confirm(
+   'Začít tento obrázek znovu? Tlačítko Zpět ho umí vrátit.'
+  )) {
+   edit(() => {
+    pieces = [];
+    selected = null;
+    placing = false;
+   });
+
+   say('Plocha je prázdná. Vyber si první dílek.');
+  }
+ };
+
+ $('color').onchange = () => {
+  if (free() && current()) {
+   edit(() => { current().color = $('color').value; });
+  }
+ };
+
+ document.querySelectorAll('[data-edit]').forEach(button => {
+  button.onclick = () => {
+   if (!free() || !current()) return;
+
+   edit(() => {
+    const item = current();
+    const action = button.dataset.edit;
+    const round = ['S','C'].includes(item.type);
+
+    if (action === 'left' || action === 'right') {
+     item.a = (item.a + (action === 'left' ? 315 : 45)) % 360;
+    } else {
+     const dw = {
+      smaller:-20,
+      bigger:20,
+      narrower:-20,
+      wider:20,
+      shorter:0,
+      taller:0
+     }[action];
+
+     const dh = {
+      smaller:-20,
+      bigger:20,
+      narrower:0,
+      wider:0,
+      shorter:-20,
+      taller:20
+     }[action];
+
+     if (round) {
+      const size = Math.max(25,Math.min(400,item.w+(dw||dh)));
+      item.w = size;
+      item.h = size;
+     } else {
+      item.w = Math.max(25,Math.min(400,item.w+dw));
+      item.h = Math.max(25,Math.min(400,item.h+dh));
+     }
+    }
+
+    constrain(item);
+   });
+  };
+ });
+
+ for (const [id,delta] of [['back',-1],['front',1]]) {
+  $(id).onclick = () => {
+   if (!free() || !current()) return;
+
+   const index = pieces.indexOf(current());
+   const next = index+delta;
+
+   if (next < 0 || next >= pieces.length) return;
+
+   edit(() => {
+    const [item] = pieces.splice(index,1);
+    pieces.splice(next,0,item);
+   });
+  };
+ }
+
+ $('copy').onclick = () => {
+  if (!free() || !current()) return;
+
+  if (pieces.length >= 100) {
+   say('Nejprve některý tvar smaž.');
+   return;
+  }
+
+  edit(() => {
+   const item = {
+    ...current(),
+    id:++serial,
+    x:current().x+25,
+    y:current().y+25
+   };
+
+   constrain(item);
+   pieces.push(item);
+   selected = item.id;
+   placing = true;
+  });
+ };
+
+ board.onkeydown = e => {
+  if (e.key === 'Escape') {
+   placing = false;
+   render();
+   say('Umísťování je zrušené. Dílek můžeš vybrat a přetáhnout.');
+   return;
+  }
+
+  if (e.key === 'Tab' && pieces.length) {
+   const i = pieces.findIndex(item => item.id === selected);
+   const next = i < 0
+    ? (e.shiftKey ? pieces.length-1 : 0)
+    : i + (e.shiftKey ? -1 : 1);
+
+   if (next >= 0 && next < pieces.length) {
+    e.preventDefault();
+    selected = pieces[next].id;
+    placing = false;
+    render();
+   }
+
+   return;
+  }
+
+  if (!current()) return;
+
+  if (['Delete','Backspace'].includes(e.key)) {
+   e.preventDefault();
+   $('delete').click();
+   return;
+  }
+
+  const d = {
+   ArrowLeft:[-1,0],
+   ArrowRight:[1,0],
+   ArrowUp:[0,-1],
+   ArrowDown:[0,1]
+  }[e.key];
+
+  if (d) {
+   e.preventDefault();
+
+   edit(() => {
+    const item = current();
+    const step = e.shiftKey ? 10 : 2;
+    item.x += d[0]*step;
+    item.y += d[1]*step;
+    constrain(item);
+    placing = false;
+   });
+  }
+
+  if (e.key === 'Enter') {
+   e.preventDefault();
+   edit(() => snap(current()));
+   feedback();
+  }
+ };
+
+ board.onkeyup = e => {
+  if (e.key.startsWith('Arrow') && current()) {
+   edit(() => snap(current()));
+   feedback();
+  }
+ };
+
+ $('check').onclick = () => {
+  edit(() => {
+   for (const item of pieces) snap(item);
+  });
+
+  feedback();
+ };
+
+ $('next').onclick = () => {
+  $('task').value = String(task+1);
+  $('task').dispatchEvent(new Event('change'));
+ };
+
+ $('save').onclick = () => {
+  if (!pieces.length) {
+   say('Nejprve přidej alespoň jeden dílek.');
+   return;
+  }
+
+  const svg = el('svg',{
+   xmlns:NS,
+   viewBox:'0 0 800 600',
+   width:800,
+   height:600
+  });
+
+  svg.append(...ordered().map(shape));
+
+  const url = URL.createObjectURL(new Blob(
+   [new XMLSerializer().serializeToString(svg)],
+   {type:'image/svg+xml;charset=utf-8'}
+  ));
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'muj-vektorovy-obrazek.svg';
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+  say('Obrázek je připravený ke stažení jako SVG.');
+ };
+
+ buildTask();
+ $('startup').hidden = true;
+})();
+</script>
+</body>
+</html>
