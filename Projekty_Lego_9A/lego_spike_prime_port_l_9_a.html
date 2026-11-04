@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO SPIKE Prime 9.A – Výukový rozcestník</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lego: {
+                            yellow: '#FFCD00',
+                            red: '#E3000B',
+                            blue: '#006CB7',
+                            green: '#00843D',
+                            teal: '#00A3DA',
+                            dark: '#1E293B',
+                            light: '#F8FAFC'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .brick-pattern {
+            background-image: radial-gradient(#CBD5E1 15%, transparent 16%);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-lego-light text-slate-800 font-sans min-h-screen flex flex-col brick-pattern">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-lego-dark text-white sticky top-0 z-50 shadow-md border-b-4 border-lego-yellow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-lego-red text-white font-black px-2.5 py-1 rounded shadow text-lg tracking-wider">
+                    LEGO
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none">SPIKE Prime</h1>
+                    <span class="text-xs text-slate-400 font-medium">Třída 9.A • Výukový Portál</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex gap-6 text-sm font-semibold">
+                <a href="#katapult" class="hover:text-lego-yellow transition-colors">Katapult</a>
+                <a href="#posilovna" class="hover:text-lego-teal transition-colors">Posilovna</a>
+                <a href="#hodnoceni" class="hover:text-lego-yellow transition-colors">Hodnocení</a>
+                <a href="#harmonogram" class="hover:text-lego-teal transition-colors">Harmonogram</a>
+            </nav>
+
+            <a href="LEGO SPIKE - Hodnotící rubrika a kritéria (9.A).pdf" target="_blank" class="bg-lego-yellow hover:bg-yellow-400 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs md:text-sm flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span>Kritéria PDF</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-br from-lego-blue via-blue-700 to-indigo-900 text-white py-12 px-4 shadow-inner">
+        <div class="max-w-5xl mx-auto text-center">
+            <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-3 backdrop-blur-sm">
+                Informatika & Fyzika & Technika
+            </span>
+            <h2 class="text-3xl sm:text-5xl font-black mb-4 tracking-tight">
+                Projektové výzvy pro 9.A
+            </h2>
+            <p class="text-blue-100 text-base sm:text-lg max-w-2xl mx-auto mb-8 font-light">
+                Kompletní studijní materiál, stavební návody, zadání kódovacích výzev a metodické pokyny pro týmovou výuku s LEGO SPIKE Prime.
+            </p>
+
+            <!-- Role Filter Tabs -->
+            <div class="inline-flex bg-slate-900/60 p-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-lg">
+                <button onclick="filterRole('all')" id="tab-all" class="role-tab active px-5 py-2 rounded-lg font-bold text-sm transition-all bg-white text-slate-900 shadow">
+                    <i class="fa-solid fa-layer-group mr-1.5"></i> Vše
+                </button>
+                <button onclick="filterRole('zaci')" id="tab-zaci" class="role-tab px-5 py-2 rounded-lg font-bold text-sm transition-all text-white/80 hover:text-white hover:bg-white/10">
+                    <i class="fa-solid fa-graduation-cap mr-1.5"></i> Pro žáky
+                </button>
+                <button onclick="filterRole('ucitele')" id="tab-ucitele" class="role-tab px-5 py-2 rounded-lg font-bold text-sm transition-all text-white/80 hover:text-white hover:bg-white/10">
+                    <i class="fa-solid fa-chalkboard-user mr-1.5"></i> Pro učitele
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow space-y-12">
+
+        <!-- ================= PROJECT 1: KATAPULT ================= -->
+        <section id="katapult" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all">
+            <!-- Card Header -->
+            <div class="bg-lego-red text-white p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-black/30 text-white font-bold text-xs px-2.5 py-0.5 rounded">Úloha 1</span>
+                        <span class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded font-semibold"><i class="fa-regular fa-clock mr-1"></i>60 minut</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Katapult (Obléhací zařízení)</h3>
+                    <p class="text-red-100 text-sm sm:text-base mt-1">Stavba navijáku, bezpečnostní pojistky a testování vrhů na vzdálenost a přesnost.</p>
+                </div>
+                <div class="flex sm:flex-col gap-2 shrink-0">
+                    <a href="Uloha_1_Katapult.pdf" target="_blank" class="flex-1 bg-white text-lego-red hover:bg-slate-100 font-extrabold px-4 py-2.5 rounded-xl text-center text-sm shadow transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-lg"></i>
+                        <span>Návod Katapult (PDF)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Body Grid -->
+            <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Col 1: Overview & Topics -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-lego-red"></i> Zaměření projektu
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-red-50 text-lego-red text-xs font-semibold px-2.5 py-1 rounded-md border border-red-100">Naviják</span>
+                        <span class="bg-red-50 text-lego-red text-xs font-semibold px-2.5 py-1 rounded-md border border-red-100">Vrh na vzdálenost</span>
+                        <span class="bg-red-50 text-lego-red text-xs font-semibold px-2.5 py-1 rounded-md border border-red-100">Vrh na přesnost</span>
+                        <span class="bg-red-50 text-lego-red text-xs font-semibold px-2.5 py-1 rounded-md border border-red-100">Relace úhlů</span>
+                        <span class="bg-red-50 text-lego-red text-xs font-semibold px-2.5 py-1 rounded-md border border-red-100">Dějepisná souvislost</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Žáci sestaví katapult s ručně uvolňovaným navijákem. Cílem je naprogramovat bezpečné navíjení bez přetržení nitě a otestovat balistickou křivku na 3 různé vzdálenosti.
+                    </p>
+                </div>
+
+                <!-- Col 2: Student Challenges (Interactive Checklist) -->
+                <div class="lg:col-span-2 space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 flex items-center justify-between border-b pb-2">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-lego-blue"></i> Programovací & Praktické výzvy
+                        </span>
+                        <span class="text-xs font-normal text-slate-500">Ukládá se do prohlížeče</span>
+                    </h4>
+
+                    <div class="space-y-2.5">
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-blue transition-colors">
+                            <input type="checkbox" id="k-task1" onchange="toggleTask('k-task1')" class="mt-1 w-4 h-4 text-lego-blue rounded border-slate-300 focus:ring-lego-blue">
+                            <span class="text-sm text-slate-700"><strong>Základní navíjení:</strong> Naprogramovat motor pro navíjení/odvíjení provázku pomocí tlačítek na Hubu.</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-blue transition-colors">
+                            <input type="checkbox" id="k-task2" onchange="toggleTask('k-task2')" class="mt-1 w-4 h-4 text-lego-blue rounded border-slate-300 focus:ring-lego-blue">
+                            <span class="text-sm text-slate-700"><strong>Bezpečnostní pojistka:</strong> Nastavit limit úhlu motoru, za který se provázek dál nenavije.</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-blue transition-colors">
+                            <input type="checkbox" id="k-task3" onchange="toggleTask('k-task3')" class="mt-1 w-4 h-4 text-lego-blue rounded border-slate-300 focus:ring-lego-blue">
+                            <span class="text-sm text-slate-700"><strong>Automatické polohy (Bonus):</strong> Naprogramovat 2 stálé polohy (Nataženo / Vypuštěno) na stisk tlačítka.</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-blue transition-colors">
+                            <input type="checkbox" id="k-task4" onchange="toggleTask('k-task4')" class="mt-1 w-4 h-4 text-lego-blue rounded border-slate-300 focus:ring-lego-blue">
+                            <span class="text-sm text-slate-700"><strong>Měření & Přesnost:</strong> Provést 3 testovací vrhy a naprogramovat 3 úrovně natažení na cíle.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PROJECT 2: POSILOVNA ================= -->
+        <section id="posilovna" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all">
+            <!-- Card Header -->
+            <div class="bg-lego-teal text-white p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-black/30 text-white font-bold text-xs px-2.5 py-0.5 rounded">Úloha 2</span>
+                        <span class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded font-semibold"><i class="fa-regular fa-clock mr-1"></i>60 minut</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Posilovna (Fitnessák a činka)</h3>
+                    <p class="text-cyan-100 text-sm sm:text-base mt-1">Mechanický převod rotace na klikový pohyb, proměnné, časovač a počítadlo zdvihů.</p>
+                </div>
+                <div class="flex sm:flex-col gap-2 shrink-0">
+                    <a href="Uloha_2_Posilovna.pdf" target="_blank" class="flex-1 bg-white text-lego-teal hover:bg-slate-100 font-extrabold px-4 py-2.5 rounded-xl text-center text-sm shadow transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-lg"></i>
+                        <span>Návod Posilovna (PDF)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Body Grid -->
+            <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Col 1: Overview & Topics -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-dumbbell text-lego-teal"></i> Zaměření projektu
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-cyan-50 text-lego-teal text-xs font-semibold px-2.5 py-1 rounded-md border border-cyan-100">Pohon činky</span>
+                        <span class="bg-cyan-50 text-lego-teal text-xs font-semibold px-2.5 py-1 rounded-md border border-cyan-100">Klikový mechanismus</span>
+                        <span class="bg-cyan-50 text-lego-teal text-xs font-semibold px-2.5 py-1 rounded-md border border-cyan-100">Proměnné & Počítadlo</span>
+                        <span class="bg-cyan-50 text-lego-teal text-xs font-semibold px-2.5 py-1 rounded-md border border-cyan-100">Stopky / Časovač</span>
+                        <span class="bg-cyan-50 text-lego-teal text-xs font-semibold px-2.5 py-1 rounded-md border border-cyan-100">Biomechanika</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Žáci sestroInternal lavici s figurkou a navrhnou mechanické rameno. Program musí plynule zvedat činku (rychleji nahoru, pomaleji dolů) a přesně počítat opakování v časovém limitu 15 sekund.
+                    </p>
+                </div>
+
+                <!-- Col 2: Student Challenges (Interactive Checklist) -->
+                <div class="lg:col-span-2 space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 flex items-center justify-between border-b pb-2">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-lego-blue"></i> Programovací & Praktické výzvy
+                        </span>
+                        <span class="text-xs font-normal text-slate-500">Ukládá se do prohlížeče</span>
+                    </h4>
+
+                    <div class="space-y-2.5">
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-teal transition-colors">
+                            <input type="checkbox" id="p-task1" onchange="toggleTask('p-task1')" class="mt-1 w-4 h-4 text-lego-teal rounded border-slate-300 focus:ring-lego-teal">
+                            <span class="text-sm text-slate-700"><strong>Pohon činky:</strong> Rozpohybovat činku nahoru a dolů pomocí motoru (max. 30% výkonu).</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-teal transition-colors">
+                            <input type="checkbox" id="p-task2" onchange="toggleTask('p-task2')" class="mt-1 w-4 h-4 text-lego-teal rounded border-slate-300 focus:ring-lego-teal">
+                            <span class="text-sm text-slate-700"><strong>Technika zvedání:</strong> Naprogramovat rychlý zdvih nahoru a pomalý návrat dolů pro růst svalů.</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-teal transition-colors">
+                            <input type="checkbox" id="p-task3" onchange="toggleTask('p-task3')" class="mt-1 w-4 h-4 text-lego-teal rounded border-slate-300 focus:ring-lego-teal">
+                            <span class="text-sm text-slate-700"><strong>Počítadlo opakování:</strong> Vytvořit proměnnou a zobrazovat aktuální počet zdvihů na displeji Hubu.</span>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-lego-teal transition-colors">
+                            <input type="checkbox" id="p-task4" onchange="toggleTask('p-task4')" class="mt-1 w-4 h-4 text-lego-teal rounded border-slate-300 focus:ring-lego-teal">
+                            <span class="text-sm text-slate-700"><strong>Soutěž na 15 sekund:</strong> Přidat časovač, který po 15 s zastaví motor a vypíše skóre.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EVALUATION RUBRIC ================= -->
+        <section id="hodnoceni" class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900">Hodnotící kritéria & Rubrika (100 bodů)</h3>
+                    <p class="text-sm text-slate-500">Formativní hodnocení zaměřené na funkčnost, algoritmizaci i týmovou spolupráci.</p>
+                </div>
+                <a href="LEGO SPIKE - Hodnotící rubrika a kritéria (9.A).pdf" target="_blank" class="bg-lego-dark hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shrink-0">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Stáhnout Rubriku (PDF)</span>
+                </a>
+            </div>
+
+            <!-- 4 Criteria Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-amber-900">1. Mechanika</span>
+                        <span class="text-xs font-black bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">25 %</span>
+                    </div>
+                    <p class="text-xs text-amber-800">Stabilita konstrukce, bezproblémový chod bez drhnutí a optimalizace mechanických ramen.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-blue-900">2. Programování</span>
+                        <span class="text-xs font-black bg-blue-200 text-blue-900 px-2 py-0.5 rounded-full">35 %</span>
+                    </div>
+                    <p class="text-xs text-blue-800">Přehledný kód, využití proměnných, časovačů, bezpečnostních pojistek a správné ošetření chyb.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-emerald-900">3. Práce s daty</span>
+                        <span class="text-xs font-black bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">20 %</span>
+                    </div>
+                    <p class="text-xs text-emerald-800">Vyplnění pracovního listu, systematické testování měřením a fyzikální zdůvodnění.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-purple-900">4. Tým & Reflexe</span>
+                        <span class="text-xs font-black bg-purple-200 text-purple-900 px-2 py-0.5 rounded-full">20 %</span>
+                    </div>
+                    <p class="text-xs text-purple-800">Dělba rolí v dvojici, schopnost prezentovat své řešení, sebereflexe a úklid stavebnice.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TEACHER SCHEDULE SECTION ================= -->
+        <section id="harmonogram" class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+            <div>
+                <span class="text-lego-yellow text-xs font-bold uppercase tracking-widest">Pro vyučujícího</span>
+                <h3 class="text-2xl font-bold mt-1">Doporučený harmonogram dvouhodinovky (90 min)</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 text-center">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-lego-yellow font-black text-lg mb-1">0–10 min</div>
+                    <div class="font-bold text-sm">Úvod & Motivační vstup</div>
+                    <div class="text-xs text-slate-400 mt-1">Rozdělení týmů, cíl lekce, zopakování pravidel.</div>
+                </div>
+
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-lego-teal font-black text-lg mb-1">10–40 min</div>
+                    <div class="font-bold text-sm">Konstrukční část</div>
+                    <div class="text-xs text-slate-400 mt-1">Stavba modelu dle PDF návodu, kontrola převodů.</div>
+                </div>
+
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-lego-yellow font-black text-lg mb-1">40–65 min</div>
+                    <div class="font-bold text-sm">Programování & Výzvy</div>
+                    <div class="text-xs text-slate-400 mt-1">Kódování stopek, proměnných a bezpečnostních limitů.</div>
+                </div>
+
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-lego-teal font-black text-lg mb-1">65–80 min</div>
+                    <div class="font-bold text-sm">Testování & Soutěž</div>
+                    <div class="text-xs text-slate-400 mt-1">Měření doletu katapultu nebo zdvihů za 15 sekund.</div>
+                </div>
+
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-lego-green font-black text-lg mb-1">80–90 min</div>
+                    <div class="font-bold text-sm">Reflexie & Úklid</div>
+                    <div class="text-xs text-slate-400 mt-1">Diskuse nad fyzikou/biomechanikou, roztřídění dílků.</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-8 px-4 text-center text-sm">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p>© Výukový portál LEGO SPIKE Prime • Připraveno pro 9.A na základě metodických podkladů <em>KiPovy LEGO úlohy</em>.</p>
+            <p class="text-xs text-slate-500">Všechny soubory PDF jsou dostupné v kořenové složce projektu.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactivity and LocalStorage -->
+    <script>
+        // Load task status from LocalStorage on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const tasks = ['k-task1', 'k-task2', 'k-task3', 'k-task4', 'p-task1', 'p-task2', 'p-task3', 'p-task4'];
+            tasks.forEach(taskId => {
+                const savedState = localStorage.getItem(taskId);
+                if (savedState === 'true') {
+                    const checkbox = document.getElementById(taskId);
+                    if (checkbox) checkbox.checked = true;
+                }
+            });
+        });
+
+        // Toggle task and save to LocalStorage
+        function toggleTask(taskId) {
+            const checkbox = document.getElementById(taskId);
+            if (checkbox) {
+                localStorage.setItem(taskId, checkbox.checked);
+            }
+        }
+
+        // Role Filter functionality
+        function filterRole(role) {
+            const tabs = document.querySelectorAll('.role-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-white', 'text-slate-900', 'shadow');
+                tab.classList.add('text-white/80');
+            });
+
+            const activeTab = document.getElementById(`tab-${role}`);
+            if (activeTab) {
+                activeTab.classList.add('bg-white', 'text-slate-900', 'shadow');
+                activeTab.classList.remove('text-white/80');
+            }
+
+            const katapultSection = document.getElementById('katapult');
+            const posilovnaSection = document.getElementById('posilovna');
+            const hodnoceniSection = document.getElementById('hodnoceni');
+            const harmonogramSection = document.getElementById('harmonogram');
+
+            if (role === 'all') {
+                katapultSection.style.display = 'block';
+                posilovnaSection.style.display = 'block';
+                hodnoceniSection.style.display = 'block';
+                harmonogramSection.style.display = 'block';
+            } else if (role === 'zaci') {
+                katapultSection.style.display = 'block';
+                posilovnaSection.style.display = 'block';
+                hodnoceniSection.style.display = 'block';
+                harmonogramSection.style.display = 'none';
+            } else if (role === 'ucitele') {
+                katapultSection.style.display = 'block';
+                posilovnaSection.style.display = 'block';
+                hodnoceniSection.style.display = 'block';
+                harmonogramSection.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
