@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8ff">
+  <title>Čí to je? | Anglická přivlastňovací zájmena</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172554;
+      --muted: #52617b;
+      --blue: #3156c9;
+      --blue-dark: #2443a8;
+      --pale-blue: #edf2ff;
+      --green: #176b48;
+      --pale-green: #e8f7ef;
+      --red: #a83232;
+      --pale-red: #fff0ef;
+      --line: #dce4f2;
+      --paper: #fff;
+      --background: #f5f8ff;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px 16px 48px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 9% 7%, #e8efff 0, transparent 30rem),
+        var(--background);
+    }
+
+    button { font: inherit; }
+
+    .page { width: min(760px, 100%); margin: 0 auto; }
+
+    header { margin-bottom: 20px; text-align: center; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 3rem);
+      letter-spacing: -.04em;
+    }
+
+    .subtitle { margin: 9px 0 0; color: var(--muted); font-size: 1.08rem; }
+
+    .card {
+      margin-top: 16px;
+      padding: clamp(18px, 5vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--paper);
+      box-shadow: 0 12px 34px rgb(34 58 112 / 8%);
+    }
+
+    h2 { margin: 0 0 12px; font-size: 1.35rem; }
+    p { line-height: 1.55; }
+    .rule { margin: 0 0 16px; color: var(--muted); }
+
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .example {
+      padding: 15px;
+      border-radius: 15px;
+      background: var(--pale-blue);
+    }
+
+    .example strong { display: block; margin-bottom: 5px; font-size: 1.1rem; }
+    .example p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: .86rem; }
+    td strong { color: var(--blue-dark); }
+    .small-note { margin: 12px 0 0; color: var(--muted); font-size: .9rem; }
+
+    .practice-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .practice-heading h2 { margin: 0; }
+    .score {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--pale-blue);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mode-label { display: block; margin-bottom: 8px; font-weight: 800; }
+    .modes { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mode {
+      min-height: 42px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+    }
+    .mode[aria-pressed="true"] { border-color: var(--blue); color: var(--blue-dark); background: var(--pale-blue); font-weight: 800; }
+
+    .activity-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .activity-tab {
+      min-height: 44px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .activity-tab[aria-pressed="true"] { border-color: var(--blue); color: var(--blue-dark); background: var(--pale-blue); }
+    .activity-tab:focus-visible, .memory-card:focus-visible, .text-answer:focus-visible, .hint-button:focus-visible { outline: 3px solid #f0ad37; outline-offset: 3px; }
+    .activity-panel[hidden] { display: none; }
+
+    .question-area {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #f8faff;
+    }
+    .progress { margin: 0 0 7px; color: var(--muted); font-size: .9rem; font-weight: 700; }
+    .prompt { margin: 0 0 5px; font-size: 1.15rem; font-weight: 800; }
+    .translation { margin: 0 0 16px; color: var(--muted); }
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .answer {
+      min-height: 50px;
+      padding: 11px 14px;
+      border: 2px solid var(--line);
+      border-radius: 13px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+      font-size: 1.05rem;
+      font-weight: 800;
+      transition: border-color .15s, transform .15s, background .15s;
+    }
+    .answer:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--blue); }
+    .answer:focus-visible, .mode:focus-visible, .next:focus-visible { outline: 3px solid #f0ad37; outline-offset: 3px; }
+    .answer:disabled { cursor: default; }
+    .answer.correct { border-color: var(--green); color: var(--green); background: var(--pale-green); }
+    .answer.incorrect { border-color: var(--red); color: var(--red); background: var(--pale-red); }
+
+    .feedback { min-height: 30px; margin: 14px 0 0; font-weight: 700; }
+    .feedback.good { color: var(--green); }
+    .feedback.try-again { color: var(--red); }
+    .feedback .why { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; }
+    .next {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--blue);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .next:hover { background: var(--blue-dark); }
+    .finish { text-align: center; }
+    .finish p { color: var(--muted); }
+    .finish .result { color: var(--ink); font-size: 1.45rem; font-weight: 900; }
+
+    .written-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin-top: 16px; }
+    .text-answer {
+      flex: 1 1 200px;
+      min-width: 0;
+      min-height: 50px;
+      padding: 10px 13px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      font-size: 1.08rem;
+    }
+    .text-answer:disabled { background: #f0f3f8; }
+    .hint-button {
+      min-height: 46px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--blue-dark);
+      background: var(--pale-blue);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .hint-text { margin: 12px 0 0; color: var(--muted); }
+
+    .memory-info { margin: 0 0 14px; color: var(--muted); }
+    .memory-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .memory-card {
+      min-height: 88px;
+      padding: 10px;
+      border: 2px solid var(--blue);
+      border-radius: 14px;
+      color: var(--blue-dark);
+      background: var(--pale-blue);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+      transition: transform .15s, background .15s;
+    }
+    .memory-card:hover:not(:disabled) { transform: translateY(-2px); }
+    .memory-card.is-hidden { color: #fff; background: var(--blue); font-size: 1.45rem; }
+    .memory-card.is-matched { border-color: var(--green); color: var(--green); background: var(--pale-green); cursor: default; }
+
+    footer { padding: 18px 6px 0; color: var(--muted); font-size: .86rem; text-align: center; }
+
+    @media (max-width: 520px) {
+      body { padding: 20px 12px 32px; }
+      .examples { grid-template-columns: 1fr; }
+      .answers { grid-template-columns: 1fr; }
+      .memory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .memory-card { min-height: 76px; padding: 7px; font-size: .92rem; }
+      .practice-heading { align-items: flex-start; }
+      th, td { padding: 9px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">Angličtina · 5.A</p>
+      <h1>Čí to je? 🎒</h1>
+      <p class="subtitle">Nauč se říct, komu co patří.</p>
+    </header>
+
+    <section class="card" aria-labelledby="lesson-title">
+      <h2 id="lesson-title">Dvě jednoduchá pravidla</h2>
+      <p class="rule">Nejdřív se zeptej: <strong>Je za slovem pojmenovaná věc?</strong></p>
+      <div class="examples">
+        <div class="example">
+          <strong>Věc je hned za zájmenem → my</strong>
+          <p><b>This is my pencil.</b> — To je moje tužka.</p>
+          <p><b>my + pencil</b> (moje + tužka)</p>
+        </div>
+        <div class="example">
+          <strong>Věc už nezopakujeme → mine</strong>
+          <p><b>This pencil is mine.</b> — Tato tužka je moje.</p>
+          <p><b>mine</b> = moje (tužka)</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Komu?</th><th>Před věcí</th><th>Samostatně</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>já</td><td><strong>my</strong> book</td><td><strong>mine</strong></td></tr>
+            <tr><td>ty / vy</td><td><strong>your</strong> book</td><td><strong>yours</strong></td></tr>
+            <tr><td>on</td><td><strong>his</strong> book</td><td><strong>his</strong></td></tr>
+            <tr><td>ona</td><td><strong>her</strong> book</td><td><strong>hers</strong></td></tr>
+            <tr><td>my</td><td><strong>our</strong> book</td><td><strong>ours</strong></td></tr>
+            <tr><td>oni</td><td><strong>their</strong> book</td><td><strong>theirs</strong></td></tr>
+            <tr><td>ono / zvíře</td><td><strong>its</strong> toy</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small-note">Pozor: anglické <b>you / your / yours</b> znamená ty i vy — angličtina mezi nimi v tomto případě nerozlišuje. Říkáme <b>its toy</b>, ale samostatné „its“ se běžně nepoužívá. A nikdy neříkáme <b>mine book</b> — před věcí patří <b>my</b>.</p>
+    </section>
+
+    <section class="card" aria-labelledby="practice-title">
+      <div class="practice-heading">
+        <h2 id="practice-title">Vyber si cvičení! ⭐</h2>
+        <span class="score" id="score" aria-live="polite">Body: 0</span>
+      </div>
+      <div class="activity-tabs" role="group" aria-label="Druhy cvičení">
+        <button class="activity-tab" type="button" data-activity="quiz" aria-pressed="true">Kvíz</button>
+        <button class="activity-tab" type="button" data-activity="written" aria-pressed="false">Doplňování</button>
+        <button class="activity-tab" type="button" data-activity="memory" aria-pressed="false">Pexeso</button>
+      </div>
+      <div class="activity-panel" id="quiz-panel">
+        <span class="mode-label">Co chceš procvičit?</span>
+        <div class="modes" role="group" aria-label="Výběr procvičování">
+          <button class="mode" type="button" data-mode="all" aria-pressed="true">Obojí</button>
+          <button class="mode" type="button" data-mode="before" aria-pressed="false">Před věcí (my, your, his…)</button>
+          <button class="mode" type="button" data-mode="alone" aria-pressed="false">Samostatně (mine, yours, hers…)</button>
+        </div>
+        <div class="question-area" id="question-area" aria-live="polite"></div>
+      </div>
+      <div class="activity-panel" id="written-panel" hidden>
+        <p class="memory-info">Doplň správné slovo (your, yours, his, her, hers, our, ours, their, theirs, its, my, mine). Můžeš psát malými i velkými písmeny.</p>
+        <div class="question-area" id="written-area" aria-live="polite"></div>
+      </div>
+      <div class="activity-panel" id="memory-panel" hidden>
+        <span class="mode-label">Vyber si úroveň pexesa:</span>
+        <div class="modes" role="group" aria-label="Úroveň obtížnosti pexesa" style="margin-bottom: 14px;">
+          <button class="mode memory-level" type="button" data-pairs="4" aria-pressed="true">Lehká (4 dvojice)</button>
+          <button class="mode memory-level" type="button" data-pairs="6" aria-pressed="false">Střední (6 dvojic)</button>
+          <button class="mode memory-level" type="button" data-pairs="10" aria-pressed="false">Těžká (10 dvojic)</button>
+        </div>
+        <p class="memory-info">Otoč dvě kartičky a najdi anglickou frázi a její český překlad.</p>
+        <div class="question-area">
+          <p class="progress" id="memory-progress" aria-live="polite"></p>
+          <div class="memory-grid" id="memory-grid"></div>
+          <p class="feedback" id="memory-feedback" aria-live="polite"></p>
+          <button class="next" id="memory-restart" type="button" style="display:inline-block">Nová hra (jiné kartičky) ↻</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>Klidně si nejdřív znovu přečti pravidlo nahoře — při učení se chyby počítají! 💙</footer>
+  </main>
+
+  <script>
+    function shuffleArray(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    const questions = [
+      // YOUR / YOURS
+      { mode: "before", prompt: "You have a new pencil. Is this ___ pencil?", translation: "Máš novou tužku. Je to tvoje tužka?", answer: "your", options: ["yours", "your", "you", "mine"], why: "Před věcí pencil použijeme your." },
+      { mode: "alone", prompt: "This is your ruler. It is ___.", translation: "Je to tvoje pravítko.", answer: "yours", options: ["your", "yours", "you", "mine"], why: "Slovo ruler už je ve větě, proto použijeme samostatné yours." },
+      { mode: "before", prompt: "You have a funny toy. Is it ___ toy?", translation: "Máte legrační hračku. Je to vaše hračka?", answer: "your", options: ["your", "yours", "you", "their"], why: "Před věcí toy použijeme your (znamená tvoje i vaše)." },
+      { mode: "alone", prompt: "You have a funny toy. The toy is ___.", translation: "Hračka patří vám. Je vaše.", answer: "yours", options: ["your", "yours", "you", "ours"], why: "Toy už je ve větě, proto použijeme samostatné yours." },
+      { mode: "alone", prompt: "Here is a green jacket. Is it ___, Leo?", translation: "Tady je zelená bunda. Je tvoje, Leo?", answer: "yours", options: ["your", "yours", "you", "his"], why: "Bunda (jacket) už zazněla, proto použijeme samostatné yours." },
+
+      // HIS
+      { mode: "before", prompt: "Tom has a bike. It is ___ bike.", translation: "Tom má kolo. Je to jeho kolo.", answer: "his", options: ["he", "him", "his", "her"], why: "Před věcí bike použijeme his." },
+      { mode: "alone", prompt: "Jack has a red cap. The red cap is ___.", translation: "Červená čepice patří Jackovi.", answer: "his", options: ["he", "him", "his", "hers"], why: "Slovo cap už je ve větě, proto použijeme samostatné his." },
+      { mode: "before", prompt: "Sam has a football. It is ___ football.", translation: "Sam má fotbalový míč. Je to jeho míč.", answer: "his", options: ["he", "him", "his", "her"], why: "Před věcí football použijeme his." },
+      { mode: "alone", prompt: "Sam has a football. The football is ___.", translation: "Míč patří Samovi. Je jeho.", answer: "his", options: ["he", "him", "his", "hers"], why: "Football už je ve větě, proto použijeme samostatné his." },
+      { mode: "before", prompt: "Peter is reading ___ favourite comic.", translation: "Petr čte svůj (jeho) oblíbený komiks.", answer: "his", options: ["he", "him", "his", "hers"], why: "Před věcí comic použijeme his." },
+
+      // HER / HERS
+      { mode: "before", prompt: "Lucy has a brother. ___ brother is funny.", translation: "Lucy má bratra. Její bratr je legrační.", answer: "Her", options: ["She", "Her", "Hers", "His"], why: "Před věcí brother použijeme her." },
+      { mode: "alone", prompt: "Anna has a blue bag. The blue bag is ___.", translation: "Modrá taška patří Anně.", answer: "hers", options: ["her", "hers", "his", "she"], why: "Věc už známe (bag), proto použijeme samostatné hers." },
+      { mode: "before", prompt: "Ella has a pink hat. It is ___ hat.", translation: "Ella má růžový klobouk. Je to její klobouk.", answer: "her", options: ["she", "her", "hers", "his"], why: "Před věcí hat použijeme her." },
+      { mode: "alone", prompt: "Ella has a pink hat. The hat is ___.", translation: "Klobouk patří Elle. Je její.", answer: "hers", options: ["her", "hers", "she", "his"], why: "Hat už je ve větě, proto použijeme samostatné hers." },
+      { mode: "alone", prompt: "Mia forgot her umbrella. This red umbrella is ___.", translation: "Mia zapomněla deštník. Tento červený deštník je její.", answer: "hers", options: ["her", "hers", "she", "theirs"], why: "Umbrella už je ve větě, proto použijeme samostatné hers." },
+
+      // OUR / OURS
+      { mode: "before", prompt: "We love ___ school.", translation: "Máme rádi naši školu.", answer: "our", options: ["ours", "our", "us", "their"], why: "Před věcí school použijeme our." },
+      { mode: "alone", prompt: "We have a classroom. This classroom is ___.", translation: "Tato třída je naše.", answer: "ours", options: ["our", "ours", "us", "their"], why: "Slovo classroom už je ve větě, proto použijeme ours." },
+      { mode: "before", prompt: "We have a pet rabbit. It is ___ rabbit.", translation: "Máme domácího králíka. Je to náš králík.", answer: "our", options: ["ours", "our", "us", "their"], why: "Před věcí rabbit použijeme our." },
+      { mode: "alone", prompt: "We have a pet rabbit. The rabbit is ___.", translation: "Králík patří nám. Je náš.", answer: "ours", options: ["our", "ours", "us", "theirs"], why: "Rabbit už je ve větě, proto použijeme samostatné ours." },
+      { mode: "before", prompt: "My sister and I share ___ bedroom.", translation: "Moje sestra a já sdílíme náš pokoj.", answer: "our", options: ["ours", "our", "us", "my"], why: "Před věcí bedroom použijeme our." },
+
+      // THEIR / THEIRS
+      { mode: "before", prompt: "The children bring ___ books.", translation: "Děti si přinesou svoje (jejich) knihy.", answer: "their", options: ["they", "theirs", "their", "them"], why: "Před věcí books použijeme their." },
+      { mode: "alone", prompt: "They have a garden. The garden is ___.", translation: "Zahrada patří jim. Je jejich.", answer: "theirs", options: ["their", "theirs", "they", "them"], why: "Slovo garden už je ve větě, proto použijeme theirs." },
+      { mode: "before", prompt: "The girls have a kite. It is ___ kite.", translation: "Dívky mají draka. Je to jejich drak.", answer: "their", options: ["they", "them", "their", "theirs"], why: "Před věcí kite použijeme their." },
+      { mode: "alone", prompt: "The girls have a kite. The kite is ___.", translation: "Drak patří dívkám. Je jejich.", answer: "theirs", options: ["their", "they", "theirs", "them"], why: "Kite už je ve větě, proto použijeme samostatné theirs." },
+      { mode: "alone", prompt: "Look at that white house. The house is ___.", translation: "Podívej se na ten bílý dům. Ten dům je jejich.", answer: "theirs", options: ["their", "theirs", "they", "ours"], why: "House už je ve větě, proto použijeme samostatné theirs." },
+
+      // ITS
+      { mode: "before", prompt: "The dog is wagging ___ tail.", translation: "Pes vrtí svým (jeho) ocasem.", answer: "its", options: ["it", "its", "his", "hers"], why: "Pro zvíře/věc před podstatným jménem tail použijeme its." },
+      { mode: "before", prompt: "The cat is drinking ___ milk.", translation: "Kočka pije svoje (její) mléko.", answer: "its", options: ["it", "its", "her", "hers"], why: "Pro zvíře před věcí milk použijeme its." },
+
+      // MY / MINE (méně příkladů pro vyváženost)
+      { mode: "before", prompt: "This is ___ cat.", translation: "Tohle je moje kočka.", answer: "my", options: ["my", "mine", "her", "hers"], why: "Za slovem je cat, takže před věcí použijeme my." },
+      { mode: "alone", prompt: "I have a sandwich. This sandwich is ___.", translation: "Tento sendvič je můj.", answer: "mine", options: ["my", "mine", "me", "your"], why: "Slovo sandwich už je ve větě, proto použijeme mine." }
+    ];
+
+    const writtenQuestions = [
+      // YOUR / YOURS
+      { prompt: "Is this ___ pencil, Emma?", translation: "Je to tvoje tužka, Emmo?", answer: "your", hint: "Zájmeno stojí před věcí pencil (tvoje).", why: "Před pojmenovanou věcí použijeme your." },
+      { prompt: "This pencil belongs to you. It is ___.", translation: "Tužka patří tobě. Je tvoje.", answer: "yours", hint: "Věc pencil už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme yours." },
+      { prompt: "You have a green water bottle. Is it ___ water bottle?", translation: "Máte zelenou láhev na vodu. Je to vaše láhev?", answer: "your", hint: "Zájmeno stojí před věcí water bottle (vaše).", why: "Před pojmenovanou věcí použijeme your." },
+      { prompt: "You have a green water bottle. The water bottle is ___.", translation: "Zelená láhev na vodu patří vám. Je vaše.", answer: "yours", hint: "Věc water bottle už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme yours." },
+      { prompt: "Did you forget ___ keys on the table?", translation: "Zapomněl jsi svoje (tvoje) klíče na stole?", answer: "your", hint: "Zájmeno stojí přímo před podstatným jménem keys.", why: "Před věcí keys použijeme your." },
+      { prompt: "We found a phone. Is this phone ___?", translation: "Našli jsme telefon. Je tenhle telefon tvůj / váš?", answer: "yours", hint: "Slovo phone už je ve větě, zájmeno je na konci.", why: "Samostatně použijeme yours." },
+
+      // HIS
+      { prompt: "Tom has a bike. It is ___ bike.", translation: "Tom má kolo. Je to jeho kolo.", answer: "his", hint: "Zájmeno stojí před věcí bike (jeho).", why: "Před pojmenovanou věcí použijeme his." },
+      { prompt: "This bike belongs to Tom. It is ___.", translation: "Kolo patří Tomovi. Je jeho.", answer: "his", hint: "Věc bike už je ve větě, zájmeno stojí samostatně (jeho).", why: "Samostatně použijeme his (tvar je stejný jako před věcí)." },
+      { prompt: "David is doing ___ homework.", translation: "David si dělá svůj (jeho) domácí úkol.", answer: "his", hint: "Zájmeno stojí před slovem homework.", why: "Před věcí homework použijeme his." },
+      { prompt: "Lucas won a medal. The gold medal is ___.", translation: "Lukáš vyhrál medaili. Zlatá medaile je jeho.", answer: "his", hint: "Slovo medal už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme his." },
+
+      // HER / HERS
+      { prompt: "Anna has a cat. ___ cat is white.", translation: "Anna má kočku. Její kočka je bílá.", answer: "her", hint: "Zájmeno stojí před věcí cat (její).", why: "Před pojmenovanou věcí použijeme her." },
+      { prompt: "The cat belongs to Anna. It is ___.", translation: "Kočka patří Anně. Je její.", answer: "hers", hint: "Věc cat už je ve větě, zájmeno stojí samostatně (její).", why: "Samostatně použijeme hers." },
+      { prompt: "Sophie likes ___ new skateboard.", translation: "Sofie má ráda svůj (její) nový skateboard.", answer: "her", hint: "Zájmeno stojí před věcí skateboard.", why: "Před pojmenovanou věcí použijeme her." },
+      { prompt: "Clara bought a red dress. The red dress is ___.", translation: "Klára si koupila červené šaty. Červené šaty jsou její.", answer: "hers", hint: "Věc dress už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme hers." },
+
+      // OUR / OURS
+      { prompt: "We have a classroom. This is ___ classroom.", translation: "Máme třídu. Tohle je naše třída.", answer: "our", hint: "Zájmeno stojí před věcí classroom (naše).", why: "Před pojmenovanou věcí použijeme our." },
+      { prompt: "This classroom belongs to us. It is ___.", translation: "Tato třída patří nám. Je naše.", answer: "ours", hint: "Věc classroom už je ve větě, zájmeno stojí samostatně (naše).", why: "Samostatně použijeme ours." },
+      { prompt: "My brother and I have a game. This is ___ game.", translation: "Můj bratr a já máme hru. Tohle je naše hra.", answer: "our", hint: "Zájmeno stojí před věcí game.", why: "Před pojmenovanou věcí použijeme our." },
+      { prompt: "My brother and I have a game. The game is ___.", translation: "Hra patří mému bratrovi a mně. Je naše.", answer: "ours", hint: "Věc game už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme ours." },
+      { prompt: "We planted a tree. That big oak tree is ___.", translation: "Zasadili jsme strom. Ten velký dub je náš.", answer: "ours", hint: "Strom (tree) už je zmíněn, zájmeno stojí samostatně.", why: "Samostatně použijeme ours." },
+
+      // THEIR / THEIRS
+      { prompt: "Ben and Mia have a ball. It is ___ ball.", translation: "Ben a Mia mají míč. Je to jejich míč.", answer: "their", hint: "Zájmeno stojí před věcí ball (jejich).", why: "Před pojmenovanou věcí použijeme their." },
+      { prompt: "The ball belongs to Ben and Mia. It is ___.", translation: "Míč patří Benovi a Mie. Je jejich.", answer: "theirs", hint: "Věc ball už je ve větě, zájmeno stojí samostatně (jejich).", why: "Samostatně použijeme theirs." },
+      { prompt: "My friends have a tree house. It is ___ tree house.", translation: "Moji kamarádi mají domek na stromě. Je to jejich domek.", answer: "their", hint: "Zájmeno stojí před věcí tree house.", why: "Před pojmenovanou věcí použijeme their." },
+      { prompt: "This tree house belongs to my friends. It is ___.", translation: "Domek na stromě patří mým kamarádům. Je jejich.", answer: "theirs", hint: "Věc tree house už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme theirs." },
+      { prompt: "The twins love ___ grandparents.", translation: "Dvojčata milují svoje (jejich) prarodiče.", answer: "their", hint: "Zájmeno stojí před slovem grandparents.", why: "Před podstatným jménem použijeme their." },
+
+      // ITS
+      { prompt: "The robot has a light. ___ light is green.", translation: "Robot má světlo. Jeho světlo je zelené.", answer: "its", hint: "Zájmeno stojí před věcí light (pro věc/zvíře).", why: "Před pojmenovanou věcí použijeme its." },
+      { prompt: "The hamster has a wheel. ___ wheel is small.", translation: "Křeček má kolečko. Jeho kolečko je malé.", answer: "its", hint: "Zájmeno stojí před věcí wheel (pro zvíře).", why: "Před pojmenovanou věcí použijeme its." },
+      { prompt: "Look at that bird! ___ wings are blue.", translation: "Podívej se na toho ptáka! Jeho křídla jsou modrá.", answer: "its", hint: "Zájmeno stojí před slovem wings (pro zvíře).", why: "Před podstatným jménem použijeme its." },
+
+      // MY / MINE (jen pár příkladů pro doplnění)
+      { prompt: "I have a dog. This is ___ dog.", translation: "To je můj pes.", answer: "my", hint: "Zájmeno stojí přímo před věcí dog.", why: "Před pojmenovanou věcí použijeme my." },
+      { prompt: "This notebook belongs to me. It is ___.", translation: "Ten sešit je můj.", answer: "mine", hint: "Věc notebook už je ve větě, zájmeno stojí samostatně.", why: "Samostatně použijeme mine." }
+    ];
+
+    const memoryPairs = [
+      { english: "your book", czech: "tvoje / vaše kniha" },
+      { english: "This book is yours.", czech: "Tato kniha je tvoje / vaše." },
+      { english: "your toy", czech: "tvoje / vaše hračka" },
+      { english: "This toy is yours.", czech: "Tato hračka je tvoje / vaše." },
+      { english: "his bike", czech: "jeho kolo" },
+      { english: "The bike is his.", czech: "Kolo je jeho." },
+      { english: "his football", czech: "jeho fotbalový míč" },
+      { english: "The football is his.", czech: "Fotbalový míč je jeho." },
+      { english: "her bag", czech: "její taška" },
+      { english: "The bag is hers.", czech: "Taška je její." },
+      { english: "her hat", czech: "její klobouk" },
+      { english: "The hat is hers.", czech: "Klobouk je její." },
+      { english: "our school", czech: "naše škola" },
+      { english: "The school is ours.", czech: "Škola je naše." },
+      { english: "our classroom", czech: "naše třída" },
+      { english: "The classroom is ours.", czech: "Třída je naše." },
+      { english: "their books", czech: "jejich knihy" },
+      { english: "The books are theirs.", czech: "Knihy jsou jejich." },
+      { english: "their garden", czech: "jejich zahrada" },
+      { english: "The garden is theirs.", czech: "Zahrada je jejich." },
+      { english: "its tail", czech: "jeho ocas (zvířete)" },
+      { english: "my pencil", czech: "moje tužka" },
+      { english: "This pencil is mine.", czech: "Tato tužka je moje." }
+    ];
+
+    const questionArea = document.querySelector("#question-area");
+    const writtenArea = document.querySelector("#written-area");
+    const scoreElement = document.querySelector("#score");
+    const modeButtons = [...document.querySelectorAll(".mode:not(.memory-level)")];
+    const memoryLevelButtons = [...document.querySelectorAll(".memory-level")];
+    const activityButtons = [...document.querySelectorAll(".activity-tab")];
+    const activityPanels = {
+      quiz: document.querySelector("#quiz-panel"),
+      written: document.querySelector("#written-panel"),
+      memory: document.querySelector("#memory-panel")
+    };
+
+    let mode = "all";
+    let round = [];
+    let index = 0;
+    let score = 0;
+    let answered = false;
+
+    let writtenRound = [];
+    let writtenIndex = 0;
+    let writtenScore = 0;
+    let writtenAnswered = false;
+
+    let memoryStarted = false;
+    let memoryPairCount = 4;
+    let memoryCards = [];
+    let selectedMemoryCards = [];
+    let memoryLocked = false;
+    let memoryMatches = 0;
+    let memoryMoves = 0;
+
+    function startRound() {
+      const filtered = questions.filter(question => mode === "all" || question.mode === mode);
+      round = shuffleArray(filtered).slice(0, 12);
+      index = 0;
+      score = 0;
+      scoreElement.textContent = "Body: 0";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      const question = round[index];
+      questionArea.innerHTML = `
+        <p class="progress">Otázka ${index + 1} z ${round.length}</p>
+        <p class="prompt">${question.prompt}</p>
+        <p class="translation">${question.translation}</p>
+        <div class="answers" role="group" aria-label="Možnosti odpovědi">
+          ${question.options.map(option => `<button class="answer" type="button">${option}</button>`).join("")}
+        </div>
+        <p class="feedback" id="feedback" aria-live="assertive"></p>
+        <button class="next" type="button">${index === round.length - 1 ? "Zobrazit výsledek" : "Další otázka →"}</button>
+      `;
+      questionArea.querySelectorAll(".answer").forEach(button => {
+        button.addEventListener("click", () => checkAnswer(button, question));
+      });
+      questionArea.querySelector(".next").addEventListener("click", nextQuestion);
+    }
+
+    function checkAnswer(selected, question) {
+      if (answered) return;
+      answered = true;
+      const isCorrect = selected.textContent === question.answer;
+      if (isCorrect) score += 1;
+      scoreElement.textContent = `Body: ${score}`;
+
+      questionArea.querySelectorAll(".answer").forEach(button => {
+        button.disabled = true;
+        if (button.textContent === question.answer) button.classList.add("correct");
+      });
+      if (!isCorrect) selected.classList.add("incorrect");
+
+      const feedback = questionArea.querySelector("#feedback");
+      feedback.className = `feedback ${isCorrect ? "good" : "try-again"}`;
+      feedback.innerHTML = `${isCorrect ? "Správně! 🎉" : `Ještě ne. Správná odpověď je ${question.answer}.`}<span class="why">${question.why}</span>`;
+      questionArea.querySelector(".next").style.display = "inline-block";
+      questionArea.querySelector(".next").focus();
+    }
+
+    function nextQuestion() {
+      index += 1;
+      if (index < round.length) {
+        showQuestion();
+        questionArea.querySelector(".answer").focus();
+        return;
+      }
+
+      const message = score === round.length
+        ? "Skvěle! Tohle už umíš! 🏆"
+        : score >= round.length / 2
+          ? "Dobrá práce! Ještě pár příkladů a bude to. 💪"
+          : "Nevadí — zkus si znovu přečíst pravidlo a zahraj si ještě jednou. 💙";
+      questionArea.innerHTML = `
+        <div class="finish">
+          <p class="result">${score} z ${round.length} správně</p>
+          <p>${message}</p>
+          <button class="next" type="button" style="display:inline-block">Další kolo otázek ↻</button>
+        </div>
+      `;
+      questionArea.querySelector(".next").addEventListener("click", startRound);
+      questionArea.querySelector(".next").focus();
+    }
+
+    function showWrittenQuestion() {
+      writtenAnswered = false;
+      const question = writtenRound[writtenIndex];
+      writtenArea.innerHTML = `
+        <p class="progress">Otázka ${writtenIndex + 1} z ${writtenRound.length} · Body: ${writtenScore}</p>
+        <p class="prompt">${question.prompt}</p>
+        <p class="translation">${question.translation}</p>
+        <form class="written-form" id="written-form">
+          <label for="written-input"><strong>Anglické slovo:</strong></label>
+          <input class="text-answer" id="written-input" type="text" autocomplete="off" spellcheck="false" aria-label="Napiš anglické přivlastňovací zájmeno">
+          <button class="hint-button" id="hint-button" type="button" aria-expanded="false">Nápověda</button>
+          <button class="next" id="written-check" type="submit" style="display:inline-block">Zkontrolovat</button>
+        </form>
+        <p class="hint-text" id="written-hint" hidden>${question.hint}</p>
+        <p class="feedback" id="written-feedback" aria-live="assertive"></p>
+        <button class="next" id="written-next" type="button">${writtenIndex === writtenRound.length - 1 ? "Zobrazit výsledek" : "Další otázka →"}</button>
+      `;
+      writtenArea.querySelector("#written-form").addEventListener("submit", checkWrittenAnswer);
+      writtenArea.querySelector("#hint-button").addEventListener("click", event => {
+        const hint = writtenArea.querySelector("#written-hint");
+        hint.hidden = !hint.hidden;
+        event.currentTarget.setAttribute("aria-expanded", String(!hint.hidden));
+      });
+      writtenArea.querySelector("#written-next").addEventListener("click", nextWrittenQuestion);
+      writtenArea.querySelector("#written-input").focus();
+    }
+
+    function checkWrittenAnswer(event) {
+      event.preventDefault();
+      if (writtenAnswered) return;
+
+      const question = writtenRound[writtenIndex];
+      const value = writtenArea.querySelector("#written-input").value.trim().replace(/[.!?]+$/, "").toLowerCase();
+      const feedback = writtenArea.querySelector("#written-feedback");
+      if (value !== question.answer.toLowerCase()) {
+        feedback.className = "feedback try-again";
+        feedback.textContent = "Ještě ne. Zkus to znovu nebo použij nápovědu.";
+        return;
+      }
+
+      writtenAnswered = true;
+      writtenScore += 1;
+      writtenArea.querySelector("#written-input").disabled = true;
+      writtenArea.querySelector("#written-check").style.display = "none";
+      feedback.className = "feedback good";
+      feedback.innerHTML = `Správně! 🎉<span class="why">${question.why}</span>`;
+      writtenArea.querySelector(".progress").textContent = `Otázka ${writtenIndex + 1} z ${writtenRound.length} · Body: ${writtenScore}`;
+      const next = writtenArea.querySelector("#written-next");
+      next.style.display = "inline-block";
+      next.focus();
+    }
+
+    function nextWrittenQuestion() {
+      writtenIndex += 1;
+      if (writtenIndex < writtenRound.length) {
+        showWrittenQuestion();
+        return;
+      }
+
+      const message = writtenScore === writtenRound.length
+        ? "Výborně, zvládla jsi všechna zájmena! 🏆"
+        : writtenScore >= writtenRound.length / 2
+          ? "Dobrá práce! Zkus si ještě procvičit příklady, které byly těžké. 💪"
+          : "Nevadí — vrať se k pravidlu a zkus doplňování znovu. 💙";
+      writtenArea.innerHTML = `
+        <div class="finish">
+          <p class="result">${writtenScore} z ${writtenRound.length} správně</p>
+          <p>${message}</p>
+          <button class="next" id="written-restart" type="button" style="display:inline-block">Další sada příkladů ↻</button>
+        </div>
+      `;
+      writtenArea.querySelector("#written-restart").addEventListener("click", startWrittenRound);
+      writtenArea.querySelector("#written-restart").focus();
+    }
+
+    function startWrittenRound() {
+      writtenRound = shuffleArray(writtenQuestions).slice(0, 12);
+      writtenIndex = 0;
+      writtenScore = 0;
+      showWrittenQuestion();
+    }
+
+    function updateMemoryProgress() {
+      document.querySelector("#memory-progress").textContent =
+        `Nalezené dvojice: ${memoryMatches} z ${memoryPairCount} · Tahy: ${memoryMoves}`;
+    }
+
+    function startMemory() {
+      memoryStarted = true;
+      memoryMatches = 0;
+      memoryMoves = 0;
+      selectedMemoryCards = [];
+      memoryLocked = false;
+      const grid = document.querySelector("#memory-grid");
+      const feedback = document.querySelector("#memory-feedback");
+      feedback.textContent = "";
+      grid.replaceChildren();
+
+      const chosenPairs = shuffleArray(memoryPairs).slice(0, memoryPairCount);
+      const cards = shuffleArray(
+        chosenPairs.flatMap((pair, pairIndex) => [
+          { pairIndex, text: pair.english },
+          { pairIndex, text: pair.czech }
+        ])
+      );
+
+      memoryCards = cards.map(card => {
+        const button = document.createElement("button");
+        button.className = "memory-card is-hidden";
+        button.type = "button";
+        button.textContent = "?";
+        button.setAttribute("aria-label", "Skrytá kartička");
+        button.addEventListener("click", () => flipMemoryCard(button, card));
+        grid.append(button);
+        return { ...card, button, matched: false };
+      });
+      updateMemoryProgress();
+    }
+
+    function flipMemoryCard(button, card) {
+      if (memoryLocked || card.matched || selectedMemoryCards.some(selected => selected.card === card)) return;
+      button.textContent = card.text;
+      button.classList.remove("is-hidden");
+      button.setAttribute("aria-label", card.text);
+      selectedMemoryCards.push({ button, card });
+      if (selectedMemoryCards.length < 2) return;
+
+      memoryMoves += 1;
+      const [first, second] = selectedMemoryCards;
+      const feedback = document.querySelector("#memory-feedback");
+      if (first.card.pairIndex === second.card.pairIndex) {
+        first.card.matched = true;
+        second.card.matched = true;
+        first.button.classList.add("is-matched");
+        second.button.classList.add("is-matched");
+        first.button.disabled = true;
+        second.button.disabled = true;
+        memoryMatches += 1;
+        selectedMemoryCards = [];
+        feedback.className = "feedback good";
+        feedback.textContent = memoryMatches === memoryPairCount
+          ? "Hotovo! Máš nalezené všechny dvojice! 🏆"
+          : "Správná dvojice! Hledej dál. ✨";
+      } else {
+        memoryLocked = true;
+        feedback.className = "feedback try-again";
+        feedback.textContent = "To nejsou dvojice. Zkus si kartičky zapamatovat!";
+        window.setTimeout(() => {
+          first.button.textContent = "?";
+          second.button.textContent = "?";
+          first.button.classList.add("is-hidden");
+          second.button.classList.add("is-hidden");
+          first.button.setAttribute("aria-label", "Skrytá kartička");
+          second.button.setAttribute("aria-label", "Skrytá kartička");
+          selectedMemoryCards = [];
+          memoryLocked = false;
+        }, 900);
+      }
+      updateMemoryProgress();
+    }
+
+    function selectActivity(activity) {
+      activityButtons.forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.activity === activity));
+      });
+      Object.entries(activityPanels).forEach(([name, panel]) => {
+        panel.hidden = name !== activity;
+      });
+      scoreElement.hidden = activity !== "quiz";
+      if (activity === "memory" && !memoryStarted) startMemory();
+    }
+
+    modeButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        mode = button.dataset.mode;
+        modeButtons.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+        startRound();
+      });
+    });
+
+    memoryLevelButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        memoryPairCount = Number(button.dataset.pairs);
+        memoryLevelButtons.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+        startMemory();
+      });
+    });
+
+    activityButtons.forEach(button => {
+      button.addEventListener("click", () => selectActivity(button.dataset.activity));
+    });
+    document.querySelector("#memory-restart").addEventListener("click", startMemory);
+
+    startRound();
+    startWrittenRound();
+  </script>
+</body>
+</html>
