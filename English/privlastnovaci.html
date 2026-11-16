@@ -3,26 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f8ff">
+  <meta name="theme-color" content="#eef4ff">
   <title>Čí to je? | Anglická přivlastňovací zájmena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
-      --ink: #172554;
-      --muted: #52617b;
-      --blue: #3156c9;
-      --blue-dark: #2443a8;
-      --pale-blue: #edf2ff;
-      --green: #176b48;
-      --pale-green: #e8f7ef;
-      --red: #a83232;
-      --pale-red: #fff0ef;
-      --amber: #9a5b00;
-      --pale-amber: #fff7e6;
-      --line: #dce4f2;
-      --paper: #fff;
-      --background: #f5f8ff;
-      font-family: "Trebuchet MS", Arial, sans-serif;
+      --ink: #1e244b;
+      --muted: #58638a;
+      --primary: #4f6ef7;
+      --primary-dark: #3753d6;
+      --primary-light: #eef2ff;
+      --purple: #7c5dfa;
+      --purple-light: #f3efff;
+      --green: #14965b;
+      --green-dark: #0e7345;
+      --green-light: #e5f9ef;
+      --red: #e04646;
+      --red-dark: #b92d2d;
+      --red-light: #ffeded;
+      --amber: #d97706;
+      --amber-light: #fff6db;
+      --teal: #0ea5e9;
+      --teal-light: #e6f6fe;
+      --line: #dce3f8;
+      --paper: #ffffff;
+      --font-display: 'Fredoka', 'Trebuchet MS', sans-serif;
+      --font-body: 'Nunito', 'Trebuchet MS', sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -30,212 +39,567 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 28px 16px 48px;
+      padding: 24px 16px 56px;
       color: var(--ink);
-      background:
-        radial-gradient(ellipse at 9% 7%, #e8efff 0, transparent 30rem),
-        var(--background);
+      font-family: var(--font-body);
+      background-color: #f0f5ff;
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(124, 93, 250, 0.14) 0%, transparent 26rem),
+        radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.14) 0%, transparent 26rem),
+        radial-gradient(circle at 50% 85%, rgba(251, 191, 36, 0.12) 0%, transparent 32rem),
+        radial-gradient(#cbd6f6 1.5px, transparent 1.5px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 26px 26px;
     }
 
-    button { font: inherit; }
+    button, input { font-family: var(--font-body); }
 
-    .page { width: min(780px, 100%); margin: 0 auto; }
+    .page { width: min(820px, 100%); margin: 0 auto; position: relative; }
 
-    header { margin-bottom: 20px; text-align: center; }
+    /* Hlavička s hravým odznakem */
+    header {
+      margin-bottom: 22px;
+      text-align: center;
+      position: relative;
+    }
 
     .eyebrow {
-      margin: 0 0 8px;
-      color: var(--blue);
-      font-size: .82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 10px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4f6ef7, #7c5dfa);
+      color: #fff;
+      font-size: .85rem;
       font-weight: 800;
-      letter-spacing: .12em;
+      letter-spacing: .06em;
       text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.28);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(2rem, 7vw, 3rem);
-      letter-spacing: -.04em;
+      font-family: var(--font-display);
+      font-size: clamp(2.3rem, 7vw, 3.3rem);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -.01em;
+      text-shadow: 0 3px 0 rgba(255, 255, 255, 0.9);
     }
 
-    .subtitle { margin: 9px 0 0; color: var(--muted); font-size: 1.08rem; }
+    .title-mascot {
+      display: inline-block;
+      animation: floatBob 3s ease-in-out infinite;
+    }
 
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-6px) rotate(4deg); }
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1.12rem;
+      font-weight: 700;
+    }
+
+    /* Karty s 3D spodním okrajem */
     .card {
-      margin-top: 16px;
-      padding: clamp(18px, 5vw, 28px);
-      border: 1px solid var(--line);
-      border-radius: 22px;
+      margin-top: 20px;
+      padding: clamp(20px, 4.5vw, 30px);
+      border: 2px solid var(--line);
+      border-bottom-width: 6px;
+      border-radius: 28px;
       background: var(--paper);
-      box-shadow: 0 12px 34px rgb(34 58 112 / 8%);
+      box-shadow: 0 14px 32px rgba(30, 36, 75, 0.07);
     }
 
-    h2 { margin: 0 0 12px; font-size: 1.35rem; }
+    h2 {
+      margin: 0 0 12px;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
     p { line-height: 1.55; }
-    .rule { margin: 0 0 16px; color: var(--muted); }
+    .rule { margin: 0 0 16px; color: var(--muted); font-size: 1.04rem; }
+
+    /* Skládací tahák s pravidly */
+    .lesson-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      color: var(--ink);
+    }
+    .lesson-toggle-pill {
+      padding: 6px 13px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: .88rem;
+      font-weight: 800;
+      border: 2px solid #d4dfff;
+    }
 
     .examples {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin: 18px 0;
+      gap: 14px;
+      margin: 16px 0 20px;
     }
 
     .example {
-      padding: 15px;
-      border-radius: 15px;
-      background: var(--pale-blue);
+      padding: 16px 18px;
+      border-radius: 20px;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .example.ex-before {
+      background: linear-gradient(145deg, #eef4ff, #e3ecff);
+      border-color: #c7d7fe;
+    }
+    .example.ex-alone {
+      background: linear-gradient(145deg, #f5f0ff, #ece3ff);
+      border-color: #d8c8fe;
     }
 
-    .example strong { display: block; margin-bottom: 5px; font-size: 1.1rem; }
-    .example p { margin: 0; color: var(--muted); font-size: .95rem; }
+    .example strong {
+      display: block;
+      margin-bottom: 6px;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+    .example p { margin: 2px 0; color: var(--muted); font-size: .96rem; }
+    .example b { color: var(--primary-dark); }
+    .example.ex-alone b { color: #5b3cc4; }
 
-    .table-wrap { overflow-x: auto; }
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 2px solid var(--line);
+    }
     table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); }
-    th { color: var(--muted); font-size: .86rem; }
-    td strong { color: var(--blue-dark); }
-    .small-note { margin: 12px 0 0; color: var(--muted); font-size: .9rem; }
+    th, td { padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:nth-child(even) { background: #fafcff; }
+    th {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-family: var(--font-display);
+      font-size: .95rem;
+      letter-spacing: .02em;
+    }
+    td strong {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: #eef2ff;
+      color: var(--primary-dark);
+    }
+    td:nth-child(3) strong {
+      background: var(--purple-light);
+      color: #5b3cc4;
+    }
+    .small-note {
+      margin: 14px 0 0;
+      padding: 12px 15px;
+      border-radius: 15px;
+      background: var(--amber-light);
+      border: 2px solid #fde39c;
+      color: #784504;
+      font-size: .93rem;
+      font-weight: 700;
+    }
 
+    /* Herní HUD lišta */
     .practice-heading {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 16px;
     }
     .practice-heading h2 { margin: 0; }
-    .score {
+    .hud-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .score, .streak-badge, .stars-badge {
       flex: 0 0 auto;
-      padding: 7px 11px;
+      padding: 7px 14px;
       border-radius: 999px;
-      background: var(--pale-blue);
-      font-weight: 800;
+      font-weight: 900;
+      font-size: .94rem;
       font-variant-numeric: tabular-nums;
+      border: 2px solid transparent;
+    }
+    .score {
+      background: var(--primary-light);
+      border-color: #c8d6ff;
+      color: var(--primary-dark);
+    }
+    .streak-badge {
+      background: linear-gradient(135deg, #fff3cc, #ffe194);
+      border-color: #f6c453;
+      color: #9a4d00;
+      transition: transform .2s;
+    }
+    .streak-badge.pop { animation: badgePop .35s cubic-bezier(.2, 1.5, .4, 1); }
+    @keyframes badgePop {
+      0% { transform: scale(0.8); }
+      60% { transform: scale(1.16); }
+      100% { transform: scale(1); }
+    }
+    .stars-badge {
+      background: var(--green-light);
+      border-color: #a3e6c7;
+      color: var(--green-dark);
     }
 
-    .mode-label { display: block; margin-bottom: 8px; font-weight: 800; }
+    /* Barevné herní záložky (kartičky her) */
+    .activity-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      margin-bottom: 18px;
+    }
+    .activity-tab {
+      min-height: 52px;
+      padding: 8px 10px;
+      border: 2px solid var(--line);
+      border-bottom-width: 4px;
+      border-radius: 16px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: .92rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-align: center;
+      transition: transform .12s, border-color .15s, background .15s, box-shadow .15s;
+    }
+    .activity-tab .tab-icon { font-size: 1.25rem; line-height: 1.1; }
+    .activity-tab:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+      background: #f8faff;
+    }
+    .activity-tab:active { transform: translateY(1px); border-bottom-width: 2px; }
+    .activity-tab[aria-pressed="true"] {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, #eef3ff 0%, #dfe8ff 100%);
+      color: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.18);
+    }
+    .activity-tab.is-completed {
+      border-color: #6fd3a4;
+      background: #f3fcf7;
+    }
+    .activity-tab.is-completed[aria-pressed="true"] {
+      border-color: var(--green);
+      background: linear-gradient(180deg, #e5f9ef 0%, #cef3e1 100%);
+      color: var(--green-dark);
+    }
+
+    .activity-tab:focus-visible, .memory-card:focus-visible, .text-answer:focus-visible,
+    .hint-button:focus-visible, .word-chip:focus-visible, .bug-word:focus-visible,
+    .sorter-btn:focus-visible, .speak-btn:focus-visible, .answer:focus-visible,
+    .mode:focus-visible, .next:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+
+    .activity-panel[hidden] { display: none; }
+
+    .mode-label { display: block; margin-bottom: 8px; font-weight: 800; color: var(--ink); }
     .modes { display: flex; flex-wrap: wrap; gap: 8px; }
     .mode {
       min-height: 42px;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      color: var(--ink);
-      background: #fff;
-      cursor: pointer;
-    }
-    .mode[aria-pressed="true"] { border-color: var(--blue); color: var(--blue-dark); background: var(--pale-blue); font-weight: 800; }
-
-    .activity-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .activity-tab {
-      min-height: 44px;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      padding: 8px 14px;
+      border: 2px solid var(--line);
+      border-bottom-width: 4px;
+      border-radius: 14px;
       color: var(--ink);
       background: #fff;
       cursor: pointer;
       font-weight: 700;
-      font-size: .96rem;
+      transition: transform .1s, border-color .15s;
     }
-    .activity-tab[aria-pressed="true"] { border-color: var(--blue); color: var(--blue-dark); background: var(--pale-blue); }
-    .activity-tab:focus-visible, .memory-card:focus-visible, .text-answer:focus-visible, .hint-button:focus-visible, .word-chip:focus-visible, .bug-word:focus-visible, .sorter-btn:focus-visible { outline: 3px solid #f0ad37; outline-offset: 3px; }
-    .activity-panel[hidden] { display: none; }
+    .mode:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .mode[aria-pressed="true"] {
+      border-color: var(--purple);
+      color: #4c2eb8;
+      background: var(--purple-light);
+      font-weight: 800;
+    }
 
+    /* Herní aréna (vnitřní box pro otázky) */
     .question-area {
-      margin-top: 18px;
-      padding: 18px;
-      border-radius: 16px;
-      background: #f8faff;
+      margin-top: 16px;
+      padding: clamp(16px, 4vw, 24px);
+      border: 2px solid #dfe7fc;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #f8faff 0%, #f1f5ff 100%);
+      position: relative;
     }
-    .progress { margin: 0 0 7px; color: var(--muted); font-size: .9rem; font-weight: 700; }
-    .prompt { margin: 0 0 5px; font-size: 1.15rem; font-weight: 800; }
-    .translation { margin: 0 0 16px; color: var(--muted); }
-    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #dce4fa;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4f6ef7, #7c5dfa);
+      transition: width .3s ease;
+    }
+
+    .progress { margin: 0 0 8px; color: var(--muted); font-size: .9rem; font-weight: 800; }
+    .prompt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 6px;
+    }
+    .prompt {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .speak-btn {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 6px 12px;
+      border: 2px solid #c7d6fe;
+      border-bottom-width: 3px;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--primary-dark);
+      font-size: .88rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .1s, background .15s;
+    }
+    .speak-btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .speak-btn:active { transform: translateY(1px); }
+
+    .translation { margin: 0 0 18px; color: var(--muted); font-weight: 700; }
+
+    /* 3D tlačítka odpovědí */
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .answer {
-      min-height: 50px;
-      padding: 11px 14px;
-      border: 2px solid var(--line);
-      border-radius: 13px;
+      min-height: 54px;
+      padding: 12px 16px;
+      border: 2px solid #cfd9f7;
+      border-bottom-width: 5px;
+      border-radius: 16px;
       color: var(--ink);
       background: #fff;
       cursor: pointer;
-      font-size: 1.05rem;
-      font-weight: 800;
-      transition: border-color .15s, transform .15s, background .15s;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      transition: transform .12s, border-color .15s, background .15s;
     }
-    .answer:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--blue); }
-    .answer:focus-visible, .mode:focus-visible, .next:focus-visible { outline: 3px solid #f0ad37; outline-offset: 3px; }
+    .answer:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+      background: #f5f8ff;
+    }
+    .answer:active:not(:disabled) {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
     .answer:disabled { cursor: default; }
-    .answer.correct { border-color: var(--green); color: var(--green); background: var(--pale-green); }
-    .answer.incorrect { border-color: var(--red); color: var(--red); background: var(--pale-red); }
+    .answer.correct {
+      border-color: var(--green);
+      color: var(--green-dark);
+      background: var(--green-light);
+      animation: popCorrect .3s ease;
+    }
+    .answer.incorrect {
+      border-color: var(--red);
+      color: var(--red-dark);
+      background: var(--red-light);
+      animation: shakeWrong .32s ease;
+    }
 
-    .feedback { min-height: 30px; margin: 14px 0 0; font-weight: 700; }
-    .feedback.good { color: var(--green); }
-    .feedback.try-again { color: var(--red); }
-    .feedback .why { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; }
+    @keyframes popCorrect {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .feedback {
+      min-height: 30px;
+      margin: 16px 0 0;
+      font-weight: 800;
+      font-size: 1.02rem;
+    }
+    .feedback.good { color: var(--green-dark); }
+    .feedback.try-again { color: var(--red-dark); }
+    .feedback .why {
+      display: block;
+      margin-top: 5px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: .94rem;
+    }
+
     .next {
       display: none;
-      margin-top: 12px;
-      padding: 12px 18px;
+      margin-top: 14px;
+      padding: 13px 22px;
       border: 0;
-      border-radius: 12px;
+      border-bottom: 4px solid var(--primary-dark);
+      border-radius: 16px;
       color: #fff;
-      background: var(--blue);
+      background: linear-gradient(180deg, #5a78ff 0%, #4664eb 100%);
       cursor: pointer;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 1.06rem;
+      font-weight: 600;
+      box-shadow: 0 6px 14px rgba(79, 110, 247, 0.25);
+      transition: transform .12s, filter .15s;
     }
-    .next:hover { background: var(--blue-dark); }
-    .finish { text-align: center; }
-    .finish p { color: var(--muted); }
-    .finish .result { color: var(--ink); font-size: 1.45rem; font-weight: 900; }
+    .next:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .next:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+    .retry-mistakes-btn {
+      margin-top: 14px;
+      margin-left: 8px;
+      padding: 12px 18px;
+      border: 2px solid #f59e0b;
+      border-bottom-width: 4px;
+      border-radius: 16px;
+      color: #92400e;
+      background: var(--amber-light);
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .retry-mistakes-btn:hover { background: #ffecb8; }
+
+    .finish {
+      text-align: center;
+      padding: 10px 6px;
+    }
+    .finish .trophy-big {
+      font-size: 3.2rem;
+      line-height: 1;
+      margin-bottom: 8px;
+      animation: floatBob 2.4s ease-in-out infinite;
+    }
+    .finish p { color: var(--muted); font-weight: 700; }
+    .finish .result {
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin: 4px 0 8px;
+    }
 
     /* Doplňování & Přeměna */
-    .written-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin-top: 16px; }
+    .written-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
     .text-answer {
       flex: 1 1 200px;
       min-width: 0;
-      min-height: 50px;
-      padding: 10px 13px;
-      border: 2px solid var(--line);
-      border-radius: 12px;
+      min-height: 52px;
+      padding: 10px 15px;
+      border: 2px solid #c2cff5;
+      border-radius: 15px;
       color: var(--ink);
       background: #fff;
-      font: inherit;
-      font-size: 1.08rem;
+      font-size: 1.12rem;
+      font-weight: 800;
     }
-    .text-answer:disabled { background: #f0f3f8; }
+    .text-answer:disabled { background: #eef2fc; }
     .hint-button {
-      min-height: 46px;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      color: var(--blue-dark);
-      background: var(--pale-blue);
+      min-height: 48px;
+      padding: 9px 15px;
+      border: 2px solid #fbd38d;
+      border-bottom-width: 4px;
+      border-radius: 14px;
+      color: #92400e;
+      background: var(--amber-light);
       cursor: pointer;
+      font-weight: 800;
+    }
+    .hint-button:hover:not(:disabled) { background: #ffecb8; }
+    .hint-button:disabled { opacity: .45; cursor: default; }
+    .hint-text {
+      margin: 12px 0 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--amber-light);
+      color: #784504;
       font-weight: 700;
     }
-    .hint-text { margin: 12px 0 0; color: var(--muted); }
 
     /* Pexeso */
-    .memory-info { margin: 0 0 14px; color: var(--muted); }
-    .memory-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .memory-info { margin: 0 0 14px; color: var(--muted); font-weight: 700; }
+    .memory-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; }
     .memory-card {
-      min-height: 88px;
+      min-height: 92px;
       padding: 10px;
-      border: 2px solid var(--blue);
-      border-radius: 14px;
-      color: var(--blue-dark);
-      background: var(--pale-blue);
+      border: 2px solid #9eb5fa;
+      border-bottom-width: 5px;
+      border-radius: 18px;
+      color: var(--primary-dark);
+      background: #fff;
       cursor: pointer;
       font-size: 1rem;
       font-weight: 800;
       overflow-wrap: anywhere;
       transition: transform .15s, background .15s;
     }
-    .memory-card:hover:not(:disabled) { transform: translateY(-2px); }
-    .memory-card.is-hidden { color: #fff; background: var(--blue); font-size: 1.45rem; }
-    .memory-card.is-matched { border-color: var(--green); color: var(--green); background: var(--pale-green); cursor: default; }
+    .memory-card:hover:not(:disabled) { transform: translateY(-3px); }
+    .memory-card.is-hidden {
+      border-color: var(--primary-dark);
+      color: #fff;
+      background: linear-gradient(145deg, #5a78ff, #7c5dfa);
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+    }
+    .memory-card.is-matched {
+      border-color: var(--green);
+      color: var(--green-dark);
+      background: var(--green-light);
+      cursor: default;
+    }
 
     /* Třídička (rychlá hra) */
     .sorter-top {
@@ -248,222 +612,271 @@
     .sorter-card {
       margin: 12px 0 18px;
       padding: 26px 16px;
-      border: 2px solid var(--blue);
-      border-radius: 18px;
+      border: 3px solid var(--primary);
+      border-bottom-width: 7px;
+      border-radius: 22px;
       background: #fff;
       text-align: center;
-      font-size: clamp(1.45rem, 5vw, 2rem);
-      font-weight: 900;
+      font-family: var(--font-display);
+      font-size: clamp(1.55rem, 5vw, 2.15rem);
+      font-weight: 700;
       color: var(--ink);
-      box-shadow: 0 6px 18px rgb(49 86 201 / 10%);
+      box-shadow: 0 8px 20px rgba(79, 110, 247, 0.14);
       transition: transform .15s, border-color .15s, background .15s;
     }
-    .sorter-card.flash-good { border-color: var(--green); background: var(--pale-green); color: var(--green); }
-    .sorter-card.flash-bad { border-color: var(--red); background: var(--pale-red); color: var(--red); }
+    .sorter-card.flash-good { border-color: var(--green); background: var(--green-light); color: var(--green-dark); animation: popCorrect .3s ease; }
+    .sorter-card.flash-bad { border-color: var(--red); background: var(--red-light); color: var(--red-dark); animation: shakeWrong .32s ease; }
     .sorter-bins {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
     .sorter-btn {
-      min-height: 68px;
+      min-height: 74px;
       padding: 14px 12px;
-      border: 2px solid var(--line);
-      border-radius: 15px;
+      border: 2px solid #c2cff5;
+      border-bottom-width: 5px;
+      border-radius: 18px;
       background: #fff;
       color: var(--ink);
       cursor: pointer;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      font-weight: 600;
       transition: transform .12s, border-color .15s, background .15s;
     }
     .sorter-btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      border-color: var(--blue);
-      background: var(--pale-blue);
+      border-color: var(--primary);
+      background: var(--primary-light);
     }
     .sorter-btn small {
       display: block;
       margin-top: 4px;
-      font-weight: 400;
+      font-family: var(--font-body);
+      font-weight: 700;
       color: var(--muted);
-      font-size: .88rem;
+      font-size: .86rem;
     }
 
     /* Skládačka vět */
     .sentence-slot {
-      min-height: 62px;
-      padding: 10px 12px;
+      min-height: 66px;
+      padding: 12px 14px;
       margin: 14px 0;
-      border: 2px dashed #b9c8e8;
-      border-radius: 14px;
+      border: 2px dashed #9eb3ee;
+      border-radius: 18px;
       background: #fff;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
     }
-    .sentence-slot.is-correct { border-style: solid; border-color: var(--green); background: var(--pale-green); }
-    .sentence-slot.is-wrong { border-style: solid; border-color: var(--red); background: var(--pale-red); }
+    .sentence-slot.is-correct { border-style: solid; border-color: var(--green); background: var(--green-light); }
+    .sentence-slot.is-wrong { border-style: solid; border-color: var(--red); background: var(--red-light); animation: shakeWrong .32s ease; }
     .word-bank {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 9px;
+      margin-bottom: 14px;
     }
     .word-chip {
-      min-height: 42px;
-      padding: 8px 14px;
-      border: 2px solid var(--blue);
-      border-radius: 11px;
-      background: var(--pale-blue);
-      color: var(--blue-dark);
+      min-height: 44px;
+      padding: 8px 15px;
+      border: 2px solid #9eb5fa;
+      border-bottom-width: 4px;
+      border-radius: 14px;
+      background: #fff;
+      color: var(--primary-dark);
       font-weight: 800;
-      font-size: 1.02rem;
+      font-size: 1.04rem;
       cursor: pointer;
       transition: transform .12s, opacity .15s;
     }
-    .word-chip:hover:not(:disabled) { transform: translateY(-1px); }
-    .word-chip.in-slot { background: #fff; color: var(--ink); border-color: var(--line); }
-    .word-chip:disabled { opacity: .35; cursor: default; }
+    .word-chip:hover:not(:disabled) { transform: translateY(-2px); background: var(--primary-light); }
+    .word-chip.in-slot { background: var(--purple-light); color: #4c2eb8; border-color: #c7b6fb; }
+    .word-chip:disabled { opacity: .3; cursor: default; }
     .scramble-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 
     /* Lovec chyb */
     .bug-sentence {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 9px;
       margin: 16px 0;
-      padding: 14px;
-      border-radius: 14px;
+      padding: 16px;
+      border-radius: 18px;
       background: #fff;
-      border: 1px solid var(--line);
+      border: 2px solid #d4dffa;
     }
     .bug-word {
-      padding: 8px 12px;
-      border: 2px solid transparent;
-      border-radius: 10px;
-      background: var(--pale-blue);
+      padding: 9px 14px;
+      border: 2px solid #d4dffa;
+      border-bottom-width: 4px;
+      border-radius: 13px;
+      background: var(--primary-light);
       color: var(--ink);
       font-size: 1.12rem;
       font-weight: 800;
       cursor: pointer;
-      transition: background .15s, border-color .15s;
+      transition: transform .1s, background .15s, border-color .15s;
     }
-    .bug-word:hover:not(:disabled) { border-color: var(--blue); }
-    .bug-word.selected-bug { border-color: var(--amber); background: var(--pale-amber); color: var(--amber); }
-    .bug-word.wrong-pick { border-color: var(--red); background: var(--pale-red); color: var(--red); }
-    .bug-word.fixed-word { border-color: var(--green); background: var(--pale-green); color: var(--green); }
+    .bug-word:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-1px); }
+    .bug-word.selected-bug { border-color: #f59e0b; background: var(--amber-light); color: #92400e; }
+    .bug-word.wrong-pick { border-color: var(--red); background: var(--red-light); color: var(--red-dark); animation: shakeWrong .3s ease; }
+    .bug-word.fixed-word { border-color: var(--green); background: var(--green-light); color: var(--green-dark); animation: popCorrect .3s ease; }
     .bug-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 
     /* Přeměna věty */
     .transform-source {
-      padding: 12px 15px;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--blue);
-      border-radius: 10px;
-      background: var(--pale-blue);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border: 2px solid #c7d6fe;
+      border-left-width: 6px;
+      border-radius: 16px;
+      background: #fff;
     }
-    .transform-source small { display: block; color: var(--muted); margin-top: 3px; }
+    .transform-source strong { font-size: 1.12rem; color: var(--ink); }
+    .transform-source small { display: block; color: var(--muted); margin-top: 3px; font-weight: 700; }
 
     /* Rodina (Family test prep) */
     .family-card {
-      padding: 14px 16px;
-      margin-bottom: 14px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      border: 2px solid #d4dffa;
+      border-radius: 20px;
       background: #fff;
     }
     .family-card h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      color: var(--blue-dark);
+      margin: 0 0 10px;
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      color: var(--primary-dark);
     }
     .family-badges {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      font-size: .92rem;
+      gap: 9px;
+      font-size: .94rem;
     }
     .family-badge {
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: var(--pale-blue);
+      padding: 9px 12px;
+      border-radius: 14px;
+      border: 1.5px solid #dce4fa;
+      background: #f6f8ff;
       color: var(--ink);
     }
-    .family-badge strong { display: block; font-size: .95rem; }
-    .family-badge span { color: var(--muted); font-size: .86rem; }
+    .family-badge strong { display: block; font-size: .98rem; }
+    .family-badge span { color: var(--muted); font-size: .86rem; font-weight: 700; }
 
-    footer { padding: 18px 6px 0; color: var(--muted); font-size: .86rem; text-align: center; }
+    /* Konfety při úspěchu */
+    .confetti-piece {
+      position: fixed;
+      top: -12px;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall 1.6s ease-out forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(85vh) rotate(540deg); opacity: 0; }
+    }
 
-    @media (max-width: 560px) {
-      body { padding: 20px 12px 32px; }
+    footer {
+      padding: 22px 6px 0;
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      .activity-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 18px 12px 32px; }
       .examples, .family-badges { grid-template-columns: 1fr; }
       .answers { grid-template-columns: 1fr; }
       .sorter-bins { grid-template-columns: 1fr; }
       .memory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .memory-card { min-height: 76px; padding: 7px; font-size: .92rem; }
       .practice-heading { align-items: flex-start; }
-      th, td { padding: 9px 6px; }
+      th, td { padding: 9px 8px; }
+      .retry-mistakes-btn { margin-left: 0; }
     }
   </style>
 </head>
 <body>
   <main class="page">
     <header>
-      <p class="eyebrow">Angličtina · 5.A</p>
-      <h1>Čí to je? 🎒</h1>
-      <p class="subtitle">Nauč se říct, komu co patří.</p>
+      <p class="eyebrow">✨ Angličtina · 5.A ✨</p>
+      <h1>Čí to je? <span class="title-mascot">🎒</span></h1>
+      <p class="subtitle">Nauč se říct, komu co patří — hravě a bez stresu!</p>
     </header>
 
     <section class="card" aria-labelledby="lesson-title">
-      <h2 id="lesson-title">Dvě jednoduchá pravidla</h2>
-      <p class="rule">Nejdřív se zeptej: <strong>Je za slovem pojmenovaná věc?</strong></p>
-      <div class="examples">
-        <div class="example">
-          <strong>Věc je hned za zájmenem → my</strong>
-          <p><b>This is my pencil.</b> — To je moje tužka.</p>
-          <p><b>my + pencil</b> (moje + tužka)</p>
+      <button class="lesson-toggle" id="lesson-toggle" type="button" aria-expanded="true" aria-controls="lesson-body">
+        <h2 id="lesson-title" style="margin:0">📘 Tahák: Dvě jednoduchá pravidla</h2>
+        <span class="lesson-toggle-pill" id="lesson-toggle-text">Skrýt tahák ▲</span>
+      </button>
+
+      <div id="lesson-body" style="margin-top: 14px;">
+        <p class="rule">Nejdřív se zeptej: <strong>Je za slovem pojmenovaná věc?</strong></p>
+        <div class="examples">
+          <div class="example ex-before">
+            <strong>1️⃣ Věc je hned za zájmenem → my</strong>
+            <p><b>This is my pencil.</b> — To je moje tužka.</p>
+            <p><b>my + pencil</b> (moje + tužka)</p>
+          </div>
+          <div class="example ex-alone">
+            <strong>2️⃣ Věc už nezopakujeme → mine</strong>
+            <p><b>This pencil is mine.</b> — Tato tužka je moje.</p>
+            <p><b>mine</b> = moje (tužka)</p>
+          </div>
         </div>
-        <div class="example">
-          <strong>Věc už nezopakujeme → mine</strong>
-          <p><b>This pencil is mine.</b> — Tato tužka je moje.</p>
-          <p><b>mine</b> = moje (tužka)</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Komu?</th><th>Před věcí</th><th>Samostatně</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>já</td><td><strong>my</strong> book</td><td><strong>mine</strong></td></tr>
+              <tr><td>ty / vy</td><td><strong>your</strong> book</td><td><strong>yours</strong></td></tr>
+              <tr><td>on</td><td><strong>his</strong> book</td><td><strong>his</strong></td></tr>
+              <tr><td>ona</td><td><strong>her</strong> book</td><td><strong>hers</strong></td></tr>
+              <tr><td>my</td><td><strong>our</strong> book</td><td><strong>ours</strong></td></tr>
+              <tr><td>oni</td><td><strong>their</strong> book</td><td><strong>theirs</strong></td></tr>
+              <tr><td>ono / zvíře</td><td><strong>its</strong> toy</td><td>—</td></tr>
+            </tbody>
+          </table>
         </div>
+        <p class="small-note">💡 Pozor: anglické <b>you / your / yours</b> znamená ty i vy. Říkáme <b>its toy</b>, ale samostatné „its“ se nepoužívá. A nikdy neříkáme <b>mine book</b> — před věcí patří <b>my</b>!</p>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Komu?</th><th>Před věcí</th><th>Samostatně</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>já</td><td><strong>my</strong> book</td><td><strong>mine</strong></td></tr>
-            <tr><td>ty / vy</td><td><strong>your</strong> book</td><td><strong>yours</strong></td></tr>
-            <tr><td>on</td><td><strong>his</strong> book</td><td><strong>his</strong></td></tr>
-            <tr><td>ona</td><td><strong>her</strong> book</td><td><strong>hers</strong></td></tr>
-            <tr><td>my</td><td><strong>our</strong> book</td><td><strong>ours</strong></td></tr>
-            <tr><td>oni</td><td><strong>their</strong> book</td><td><strong>theirs</strong></td></tr>
-            <tr><td>ono / zvíře</td><td><strong>its</strong> toy</td><td>—</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="small-note">Pozor: anglické <b>you / your / yours</b> znamená ty i vy — angličtina mezi nimi v tomto případě nerozlišuje. Říkáme <b>its toy</b>, ale samostatné „its“ se běžně nepoužívá. A nikdy neříkáme <b>mine book</b> — před věcí patří <b>my</b>.</p>
     </section>
 
     <section class="card" aria-labelledby="practice-title">
       <div class="practice-heading">
-        <h2 id="practice-title">Vyber si cvičení! ⭐</h2>
-        <span class="score" id="score" aria-live="polite">Body: 0</span>
+        <h2 id="practice-title">🎮 Herní zóna</h2>
+        <div class="hud-badges">
+          <span class="streak-badge" id="streak-badge" aria-live="polite" hidden>🔥 0 v řadě</span>
+          <span class="stars-badge" id="stars-badge" aria-live="polite">⭐ 0 / 8</span>
+          <span class="score" id="score" aria-live="polite">Body: 0</span>
+        </div>
       </div>
 
       <div class="activity-tabs" role="group" aria-label="Druhy cvičení">
-        <button class="activity-tab" type="button" data-activity="quiz" aria-pressed="true">Kvíz</button>
-        <button class="activity-tab" type="button" data-activity="written" aria-pressed="false">Doplňování</button>
-        <button class="activity-tab" type="button" data-activity="memory" aria-pressed="false">Pexeso</button>
-        <button class="activity-tab" type="button" data-activity="sorter" aria-pressed="false">Třídička ⚡</button>
-        <button class="activity-tab" type="button" data-activity="scramble" aria-pressed="false">Skládačka 🧩</button>
-        <button class="activity-tab" type="button" data-activity="bug" aria-pressed="false">Lovec chyb 🔍</button>
-        <button class="activity-tab" type="button" data-activity="transform" aria-pressed="false">Přeměň větu 🔄</button>
-        <button class="activity-tab" type="button" data-activity="family" aria-pressed="false">Rodina (Test) 👨‍👩‍👧‍👦</button>
+        <button class="activity-tab" type="button" data-activity="quiz" aria-pressed="true"><span class="tab-icon">🎯</span><span>Kvíz</span></button>
+        <button class="activity-tab" type="button" data-activity="written" aria-pressed="false"><span class="tab-icon">✏️</span><span>Doplňování</span></button>
+        <button class="activity-tab" type="button" data-activity="memory" aria-pressed="false"><span class="tab-icon">🃏</span><span>Pexeso</span></button>
+        <button class="activity-tab" type="button" data-activity="sorter" aria-pressed="false"><span class="tab-icon">⚡</span><span>Třídička</span></button>
+        <button class="activity-tab" type="button" data-activity="scramble" aria-pressed="false"><span class="tab-icon">🧩</span><span>Skládačka</span></button>
+        <button class="activity-tab" type="button" data-activity="bug" aria-pressed="false"><span class="tab-icon">🔍</span><span>Lovec chyb</span></button>
+        <button class="activity-tab" type="button" data-activity="transform" aria-pressed="false"><span class="tab-icon">🔄</span><span>Přeměň větu</span></button>
+        <button class="activity-tab" type="button" data-activity="family" aria-pressed="false"><span class="tab-icon">👨‍👩‍👧‍👦</span><span>Rodina (Test)</span></button>
       </div>
 
       <!-- 1. KVÍZ -->
@@ -479,7 +892,7 @@
 
       <!-- 2. DOPLŇOVÁNÍ -->
       <div class="activity-panel" id="written-panel" hidden>
-        <p class="memory-info">Doplň správné slovo (your, yours, his, her, hers, our, ours, their, theirs, its, my, mine). Můžeš psát malými i velkými písmeny.</p>
+        <p class="memory-info">Doplň správné slovo (my, mine, your, yours, his, her, hers, our, ours, their, theirs, its). Můžeš psát malými i velkými písmeny.</p>
         <div class="question-area" id="written-area" aria-live="polite"></div>
       </div>
 
@@ -528,7 +941,7 @@
       <div class="activity-panel" id="family-panel" hidden>
         <p class="memory-info">Trénink na test z tématu <strong>My Family</strong>! Pozorně čti, o kom je řeč a zda za mezerou následuje člen rodiny / věc, nebo zájmeno stojí samostatně.</p>
         <div class="family-card" aria-label="Nápověda k rodině">
-          <h3>Seznam se s rodinou Greenových (The Green Family):</h3>
+          <h3>🌳 Seznam se s rodinou Greenových (The Green Family):</h3>
           <div class="family-badges">
             <div class="family-badge"><strong>👵 Grandpa & Grandma</strong><span>prarodiče (grandparents)</span></div>
             <div class="family-badge"><strong>👩 Anna & 👨 Tom</strong><span>rodiče (mum & dad / parents)</span></div>
@@ -540,7 +953,7 @@
       </div>
     </section>
 
-    <footer>Klidně si nejdřív znovu přečti pravidlo nahoře — při učení se chyby počítají! 💙</footer>
+    <footer>Klidně si nejdřív otevři tahák nahoře — při tréninku se chyby počítají! 💙</footer>
   </main>
 
   <script>
@@ -553,47 +966,112 @@
       return copy;
     }
 
+    function launchConfetti() {
+      const colors = ["#4f6ef7", "#7c5dfa", "#14965b", "#f59e0b", "#0ea5e9", "#ec4899"];
+      for (let i = 0; i < 28; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * 0.35}s`;
+        piece.style.width = `${7 + Math.random() * 6}px`;
+        piece.style.height = `${7 + Math.random() * 6}px`;
+        document.body.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 2000);
+      }
+    }
+
+    function renderProgressBar(current, total) {
+      const pct = Math.min(100, Math.round(((current + 1) / total) * 100));
+      return `<div class="progress-bar-wrap" aria-hidden="true"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
+    }
+
+    /* ================= SKLÁDACÍ TAHÁK ================= */
+    const lessonToggle = document.querySelector("#lesson-toggle");
+    const lessonBody = document.querySelector("#lesson-body");
+    const lessonToggleText = document.querySelector("#lesson-toggle-text");
+    lessonToggle.addEventListener("click", () => {
+      const expanded = lessonToggle.getAttribute("aria-expanded") === "true";
+      lessonToggle.setAttribute("aria-expanded", String(!expanded));
+      lessonBody.hidden = expanded;
+      lessonToggleText.textContent = expanded ? "Ukázat tahák ▼" : "Skrýt tahák ▲";
+    });
+
+    /* ================= GAMIFIKACE: ZVUK, STREAK, HVĚZDIČKY ================= */
+    let streak = 0;
+    const completedActivities = new Set();
+
+    function speakEnglish(text) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const cleaned = text.replace(/___/g, "...");
+      const utterance = new SpeechSynthesisUtterance(cleaned);
+      utterance.lang = "en-GB";
+      utterance.rate = 0.92;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function recordStreak(isCorrect) {
+      const badge = document.querySelector("#streak-badge");
+      if (isCorrect) {
+        streak += 1;
+        if (streak >= 3) {
+          badge.hidden = false;
+          badge.textContent = `🔥 ${streak} v řadě!`;
+          badge.classList.remove("pop");
+          void badge.offsetWidth;
+          badge.classList.add("pop");
+        }
+      } else {
+        streak = 0;
+        badge.hidden = true;
+      }
+    }
+
+    function markActivityCompleted(activityName) {
+      launchConfetti();
+      if (completedActivities.has(activityName)) return;
+      completedActivities.add(activityName);
+      const tab = document.querySelector(`.activity-tab[data-activity="${activityName}"]`);
+      if (tab) {
+        const labelSpan = tab.querySelector("span:last-child");
+        if (labelSpan && !labelSpan.textContent.includes("⭐")) {
+          labelSpan.textContent = `${labelSpan.textContent} ⭐`;
+        }
+        tab.classList.add("is-completed");
+      }
+      document.querySelector("#stars-badge").textContent = `⭐ ${completedActivities.size} / 8`;
+    }
+
+    /* ================= DATABÁZE OTÁZEK ================= */
     const questions = [
-      // YOUR / YOURS
       { mode: "before", prompt: "You have a new pencil. Is this ___ pencil?", translation: "Máš novou tužku. Je to tvoje tužka?", answer: "your", options: ["yours", "your", "you", "mine"], why: "Před věcí pencil použijeme your." },
       { mode: "alone", prompt: "This is your ruler. It is ___.", translation: "Je to tvoje pravítko.", answer: "yours", options: ["your", "yours", "you", "mine"], why: "Slovo ruler už je ve větě, proto použijeme samostatné yours." },
       { mode: "before", prompt: "You have a funny toy. Is it ___ toy?", translation: "Máte legrační hračku. Je to vaše hračka?", answer: "your", options: ["your", "yours", "you", "their"], why: "Před věcí toy použijeme your (znamená tvoje i vaše)." },
       { mode: "alone", prompt: "You have a funny toy. The toy is ___.", translation: "Hračka patří vám. Je vaše.", answer: "yours", options: ["your", "yours", "you", "ours"], why: "Toy už je ve větě, proto použijeme samostatné yours." },
       { mode: "alone", prompt: "Here is a green jacket. Is it ___, Leo?", translation: "Tady je zelená bunda. Je tvoje, Leo?", answer: "yours", options: ["your", "yours", "you", "his"], why: "Bunda (jacket) už zazněla, proto použijeme samostatné yours." },
-
-      // HIS
       { mode: "before", prompt: "Tom has a bike. It is ___ bike.", translation: "Tom má kolo. Je to jeho kolo.", answer: "his", options: ["he", "him", "his", "her"], why: "Před věcí bike použijeme his." },
       { mode: "alone", prompt: "Jack has a red cap. The red cap is ___.", translation: "Červená čepice patří Jackovi.", answer: "his", options: ["he", "him", "his", "hers"], why: "Slovo cap už je ve větě, proto použijeme samostatné his." },
       { mode: "before", prompt: "Sam has a football. It is ___ football.", translation: "Sam má fotbalový míč. Je to jeho míč.", answer: "his", options: ["he", "him", "his", "her"], why: "Před věcí football použijeme his." },
       { mode: "alone", prompt: "Sam has a football. The football is ___.", translation: "Míč patří Samovi. Je jeho.", answer: "his", options: ["he", "him", "his", "hers"], why: "Football už je ve větě, proto použijeme samostatné his." },
       { mode: "before", prompt: "Peter is reading ___ favourite comic.", translation: "Petr čte svůj (jeho) oblíbený komiks.", answer: "his", options: ["he", "him", "his", "hers"], why: "Před věcí comic použijeme his." },
-
-      // HER / HERS
       { mode: "before", prompt: "Lucy has a brother. ___ brother is funny.", translation: "Lucy má bratra. Její bratr je legrační.", answer: "Her", options: ["She", "Her", "Hers", "His"], why: "Před věcí brother použijeme her." },
       { mode: "alone", prompt: "Anna has a blue bag. The blue bag is ___.", translation: "Modrá taška patří Anně.", answer: "hers", options: ["her", "hers", "his", "she"], why: "Věc už známe (bag), proto použijeme samostatné hers." },
       { mode: "before", prompt: "Ella has a pink hat. It is ___ hat.", translation: "Ella má růžový klobouk. Je to její klobouk.", answer: "her", options: ["she", "her", "hers", "his"], why: "Před věcí hat použijeme her." },
       { mode: "alone", prompt: "Ella has a pink hat. The hat is ___.", translation: "Klobouk patří Elle. Je její.", answer: "hers", options: ["her", "hers", "she", "his"], why: "Hat už je ve větě, proto použijeme samostatné hers." },
       { mode: "alone", prompt: "Mia forgot her umbrella. This red umbrella is ___.", translation: "Mia zapomněla deštník. Tento červený deštník je její.", answer: "hers", options: ["her", "hers", "she", "theirs"], why: "Umbrella už je ve větě, proto použijeme samostatné hers." },
-
-      // OUR / OURS
       { mode: "before", prompt: "We love ___ school.", translation: "Máme rádi naši školu.", answer: "our", options: ["ours", "our", "us", "their"], why: "Před věcí school použijeme our." },
       { mode: "alone", prompt: "We have a classroom. This classroom is ___.", translation: "Tato třída je naše.", answer: "ours", options: ["our", "ours", "us", "their"], why: "Slovo classroom už je ve větě, proto použijeme ours." },
       { mode: "before", prompt: "We have a pet rabbit. It is ___ rabbit.", translation: "Máme domácího králíka. Je to náš králík.", answer: "our", options: ["ours", "our", "us", "their"], why: "Před věcí rabbit použijeme our." },
       { mode: "alone", prompt: "We have a pet rabbit. The rabbit is ___.", translation: "Králík patří nám. Je náš.", answer: "ours", options: ["our", "ours", "us", "theirs"], why: "Rabbit už je ve větě, proto použijeme samostatné ours." },
       { mode: "before", prompt: "My sister and I share ___ bedroom.", translation: "Moje sestra a já sdílíme náš pokoj.", answer: "our", options: ["ours", "our", "us", "my"], why: "Před věcí bedroom použijeme our." },
-
-      // THEIR / THEIRS
       { mode: "before", prompt: "The children bring ___ books.", translation: "Děti si přinesou svoje (jejich) knihy.", answer: "their", options: ["they", "theirs", "their", "them"], why: "Před věcí books použijeme their." },
       { mode: "alone", prompt: "They have a garden. The garden is ___.", translation: "Zahrada patří jim. Je jejich.", answer: "theirs", options: ["their", "theirs", "they", "them"], why: "Slovo garden už je ve větě, proto použijeme theirs." },
       { mode: "before", prompt: "The girls have a kite. It is ___ kite.", translation: "Dívky mají draka. Je to jejich drak.", answer: "their", options: ["they", "them", "their", "theirs"], why: "Před věcí kite použijeme their." },
       { mode: "alone", prompt: "The girls have a kite. The kite is ___.", translation: "Drak patří dívkám. Je jejich.", answer: "theirs", options: ["their", "they", "theirs", "them"], why: "Kite už je ve větě, proto použijeme samostatné theirs." },
       { mode: "alone", prompt: "Look at that white house. The house is ___.", translation: "Podívej se na ten bílý dům. Ten dům je jejich.", answer: "theirs", options: ["their", "theirs", "they", "ours"], why: "House už je ve větě, proto použijeme samostatné theirs." },
-
-      // ITS
       { mode: "before", prompt: "The dog is wagging ___ tail.", translation: "Pes vrtí svým (jeho) ocasem.", answer: "its", options: ["it", "its", "his", "hers"], why: "Pro zvíře/věc před podstatným jménem tail použijeme its." },
       { mode: "before", prompt: "The cat is drinking ___ milk.", translation: "Kočka pije svoje (její) mléko.", answer: "its", options: ["it", "its", "her", "hers"], why: "Pro zvíře před věcí milk použijeme its." },
-
-      // MY / MINE
       { mode: "before", prompt: "This is ___ cat.", translation: "Tohle je moje kočka.", answer: "my", options: ["my", "mine", "her", "hers"], why: "Za slovem je cat, takže před věcí použijeme my." },
       { mode: "alone", prompt: "I have a sandwich. This sandwich is ___.", translation: "Tento sendvič je můj.", answer: "mine", options: ["my", "mine", "me", "your"], why: "Slovo sandwich už je ve větě, proto použijeme mine." }
     ];
@@ -721,7 +1199,6 @@
       { source: "Is that jacket yours?", sourceCs: "Je tamta bunda tvoje?", targetPrompt: "Is that ___ jacket?", answer: "your", hint: "Zájmeno teď stojí před věcí jacket.", why: "Před věcí jacket použijeme your." }
     ];
 
-    // DATA PRO TÉMA RODINA (FAMILY TEST)
     const familyQuestions = [
       { prompt: "Anna is Lucy's mum. Lucy is ___ daughter.", translation: "Anna je Lucina maminka. Lucy je její dcera.", answer: "her", options: ["her", "hers", "she", "his"], why: "Anna je žena (ona) a za mezerou je člen rodiny (daughter), proto použijeme her." },
       { prompt: "Tom is Ben's dad. Ben is ___ son.", translation: "Tom je Benův tatínek. Ben je jeho syn.", answer: "his", options: ["his", "he", "him", "her"], why: "Tom je muž (on) a za mezerou stojí slovo son, proto použijeme his." },
@@ -772,12 +1249,15 @@
     let index = 0;
     let score = 0;
     let answered = false;
+    let quizMistakes = [];
 
     // Stav: Doplňování
     let writtenRound = [];
     let writtenIndex = 0;
     let writtenScore = 0;
     let writtenAnswered = false;
+    let writtenMistakes = [];
+    let writtenHadMistakeOnCurrent = false;
 
     // Stav: Pexeso
     let memoryStarted = false;
@@ -821,11 +1301,17 @@
     let familyIndex = 0;
     let familyScore = 0;
     let familyAnswered = false;
+    let familyMistakes = [];
 
     /* ================= 1. KVÍZ ================= */
-    function startRound() {
-      const filtered = questions.filter(question => mode === "all" || question.mode === mode);
-      round = shuffleArray(filtered).slice(0, 12);
+    function startRound(customList = null) {
+      if (customList) {
+        round = shuffleArray(customList);
+      } else {
+        const filtered = questions.filter(question => mode === "all" || question.mode === mode);
+        round = shuffleArray(filtered).slice(0, 12);
+      }
+      quizMistakes = [];
       index = 0;
       score = 0;
       scoreElement.textContent = "Body: 0";
@@ -836,8 +1322,12 @@
       answered = false;
       const question = round[index];
       questionArea.innerHTML = `
+        ${renderProgressBar(index, round.length)}
         <p class="progress">Otázka ${index + 1} z ${round.length}</p>
-        <p class="prompt">${question.prompt}</p>
+        <div class="prompt-row">
+          <p class="prompt">${question.prompt}</p>
+          <button class="speak-btn" id="quiz-speak" type="button" title="Přečíst anglicky">🔊 Poslechnout</button>
+        </div>
         <p class="translation">${question.translation}</p>
         <div class="answers" role="group" aria-label="Možnosti odpovědi">
           ${question.options.map(option => `<button class="answer" type="button">${option}</button>`).join("")}
@@ -845,6 +1335,9 @@
         <p class="feedback" id="feedback" aria-live="assertive"></p>
         <button class="next" type="button">${index === round.length - 1 ? "Zobrazit výsledek" : "Další otázka →"}</button>
       `;
+      questionArea.querySelector("#quiz-speak").addEventListener("click", () => {
+        speakEnglish(answered ? question.prompt.replace("___", question.answer) : question.prompt);
+      });
       questionArea.querySelectorAll(".answer").forEach(button => {
         button.addEventListener("click", () => checkAnswer(button, question));
       });
@@ -855,7 +1348,12 @@
       if (answered) return;
       answered = true;
       const isCorrect = selected.textContent === question.answer;
-      if (isCorrect) score += 1;
+      recordStreak(isCorrect);
+      if (isCorrect) {
+        score += 1;
+      } else {
+        quizMistakes.push(question);
+      }
       scoreElement.textContent = `Body: ${score}`;
 
       questionArea.querySelectorAll(".answer").forEach(button => {
@@ -879,40 +1377,55 @@
         return;
       }
 
+      if (score >= round.length * 0.75) markActivityCompleted("quiz");
       const message = score === round.length
-        ? "Skvěle! Tohle už umíš! 🏆"
+        ? "Skvěle! Tohle už umíš na jedničku!"
         : score >= round.length / 2
-          ? "Dobrá práce! Ještě pár příkladů a bude to. 💪"
-          : "Nevadí — zkus si znovu přečíst pravidlo a zahraj si ještě jednou. 💙";
+          ? "Dobrá práce! Ještě pár příkladů a bude to."
+          : "Nevadí — otevři si tahák nahoře a zahraj si ještě jednou.";
       questionArea.innerHTML = `
         <div class="finish">
+          <div class="trophy-big">${score >= round.length * 0.75 ? "🏆" : "💪"}</div>
           <p class="result">${score} z ${round.length} správně</p>
           <p>${message}</p>
-          <button class="next" type="button" style="display:inline-block">Další kolo otázek ↻</button>
+          <button class="next" id="quiz-restart" type="button" style="display:inline-block">Další kolo otázek ↻</button>
+          ${quizMistakes.length > 0 ? `<button class="retry-mistakes-btn" id="quiz-retry-mistakes" type="button">Procvičit jen chyby (${quizMistakes.length}) 🎯</button>` : ""}
         </div>
       `;
-      questionArea.querySelector(".next").addEventListener("click", startRound);
-      questionArea.querySelector(".next").focus();
+      questionArea.querySelector("#quiz-restart").addEventListener("click", () => startRound());
+      const retryBtn = questionArea.querySelector("#quiz-retry-mistakes");
+      if (retryBtn) {
+        retryBtn.addEventListener("click", () => startRound([...quizMistakes]));
+      }
+      questionArea.querySelector("#quiz-restart").focus();
     }
 
     /* ================= 2. DOPLŇOVÁNÍ ================= */
     function showWrittenQuestion() {
       writtenAnswered = false;
+      writtenHadMistakeOnCurrent = false;
       const question = writtenRound[writtenIndex];
       writtenArea.innerHTML = `
+        ${renderProgressBar(writtenIndex, writtenRound.length)}
         <p class="progress">Otázka ${writtenIndex + 1} z ${writtenRound.length} · Body: ${writtenScore}</p>
-        <p class="prompt">${question.prompt}</p>
+        <div class="prompt-row">
+          <p class="prompt">${question.prompt}</p>
+          <button class="speak-btn" id="written-speak" type="button" title="Přečíst anglicky">🔊 Poslechnout</button>
+        </div>
         <p class="translation">${question.translation}</p>
         <form class="written-form" id="written-form">
           <label for="written-input"><strong>Anglické slovo:</strong></label>
           <input class="text-answer" id="written-input" type="text" autocomplete="off" spellcheck="false" aria-label="Napiš anglické přivlastňovací zájmeno">
-          <button class="hint-button" id="hint-button" type="button" aria-expanded="false">Nápověda</button>
-          <button class="next" id="written-check" type="submit" style="display:inline-block">Zkontrolovat</button>
+          <button class="hint-button" id="hint-button" type="button" aria-expanded="false">💡 Nápověda</button>
+          <button class="next" id="written-check" type="submit" style="display:inline-block; margin-top:0">Zkontrolovat</button>
         </form>
         <p class="hint-text" id="written-hint" hidden>${question.hint}</p>
         <p class="feedback" id="written-feedback" aria-live="assertive"></p>
         <button class="next" id="written-next" type="button">${writtenIndex === writtenRound.length - 1 ? "Zobrazit výsledek" : "Další otázka →"}</button>
       `;
+      writtenArea.querySelector("#written-speak").addEventListener("click", () => {
+        speakEnglish(writtenAnswered ? question.prompt.replace("___", question.answer) : question.prompt);
+      });
       writtenArea.querySelector("#written-form").addEventListener("submit", checkWrittenAnswer);
       writtenArea.querySelector("#hint-button").addEventListener("click", event => {
         const hint = writtenArea.querySelector("#written-hint");
@@ -931,12 +1444,18 @@
       const value = writtenArea.querySelector("#written-input").value.trim().replace(/[.!?]+$/, "").toLowerCase();
       const feedback = writtenArea.querySelector("#written-feedback");
       if (value !== question.answer.toLowerCase()) {
+        recordStreak(false);
+        if (!writtenHadMistakeOnCurrent) {
+          writtenHadMistakeOnCurrent = true;
+          writtenMistakes.push(question);
+        }
         feedback.className = "feedback try-again";
         feedback.textContent = "Ještě ne. Zkus to znovu nebo použij nápovědu.";
         return;
       }
 
       writtenAnswered = true;
+      recordStreak(true);
       writtenScore += 1;
       writtenArea.querySelector("#written-input").disabled = true;
       writtenArea.querySelector("#written-check").style.display = "none";
@@ -955,24 +1474,32 @@
         return;
       }
 
-      const message = writtenScore === writtenRound.length
-        ? "Výborně, zvládl/a jsi všechna zájmena! 🏆"
+      if (writtenMistakes.length <= Math.floor(writtenRound.length * 0.25)) markActivityCompleted("written");
+      const message = writtenMistakes.length === 0
+        ? "Výborně, všechno napoprvé bez chyby!"
         : writtenScore >= writtenRound.length / 2
-          ? "Dobrá práce! Zkus si ještě procvičit příklady, které byly těžké. 💪"
-          : "Nevadí — vrať se k pravidlu a zkus doplňování znovu. 💙";
+          ? "Dobrá práce! Zkus si ještě procvičit příklady, kde jsi zaváhal/a."
+          : "Nevadí — vrať se k pravidlu a zkus doplňování znovu.";
       writtenArea.innerHTML = `
         <div class="finish">
-          <p class="result">${writtenScore} z ${writtenRound.length} správně</p>
+          <div class="trophy-big">${writtenMistakes.length <= 2 ? "🏆" : "✏️"}</div>
+          <p class="result">${writtenScore} z ${writtenRound.length} dokončeno</p>
           <p>${message}</p>
           <button class="next" id="written-restart" type="button" style="display:inline-block">Další sada příkladů ↻</button>
+          ${writtenMistakes.length > 0 ? `<button class="retry-mistakes-btn" id="written-retry-mistakes" type="button">Procvičit jen chyby (${writtenMistakes.length}) 🎯</button>` : ""}
         </div>
       `;
-      writtenArea.querySelector("#written-restart").addEventListener("click", startWrittenRound);
+      writtenArea.querySelector("#written-restart").addEventListener("click", () => startWrittenRound());
+      const retryBtn = writtenArea.querySelector("#written-retry-mistakes");
+      if (retryBtn) {
+        retryBtn.addEventListener("click", () => startWrittenRound([...writtenMistakes]));
+      }
       writtenArea.querySelector("#written-restart").focus();
     }
 
-    function startWrittenRound() {
-      writtenRound = shuffleArray(writtenQuestions).slice(0, 12);
+    function startWrittenRound(customList = null) {
+      writtenRound = customList ? shuffleArray(customList) : shuffleArray(writtenQuestions).slice(0, 12);
+      writtenMistakes = [];
       writtenIndex = 0;
       writtenScore = 0;
       showWrittenQuestion();
@@ -998,8 +1525,8 @@
       const chosenPairs = shuffleArray(memoryPairs).slice(0, memoryPairCount);
       const cards = shuffleArray(
         chosenPairs.flatMap((pair, pairIndex) => [
-          { pairIndex, text: pair.english },
-          { pairIndex, text: pair.czech }
+          { pairIndex, text: pair.english, isEnglish: true },
+          { pairIndex, text: pair.czech, isEnglish: false }
         ])
       );
 
@@ -1021,6 +1548,7 @@
       button.textContent = card.text;
       button.classList.remove("is-hidden");
       button.setAttribute("aria-label", card.text);
+      if (card.isEnglish) speakEnglish(card.text);
       selectedMemoryCards.push({ button, card });
       if (selectedMemoryCards.length < 2) return;
 
@@ -1035,13 +1563,18 @@
         first.button.disabled = true;
         second.button.disabled = true;
         memoryMatches += 1;
+        recordStreak(true);
         selectedMemoryCards = [];
         feedback.className = "feedback good";
-        feedback.textContent = memoryMatches === memoryPairCount
-          ? "Hotovo! Máš nalezené všechny dvojice! 🏆"
-          : "Správná dvojice! Hledej dál. ✨";
+        if (memoryMatches === memoryPairCount) {
+          markActivityCompleted("memory");
+          feedback.textContent = "Hotovo! Máš nalezené všechny dvojice! 🏆";
+        } else {
+          feedback.textContent = "Správná dvojice! Hledej dál. ✨";
+        }
       } else {
         memoryLocked = true;
+        recordStreak(false);
         feedback.className = "feedback try-again";
         feedback.textContent = "To nejsou dvojice. Zkus si kartičky zapamatovat!";
         window.setTimeout(() => {
@@ -1071,10 +1604,14 @@
     function renderSorter() {
       if (sorterLives <= 0 || sorterIndex >= sorterDeck.length) {
         const wonAll = sorterLives > 0 && sorterScore === sorterDeck.length;
+        if (sorterLives > 0 && sorterScore >= sorterDeck.length * 0.75) {
+          markActivityCompleted("sorter");
+        }
         sorterArea.innerHTML = `
           <div class="finish">
-            <p class="result">${sorterScore} z ${sorterDeck.length} roztříděno ${wonAll ? "🏆" : ""}</p>
-            <p>${sorterLives <= 0 ? "Došly životy! Zkus to ještě jednou, teď už víš, na co si dát pozor. 💪" : "Skvělý postřeh! Máš to v malíku. 🎉"}</p>
+            <div class="trophy-big">${wonAll ? "🏆" : sorterLives > 0 ? "⚡" : "❤️"}</div>
+            <p class="result">${sorterScore} z ${sorterDeck.length} roztříděno</p>
+            <p>${sorterLives <= 0 ? "Došly životy! Zkus to ještě jednou, teď už víš, na co si dát pozor." : "Skvělý postřeh! Máš to v malíku."}</p>
             <button class="next" id="sorter-restart" type="button" style="display:inline-block">Hrát znovu ↻</button>
           </div>
         `;
@@ -1086,11 +1623,17 @@
       const item = sorterDeck[sorterIndex];
       const hearts = "❤️".repeat(sorterLives) + "🤍".repeat(3 - sorterLives);
       sorterArea.innerHTML = `
+        ${renderProgressBar(sorterIndex, sorterDeck.length)}
         <div class="sorter-top">
           <span class="progress" style="margin:0">Kartička ${sorterIndex + 1} z ${sorterDeck.length} · Body: ${sorterScore}</span>
-          <span aria-label="Zbývající životy: ${sorterLives}">${hearts}</span>
+          <span aria-label="Zbývající životy: ${sorterLives}" style="font-size:1.15rem">${hearts}</span>
         </div>
-        <div class="sorter-card" id="sorter-card">${item.text}</div>
+        <div class="sorter-card" id="sorter-card">
+          ${item.text}
+          <div style="margin-top:10px">
+            <button class="speak-btn" id="sorter-speak" type="button">🔊 Poslechnout</button>
+          </div>
+        </div>
         <div class="sorter-bins">
           <button class="sorter-btn" type="button" data-bin="before">
             ← Před věcí
@@ -1104,6 +1647,7 @@
         <p class="feedback" id="sorter-feedback" aria-live="assertive"></p>
       `;
 
+      sorterArea.querySelector("#sorter-speak").addEventListener("click", () => speakEnglish(item.text));
       sorterArea.querySelectorAll(".sorter-btn").forEach(btn => {
         btn.addEventListener("click", () => handleSorterChoice(btn.dataset.bin));
       });
@@ -1117,6 +1661,7 @@
       const cardEl = sorterArea.querySelector("#sorter-card");
       const feedbackEl = sorterArea.querySelector("#sorter-feedback");
       const isCorrect = item.type === bin;
+      recordStreak(isCorrect);
 
       if (isCorrect) {
         sorterScore += 1;
@@ -1167,11 +1712,15 @@
     function renderScramble() {
       const item = scrambleRound[scrambleIndex];
       scrambleArea.innerHTML = `
+        ${renderProgressBar(scrambleIndex, scrambleRound.length)}
         <p class="progress">Věta ${scrambleIndex + 1} z ${scrambleRound.length} · Body: ${scrambleScore}</p>
-        <p class="prompt">Sestav anglicky: „${item.czech}“</p>
+        <div class="prompt-row">
+          <p class="prompt">Sestav anglicky: „${item.czech}“</p>
+          ${scrambleAnswered ? `<button class="speak-btn" id="scramble-speak" type="button">🔊 Poslechnout</button>` : ""}
+        </div>
         <div class="sentence-slot" id="scramble-slot" aria-label="Sestavená věta">
           ${scrambleChosen.length === 0
-            ? '<span style="color:var(--muted)">Klikni na slova níže a poskládej větu…</span>'
+            ? '<span style="color:var(--muted); font-weight:700">Klikni na slova níže a poskládej větu…</span>'
             : scrambleChosen.map((entry, pos) => `<button class="word-chip in-slot" type="button" data-slot-pos="${pos}" ${scrambleAnswered ? "disabled" : ""}>${entry.word}</button>`).join("")}
         </div>
         <div class="word-bank" aria-label="Nabídka slov">
@@ -1184,6 +1733,11 @@
         <p class="feedback" id="scramble-feedback" aria-live="assertive"></p>
         <button class="next" id="scramble-next" type="button" style="display:${scrambleAnswered ? "inline-block" : "none"}">${scrambleIndex === scrambleRound.length - 1 ? "Zobrazit výsledek" : "Další věta →"}</button>
       `;
+
+      const speakBtn = scrambleArea.querySelector("#scramble-speak");
+      if (speakBtn) {
+        speakBtn.addEventListener("click", () => speakEnglish(item.words.join(" ")));
+      }
 
       scrambleArea.querySelectorAll("[data-bank-id]").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -1239,6 +1793,7 @@
       if (built === target) {
         scrambleAnswered = true;
         scrambleScore += 1;
+        recordStreak(true);
         renderScramble();
         const updatedSlot = scrambleArea.querySelector("#scramble-slot");
         const updatedFeedback = scrambleArea.querySelector("#scramble-feedback");
@@ -1247,6 +1802,7 @@
         updatedFeedback.innerHTML = `Výborně, věta je přesně! 🧩<span class="why">${item.why}</span>`;
         scrambleArea.querySelector("#scramble-next").focus();
       } else {
+        recordStreak(false);
         slot.classList.add("is-wrong");
         feedback.className = "feedback try-again";
         feedback.textContent = "Slovosled ještě úplně nesedí. Zkus slova prohodit!";
@@ -1259,9 +1815,11 @@
         loadScrambleQuestion();
         return;
       }
+      markActivityCompleted("scramble");
       scrambleArea.innerHTML = `
         <div class="finish">
-          <p class="result">${scrambleScore} z ${scrambleRound.length} vět poskládáno 🏆</p>
+          <div class="trophy-big">🧩</div>
+          <p class="result">${scrambleScore} z ${scrambleRound.length} vět poskládáno</p>
           <p>Skvělá práce se slovosledem!</p>
           <button class="next" id="scramble-restart" type="button" style="display:inline-block">Další sada vět ↻</button>
         </div>
@@ -1287,8 +1845,12 @@
     function renderBugQuestion() {
       const item = bugRound[bugIndex];
       bugArea.innerHTML = `
+        ${renderProgressBar(bugIndex, bugRound.length)}
         <p class="progress">Věta ${bugIndex + 1} z ${bugRound.length} · Body: ${bugScore}</p>
-        <p class="prompt">Najdi a oprav chybu ve větě:</p>
+        <div class="prompt-row">
+          <p class="prompt">Najdi a oprav chybu ve větě:</p>
+          ${bugSolved ? `<button class="speak-btn" id="bug-speak" type="button">🔊 Poslechnout správně</button>` : ""}
+        </div>
         <div class="bug-sentence" role="group" aria-label="Slova ve větě">
           ${item.words.map((word, idx) => {
             let cls = "bug-word";
@@ -1307,12 +1869,20 @@
         <button class="next" id="bug-next" type="button" style="display:${bugSolved ? "inline-block" : "none"}">${bugIndex === bugRound.length - 1 ? "Zobrazit výsledek" : "Další věta →"}</button>
       `;
 
+      const speakBtn = bugArea.querySelector("#bug-speak");
+      if (speakBtn) {
+        const fixedWords = [...item.words];
+        fixedWords[item.bugIndex] = item.fix;
+        speakBtn.addEventListener("click", () => speakEnglish(fixedWords.join(" ")));
+      }
+
       bugArea.querySelectorAll(".bug-word").forEach(btn => {
         btn.addEventListener("click", () => {
           if (bugSolved) return;
           const idx = Number(btn.dataset.wordIdx);
           const feedback = bugArea.querySelector("#bug-feedback");
           if (idx !== item.bugIndex) {
+            recordStreak(false);
             btn.classList.add("wrong-pick");
             feedback.className = "feedback try-again";
             feedback.textContent = `Slovo „${item.words[idx]}“ je v pořádku. Hledej chybné přivlastňovací zájmeno!`;
@@ -1335,10 +1905,12 @@
           if (bugIndex < bugRound.length) {
             loadBugQuestion();
           } else {
+            markActivityCompleted("bug");
             bugArea.innerHTML = `
               <div class="finish">
-                <p class="result">${bugScore} z ${bugRound.length} chyb odhaleno 🔍</p>
-                <p>Výborný postřeh! Tyhle chytáky už tě nenachytají. 🏆</p>
+                <div class="trophy-big">🔍</div>
+                <p class="result">${bugScore} z ${bugRound.length} chyb odhaleno</p>
+                <p>Výborný postřeh! Tyhle chytáky už tě nenachytají.</p>
                 <button class="next" id="bug-restart" type="button" style="display:inline-block">Nové kolo hledání ↻</button>
               </div>
             `;
@@ -1353,9 +1925,9 @@
       const fixZone = bugArea.querySelector("#bug-fix-zone");
       const shuffledOpts = shuffleArray(item.options);
       fixZone.innerHTML = `
-        <p style="margin:0 0 8px; font-weight:700;">Máš ho! Čím nahradíš slovo „${item.words[item.bugIndex]}“?</p>
+        <p style="margin:0 0 8px; font-weight:800;">Máš ho! Čím nahradíš slovo „${item.words[item.bugIndex]}“?</p>
         <div class="bug-options">
-          ${shuffledOpts.map(opt => `<button class="answer" type="button" style="min-width:100px">${opt}</button>`).join("")}
+          ${shuffledOpts.map(opt => `<button class="answer" type="button" style="min-width:105px">${opt}</button>`).join("")}
         </div>
       `;
       fixZone.querySelectorAll(".answer").forEach(btn => {
@@ -1364,12 +1936,14 @@
           if (btn.textContent === item.fix) {
             bugSolved = true;
             bugScore += 1;
+            recordStreak(true);
             renderBugQuestion();
             const updatedFeedback = bugArea.querySelector("#bug-feedback");
             updatedFeedback.className = "feedback good";
             updatedFeedback.innerHTML = `Opraveno! 🎉<span class="why">${item.why}</span>`;
             bugArea.querySelector("#bug-next").focus();
           } else {
+            recordStreak(false);
             btn.classList.add("incorrect");
             btn.disabled = true;
             feedback.className = "feedback try-again";
@@ -1391,22 +1965,30 @@
       transformAnswered = false;
       const item = transformRound[transformIndex];
       transformArea.innerHTML = `
+        ${renderProgressBar(transformIndex, transformRound.length)}
         <p class="progress">Úkol ${transformIndex + 1} z ${transformRound.length} · Body: ${transformScore}</p>
-        <div class="transform-source">
-          <strong>${item.source}</strong>
-          <small>${item.sourceCs}</small>
+        <div class="transform-source" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <div>
+            <strong>${item.source}</strong>
+            <small>${item.sourceCs}</small>
+          </div>
+          <button class="speak-btn" id="transform-speak" type="button">🔊 Poslechnout</button>
         </div>
-        <p class="prompt">Řekni to druhým způsobem: <span style="color:var(--blue-dark)">${item.targetPrompt}</span></p>
+        <p class="prompt" style="margin-bottom:6px">Řekni to druhým způsobem: <span style="color:var(--primary-dark)">${item.targetPrompt}</span></p>
         <form class="written-form" id="transform-form">
           <label for="transform-input"><strong>Chybějící zájmeno:</strong></label>
           <input class="text-answer" id="transform-input" type="text" autocomplete="off" spellcheck="false" aria-label="Napiš přivlastňovací zájmeno">
-          <button class="hint-button" id="transform-hint-btn" type="button" aria-expanded="false">Nápověda</button>
-          <button class="next" id="transform-check" type="submit" style="display:inline-block">Zkontrolovat</button>
+          <button class="hint-button" id="transform-hint-btn" type="button" aria-expanded="false">💡 Nápověda</button>
+          <button class="next" id="transform-check" type="submit" style="display:inline-block; margin-top:0">Zkontrolovat</button>
         </form>
         <p class="hint-text" id="transform-hint" hidden>${item.hint}</p>
         <p class="feedback" id="transform-feedback" aria-live="assertive"></p>
         <button class="next" id="transform-next" type="button">${transformIndex === transformRound.length - 1 ? "Zobrazit výsledek" : "Další přeměna →"}</button>
       `;
+
+      transformArea.querySelector("#transform-speak").addEventListener("click", () => {
+        speakEnglish(transformAnswered ? `${item.source} ${item.targetPrompt.replace("___", item.answer)}` : item.source);
+      });
 
       transformArea.querySelector("#transform-form").addEventListener("submit", event => {
         event.preventDefault();
@@ -1414,11 +1996,13 @@
         const val = transformArea.querySelector("#transform-input").value.trim().replace(/[.!?]+$/, "").toLowerCase();
         const feedback = transformArea.querySelector("#transform-feedback");
         if (val !== item.answer.toLowerCase()) {
+          recordStreak(false);
           feedback.className = "feedback try-again";
           feedback.textContent = "Ještě ne. Podívej se, jestli za mezerou stojí věc, nebo ne.";
           return;
         }
         transformAnswered = true;
+        recordStreak(true);
         transformScore += 1;
         transformArea.querySelector("#transform-input").disabled = true;
         transformArea.querySelector("#transform-check").style.display = "none";
@@ -1441,9 +2025,11 @@
         if (transformIndex < transformRound.length) {
           showTransformQuestion();
         } else {
+          markActivityCompleted("transform");
           transformArea.innerHTML = `
             <div class="finish">
-              <p class="result">${transformScore} z ${transformRound.length} přeměn správně 🏆</p>
+              <div class="trophy-big">🔄</div>
+              <p class="result">${transformScore} z ${transformRound.length} přeměn správně</p>
               <p>Skvěle propojuješ obě pravidla dohromady!</p>
               <button class="next" id="transform-restart" type="button" style="display:inline-block">Další sada přeměn ↻</button>
             </div>
@@ -1457,8 +2043,9 @@
     }
 
     /* ================= 8. RODINA (TEST) 👨‍👩‍👧‍👦 ================= */
-    function startFamilyTest() {
-      familyRound = shuffleArray(familyQuestions).slice(0, 12);
+    function startFamilyTest(customList = null) {
+      familyRound = customList ? shuffleArray(customList) : shuffleArray(familyQuestions).slice(0, 12);
+      familyMistakes = [];
       familyIndex = 0;
       familyScore = 0;
       showFamilyQuestion();
@@ -1469,8 +2056,12 @@
       const item = familyRound[familyIndex];
       const shuffledOptions = shuffleArray(item.options);
       familyArea.innerHTML = `
+        ${renderProgressBar(familyIndex, familyRound.length)}
         <p class="progress">Otázka ${familyIndex + 1} z ${familyRound.length} · Body: ${familyScore}</p>
-        <p class="prompt">${item.prompt}</p>
+        <div class="prompt-row">
+          <p class="prompt">${item.prompt}</p>
+          <button class="speak-btn" id="family-speak" type="button" title="Přečíst anglicky">🔊 Poslechnout</button>
+        </div>
         <p class="translation">${item.translation}</p>
         <div class="answers" role="group" aria-label="Možnosti odpovědi">
           ${shuffledOptions.map(opt => `<button class="answer" type="button">${opt}</button>`).join("")}
@@ -1479,12 +2070,21 @@
         <button class="next" id="family-next" type="button">${familyIndex === familyRound.length - 1 ? "Zobrazit výsledek" : "Další otázka →"}</button>
       `;
 
+      familyArea.querySelector("#family-speak").addEventListener("click", () => {
+        speakEnglish(familyAnswered ? item.prompt.replace("___", item.answer) : item.prompt);
+      });
+
       familyArea.querySelectorAll(".answer").forEach(btn => {
         btn.addEventListener("click", () => {
           if (familyAnswered) return;
           familyAnswered = true;
           const isCorrect = btn.textContent === item.answer;
-          if (isCorrect) familyScore += 1;
+          recordStreak(isCorrect);
+          if (isCorrect) {
+            familyScore += 1;
+          } else {
+            familyMistakes.push(item);
+          }
 
           familyArea.querySelectorAll(".answer").forEach(b => {
             b.disabled = true;
@@ -1508,19 +2108,26 @@
           showFamilyQuestion();
           familyArea.querySelector(".answer").focus();
         } else {
+          if (familyScore >= familyRound.length * 0.75) markActivityCompleted("family");
           const message = familyScore === familyRound.length
-            ? "100 %! Na test z rodiny a přivlastňovacích zájmen máš skvěle natrénováno! 🏆"
+            ? "100 %! Na test z rodiny a přivlastňovacích zájmen máš skvěle natrénováno!"
             : familyScore >= familyRound.length * 0.75
-              ? "Velmi dobrý výsledek! Ještě jedno kolo a budeš mít jedničku v kapse. 💪"
-              : "Nevadí — podívej se na nápovědu k rodině nad otázkami a zkus to ještě jednou. 💙";
+              ? "Velmi dobrý výsledek! Ještě jedno kolo a budeš mít jedničku v kapse."
+              : "Nevadí — podívej se na nápovědu k rodině nad otázkami a zkus to ještě jednou.";
           familyArea.innerHTML = `
             <div class="finish">
-              <p class="result">${familyScore} z ${familyRound.length} správně 👨‍👩‍👧‍👦</p>
+              <div class="trophy-big">${familyScore >= familyRound.length * 0.75 ? "🏆" : "👨‍👩‍👧‍👦"}</div>
+              <p class="result">${familyScore} z ${familyRound.length} správně</p>
               <p>${message}</p>
               <button class="next" id="family-restart" type="button" style="display:inline-block">Nový cvičný test ↻</button>
+              ${familyMistakes.length > 0 ? `<button class="retry-mistakes-btn" id="family-retry-mistakes" type="button">Procvičit jen chyby (${familyMistakes.length}) 🎯</button>` : ""}
             </div>
           `;
-          familyArea.querySelector("#family-restart").addEventListener("click", startFamilyTest);
+          familyArea.querySelector("#family-restart").addEventListener("click", () => startFamilyTest());
+          const retryBtn = familyArea.querySelector("#family-retry-mistakes");
+          if (retryBtn) {
+            retryBtn.addEventListener("click", () => startFamilyTest([...familyMistakes]));
+          }
           familyArea.querySelector("#family-restart").focus();
         }
       });
